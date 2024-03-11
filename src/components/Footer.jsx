@@ -1,4 +1,4 @@
-import '../../public/styles/footer.css'
+import '../../public/styles/shared/footer.css'
 function Footer() {
   return (
     <div class="footer">

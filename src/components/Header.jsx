@@ -1,4 +1,4 @@
-import '../../public/styles/header.css'
+import '../../public/styles/shared/header.css'
 function Header() {
   return (
     <>
@@ -19,15 +19,15 @@ function Header() {
     </div>
     <header>
         <img src="assets/burger.png" class="burger-button" />
-        <a href="index.html">
-          <img src="assets/logo.png" class="header--logo m-auto " />
+        <a href="/">
+          <img src="assets/logo.png" class="header--logo m-auto mb-4" />
         </a>
         <div class="side-menu-shadow"></div>
         <div class="side-menu">
             <section class="side-menu--top">
-                <a href="index.html">Luminous Frames</a>
-                <a href="faq.html">FAQS</a>
-                <a href="contact.html">Contact Us</a>
+                <a href="/">Luminous Frames</a>
+                <a href="/faq">FAQS</a>
+                <a href="/contact">Contact Us</a>
             </section>
             <section class="side-menu--low">
                 <a href="https://www.instagram.com/drawlys_deco/">
