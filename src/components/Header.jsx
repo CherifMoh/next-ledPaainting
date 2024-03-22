@@ -51,7 +51,7 @@ function Header() {
             </section>
             <section className="side-menu--low">
                 <a href="https://www.instagram.com/drawlys_deco/">
-                  <img className="utility-bar--icons" src='' />                 
+                  <img className="utility-bar--icons" src='../../assets/instagram.png' />                 
                 </a>
                 <a href="https://www.instagram.com/drawlys_deco/">
                   <img className="utility-bar--icons" src="../../assets/tiktok.png" />
