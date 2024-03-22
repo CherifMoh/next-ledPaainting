@@ -36,20 +36,20 @@
     from {opacity:0 ;}
     to {opacity:1 ;}
 }
-.product-img-off-after-animation{
-    transform:scale(1.08)
-}
-.product-img-off-animation{
-    animation-name: scale;
-    animation-duration: 0.8s;
-}
-.product-img-on-after-animation{
-    opacity: 1;
-}
-.product-img-on-animation{
+.product-img-on:not(:hover){
     animation-name: opacity;
     animation-duration: 0.4s;
 }
+.product-img-on:hover{
+    opacity: 0;
+}
+.product-img-on:hover + .product-img-off{
+    animation-name: scale;
+    animation-duration: 0.8s;
+    transform:scale(1.08);
+}
+
+
 .no-opacity{
     opacity: 0;
 }

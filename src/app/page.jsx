@@ -1,14 +1,13 @@
-import '../../public/styles/pages/index.css'
+'use clinet'
 
-function page() {
+
+function Home() {
+    
   return (
-    <main className="main">
-      <div className="main-container">
-          <h1 className="text-4xl font-bold mt-5 mb-5">Luminous Frames</h1>
-          <div className="product-grid">    </div>
-      </div>
-    </main>
+    <>
+      <h1>Home</h1>
+    </>
   )
 }
 
-export default page
+export default Home
