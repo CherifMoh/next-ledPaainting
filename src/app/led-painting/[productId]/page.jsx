@@ -4,6 +4,7 @@ import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
 import  ProductsGrid  from "../../../components/ProductsGrid"
 import  ProductsPage from "../../..//components/ProductPage"
+import { Suspense } from "react";
 
 
 
@@ -29,10 +30,10 @@ function product({params}) {
     
     <main>
         <section className="main-section">
-            <ProductsPage mproduct={mproduct} />
+          <ProductsPage mproduct={mproduct} />
         </section> 
         <section className="main-container2"> 
-          <ProductsGrid />
+            <ProductsGrid />          
         </section>
 
     </main>

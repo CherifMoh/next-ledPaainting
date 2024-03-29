@@ -1,124 +1,79 @@
 "use client"
-import { useState } from "react";
+
+import Link from 'next/link'
 import axios from "axios";
+import { useQuery } from '@tanstack/react-query';
 
-function Admin() {
-    const [ImageOn, setImageOn] = useState('');
-    const [ImageOff, setImageOff] = useState('');
-    const [title, setTitle] = useState('');
-    const [price, setPrice] = useState('');
 
-    async function convertToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(file);
-            fileReader.onload = () => {
-                resolve(fileReader.result);
-            };
-            fileReader.onerror = (err) => {
-                reject(err);
-            };
-        });
-    }
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        createPost(ImageOn,ImageOff);
-    }
-
-    async function handleFileUpload(e,state) {
-        if(state=='On'){
-            console.log(state)
-            const file = e.target.files[0];
-            checkFileSize(file)
-            const base64 = await convertToBase64(file);
-            setImageOn(base64);
-        }else{
-            console.log(state)
-            const file = e.target.files[0];
-            checkFileSize(file)
-            const base64 = await convertToBase64(file);
-            setImageOff(base64);
-        }
-    }
-
-    async function createPost(ImageOn,ImageOff) {
-        try {
-            
-            if(price){
-                const res =await axios.post("http://localhost:3000/api/products", {
-                    title: title,
-                    price: price,
-                    imageOn: ImageOn,
-                    imageOff: ImageOff
-                })
-                console.log(res.data);
-            }else{
-                const res =await axios.post("http://localhost:3000/api/products", {
-                    title: title,
-                    imageOn: ImageOn,
-                    imageOff: ImageOff
-                })
-                console.log(res.data);
-            }
-           
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    function checkFileSize(file) {
-        var fileSize = file.size; // in bytes
-        var maxSize = 1000000; // 500KB
-        if (fileSize > maxSize) {
-            alert('File size exceeds the limit. Please select a smaller file.');
-            return false;
-        }
-        return true;
-    }
-
-    return (
-        <div className="w-full h-screen flex items-center justify-center">
-            <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-5">
-                <label htmlFor="imageOn">imageOn</label>
-                <input
-                    required
-                    className="imageOn"
-                    type="file"
-                    label="imageOn"
-                    name="imageOn"
-                    onChange={(e) => handleFileUpload(e,'On')}
-                />
-                <label htmlFor="imageOff">imageOff</label>
-                <input
-                    required
-                    className="imageOff"
-                    type="file"
-                    label="imageOff"
-                    name="imageOff"
-                    onChange={(e) => handleFileUpload(e,'Off')}
-                />
-                <input
-                    required
-                    placeholder="Title"
-                    type="text"
-                    label="Title"
-                    name="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <input
-                    placeholder="Price"
-                    type="number"
-                    label="Price"
-                    name="Price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                />
-                <button type="submit" className="p-4 bg-gray-900 text-white">Submit</button>
-            </form>
-        </div>
-    );
+async function fetchProducts() {
+    const res = await axios.get('http://localhost:3000/api/products');
+    return res.data;
 }
 
-export default Admin;
+
+
+function page() {
+
+    const { data: products, isLoading, isError } = useQuery({
+        queryKey:['products'],
+        queryFn: fetchProducts
+    });
+
+    if (isLoading) return <div>Loading...</div>;
+
+    if (isError) return <div>Error fetching products</div>;
+
+    const productsElemnts = products.map(product=>(
+        <tr key={product._id} className='h-5 flex-none'>
+            <td className='w-24'>
+                <div>{product._id}</div>
+            </td>
+            <td className='w-24'>
+                <img src={product.imageOn} alt="" />
+            </td>
+            <td>{product.title}</td>
+            <td>
+                {
+                    product.title === 'Led Painting' 
+                    ?<Link href={`/admin/products/led-designs`} className='bg-green-200 p-2 rounded-md'>All Designs</Link>
+                    :<Link href={`/admin/products/${product._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>
+                }
+            </td>
+        </tr>
+    ))
+
+    const tHeades =[
+        {name:'ID'},
+        {name:'Image'},
+        {name:'Title'},
+        {name:'Update'},
+    ]
+
+    const tHeadesElements=tHeades.map(tHead=>(
+        <th key={tHead.name}>{tHead.name}</th>
+    ))
+
+  return (
+    <div>
+        <div className='flex items-center justify-around p-20 pt-14'>
+            <Link className='bg-gray-700 p-3 rounded-md text-white' href={'/admin/products/add'}>Add a product</Link>
+            <Link className='bg-gray-700 p-3 rounded-md text-white' href={'/admin/products/tags'}>Tages</Link>
+        </div>
+        <div className='flex items-center justify-center w-full'>
+            <table border='1' className='font-normal h-1 w-full'>
+                <thead>
+                    <tr>
+                        {tHeadesElements}
+                    </tr>
+                </thead>
+                <tbody>
+                {productsElemnts}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  )
+}
+
+export default page

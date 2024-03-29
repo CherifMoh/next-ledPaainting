@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import User from '../../../models/users'
 import {dbConnect} from '../../../lib/dbConnect'
 import bcrypt from 'bcrypt'
@@ -11,7 +11,9 @@ export async function POST(req){
     await dbConnect()
     const body = await req.json()
     const user = await User.findOne({email:body.email})
-    
+
+    const thirtyDaysFromNow = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
+
     if(!user){
         return NextResponse.json({message:'auth failed'},{status:409})
     }else{
@@ -22,14 +24,14 @@ export async function POST(req){
                 .setProtectedHeader({alg: 'HS256'})
                 .setJti(nanoid())
                 .setIssuedAt()
-                .setExpirationTime('168h')
+                .setExpirationTime(thirtyDaysFromNow)
                 .sign(new TextEncoder().encode(process.env.JWT_KEY))
                     
                 console.log('token ' ,token)
                 cookies().set("access-token", token, {
                     path: "/",
                     domain: "localhost",
-                    maxAge: 300,
+                    maxAge: thirtyDaysFromNow,
                     httpOnly: true,
                     secure: false,
                 });

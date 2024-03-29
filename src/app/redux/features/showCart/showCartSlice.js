@@ -12,9 +12,7 @@ export const isCartShownSlice = createSlice({
   name: 'isCartShown',
   initialState,
   reducers: {
-    showCartToggle: (state, action) => {
-        console.log('cart Slice ',state.isCartShown)
-        
+    showCartToggle: (state, action) => {        
         return {...state,isCartShown :!state.isCartShown}
     },
   },

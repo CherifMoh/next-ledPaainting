@@ -9,6 +9,7 @@ import { setTotalPrice } from '../app/redux/features/totalePrice/totalePrice'
 
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link'
 
 
 async function fetchProducts(idArray) {
@@ -38,9 +39,15 @@ function Cart() {
   const cartStyle ={
     translate:isCartShown ?`0px`: `440px 0px`
   }
+
+  const cartShadowStyle ={
+    display:isCartShown ?`block`: `none`
+  }
   
-  
-  
+  const bodyClass = document.body.classList
+  isCartShown
+    ?bodyClass.add('overflow-hidden')
+    :bodyClass.remove('overflow-hidden');
   
   let totalPrice = 0
   cart.forEach(cartItem=>{
@@ -97,10 +104,13 @@ function Cart() {
   if (isError) return console.log("Error fetching products"); 
     
   
+  
   const cartItemsElements =cart.map(cartItem =>{
     let product 
+    console.log(products)
     products.forEach(p=>{
-      if(p._id === cartItem._id){
+      console.log(p)
+      if(p._id === cartItem._id ){
         product = p
       }
     })
@@ -169,32 +179,32 @@ function Cart() {
   
   return (
     <>
-        <div onClick={handelCartToggle} className="cart-button-container">
-            <img className="cart-shopping-bag" src="../../assets/shopping-bag.png" alt="" />
-            <span className="cart-button-quntity-number">{totalQnt}</span>
-        </div>
-
-        <div style={cartStyle} className="cart-container ">
-            <div className="cart-header">
-                <h2 className="cart-header-quntity">Cart • {totalQnt}</h2>
-                <button onClick={handelCartToggle} className="cart-off">X</button>
-            </div>
-            <div className="cart-items"  >
-              {cartItemsElements}
-            </div>
-            {isCartEmpty
-            ? 
-              <h1  className='text-3xl text-red-600 font-bold text-center mt-10'>You Cart is Empty</h1>
-            :
-              <a href="/checkout">
-                <button className="cart-checkout">
-                    Checkout • <span className="checkout-price">{totalPriceState}</span> DA
-                </button>
-              </a>
-            
-            }
-              
-        </div>
+      <div onClick={handelCartToggle} className="cart-button-container ">
+          <img className="cart-shopping-bag" src="../../assets/shopping-bag.png" alt="" />
+          <span className="cart-button-quntity-number">{totalQnt}</span>
+      </div>
+      <div style={cartShadowStyle} className='bg-black fixed left-0 top-0 h-screen w-full opacity-40'></div>
+      <div style={cartStyle} className="cart-container ">
+          <div className="cart-header">
+              <h2 className="cart-header-quntity">Cart • {totalQnt}</h2>
+              <button onClick={handelCartToggle} className="cart-off font-extralight bg-gray-100">X</button>
+          </div>
+          <div className="cart-items"  >
+            {cartItemsElements}
+          </div>
+          {isCartEmpty
+          ? 
+            <h1  className='text-2xl text-black font-semibold text-center mt-52'>Your cart is empty</h1>
+          :
+            <a href="/checkout">
+              <button className="cart-checkout">
+                  Checkout • <span className="checkout-price">{totalPriceState}</span> DA
+              </button>
+            </a>
+      
+          }
+        
+      </div>
     </>
   )
 }

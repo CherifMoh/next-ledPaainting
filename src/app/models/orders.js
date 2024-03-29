@@ -33,6 +33,22 @@ const OrderSchem = new mongoose.Schema({
         type: Array,
         required: true
     },
+    state:{
+        type: String,
+        default: 'ordered'
+    },
+    schedule:{
+        type: String,
+        default: ''
+    },
+    inDelivery:{
+        type: Boolean,
+        default: false
+    },
+    tracking:{
+        type: String,
+        default: ''
+    },
     
 },{timestamps: true})
 

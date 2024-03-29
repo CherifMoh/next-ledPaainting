@@ -25,12 +25,11 @@ body{
 .utility-bar--icons-container{
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    width: 20px;
+    justify-content: space-around;
+    width: 76px;
 }
 
 .utility-bar--icons{
-    padding: 0 8px;
     width: 15px;
     height: 15px;
 }

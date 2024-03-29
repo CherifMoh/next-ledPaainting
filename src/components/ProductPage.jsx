@@ -7,11 +7,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import { addProduct, removeProduct, updatedQuntity } from '../app/redux/features/cart/cartSlice'
 import { showCartToggle } from "../app/redux/features/showCart/showCartSlice";
 import { useState } from 'react'
+import Link from 'next/link'
 
 
 function ProductPage({ mproduct }) {
 
     const [qnt, setQnt] = useState(1)
+    const [isDimensions, setIsDimensions] = useState(false)
+    const [isMaterial, setIsMaterial] = useState(false)
 
     const isCartShown = useSelector((state) =>state.isCartShown.isCartShown)
 
@@ -91,12 +94,12 @@ function ProductPage({ mproduct }) {
                 >
                     Add to cart
                 </button>
-                <a href="/checkout">
+                <Link href="/checkout">
                     <button 
                     className="Add-to-cart spawn-anime buy-now" 
                     data-product-id={mproduct._id}
                     onClick={() => handleAddToCart(mproduct._id, qnt, 4500)}
-                    >Buy now</button></a>
+                    >Buy now</button></Link>
 
                 <div className="discription-container spawn-anime">
                     <p className="discription mt-4 mb-4">
@@ -108,14 +111,18 @@ function ProductPage({ mproduct }) {
                             <div className="drop-header js-dimensions">
                                 <img className="drop-icon" src="../../../../assets/ruler.svg" alt="" />
                                 <h2 className="drop-title">Dimensions</h2>
-                                <img className="drop-arrow js-dimensions-arrow" src="../../../../assets/arrow-down.svg" alt="" />
+                                <img 
+                                 src="../../../../assets/arrow-down.svg" alt="" 
+                                 onClick={()=>setIsDimensions(pre=>!pre)}
+                                 className={`drop-arrow js-dimensions-arrow transition-all duration-100 ${isDimensions && 'rotate-180'}`}
+                                />
                             </div>
-                            <div className="dimensions-body display-none">
-                                <p className="drop-dimensions-title">(L x W)</p>
-                                <p className="dimensions">
-                                    21 cm x 29.7 cm
-                                </p>
-                            </div>
+                                <div className={`dimensions-body transition-all duration-500 ${!isDimensions && 'hidden'}`}>
+                                    <p className="drop-dimensions-title">(L x W)</p>
+                                    <p className="dimensions">
+                                        21 cm x 29.7 cm
+                                    </p>
+                                </div>
                         </div>
 
 
@@ -123,11 +130,15 @@ function ProductPage({ mproduct }) {
                             <div className="drop-header js-material drop-header2">
                                 <img className="drop-icon" src="../../../../assets/Material.svg" alt="" />
                                 <h2 className="drop-title">Material</h2>
-                                <img className="drop-arrow js-material-arrow" src="../../../../assets/arrow-down.svg" alt="" />
+                                <img 
+                                 className={`drop-arrow js-material-arrow transition-all duration-100 ${isMaterial && 'rotate-180'}` }
+                                 src="../../../../assets/arrow-down.svg" alt="" 
+                                 onClick={()=>setIsMaterial(pre=>!pre)}
+                                />
                             </div>
-                            <div className="material-body display-none">
-                                <p className="material" >Frame: Exquisite wood grain frame</p>
-                            </div>
+                                <div className={`material-body transition-all duration-500 ${!isMaterial && 'hidden'}`}>
+                                    <p className="material" >Frame: Exquisite wood grain frame</p>
+                                </div>      
                         </div>
                     </div>
                 </div>

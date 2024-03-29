@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {wilayat} from '../data/wilayat'
+import Link from 'next/link';
 
 
 async function fetchProducts(idArray) {
@@ -175,9 +176,9 @@ function Checkout() {
   return (
   <div className='bg-white h-screen overflow-x-hidden lg:overflow-hidden'>
     <header className='flex items-center justify-center'>
-        <a href="/" className="logo-container w-24 block">
+        <Link href="/" className="logo-container w-24 block">
             <img src="assets/logo.png" className="logo" />
-        </a>
+        </Link>
     </header>
     <main>
         <section className="form-section bg-white h-screen">

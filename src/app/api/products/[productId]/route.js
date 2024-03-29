@@ -1,4 +1,5 @@
 import Product from "../../../models/products"
+import Design from "../../../models/design"
 import {dbConnect} from "../../../lib/dbConnect"
 import { NextResponse } from "next/server"
 
@@ -6,11 +7,26 @@ import { NextResponse } from "next/server"
 export async function GET(req,{params}) {
   try{
     await dbConnect()
-    return Product.find({_id:params.productId})
+    let result = await Product.find({ _id: params.productId });
+    
+    if (result.length === 0) {
+      result = await Design.find({ _id: params.productId });
+    }
+
+    return Response.json(result); 
+
+  }catch(err){
+    return new NextResponse("Error :" + err)
+  }
+  
+}
+
+export async function DELETE(req,{params}) {
+  try{
+    await dbConnect()
+    return Product.deleteOne({_id:params.productId})
     .then(result=> Response.json(result))
     .catch(err=>Response.json({message:err.message}))
-
-    
   }catch(err){
     return new NextResponse("Error :" + err)
   }

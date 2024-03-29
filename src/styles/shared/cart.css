@@ -38,7 +38,7 @@
     width: 440px;
     height: 100%;
     background-color: white;
-    transition: translate 0.2s ease ;
+    transition: translate 0.4s ease-out ;
     z-index: 1000;
 }
 .translatx{
@@ -85,7 +85,8 @@
     text-align: center;
 }
 .cart-item-img{
-    width: 60px;
+    /* width: 60px; */
+    height: 60px;
 }
 .cart-item-info-container{
     display: grid;
@@ -95,7 +96,7 @@
     height: 30px;
     margin-top: 5px;
     display: flex;
-    align-items: start;
+    /* align-items: start; */
     justify-content: space-between;
 }
 .cart-item-trash{

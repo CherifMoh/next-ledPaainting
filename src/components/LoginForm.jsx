@@ -24,7 +24,7 @@ function UserForm() {
         try{
             const res = await axios.post('http://localhost:3000/api/auth/login',formData)
             router.refresh()
-            router.push('/')
+            router.push('/admin')
         }catch(err){
             console.log(err)
             setErrorMessage(err.message)
@@ -76,7 +76,7 @@ function UserForm() {
                 type='submit'
                 className="bg-blue-300 hover:bg-blue-100"
             >
-                Creat User
+                Log In
             </button>
         </form>
         <p className="text-red-500">{errorMessage}</p>
