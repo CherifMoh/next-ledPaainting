@@ -148,7 +148,6 @@ nav a:hover{
 }
 @media (max-width: 750px) {
     .side-menu{
-        width: 100%;
         translate:-4000px 0px;
     }
     .utility-bar--container{

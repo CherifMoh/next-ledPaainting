@@ -2,6 +2,12 @@
 import { useState } from 'react'
 import '../styles/shared/header.css'
 import Link from 'next/link'
+import Image from 'next/image'
+import instaIcon from '../../public/assets/Instagram.png'
+import tiktokIcon from '../../public/assets/tiktok.png'
+import burger from '../../public/assets/burger.png'
+import logo from '../../public/assets/logo.png'
+
 
 function Header() {
   const [isSideShown,srtIsSideShown] = useState(false)
@@ -22,10 +28,10 @@ function Header() {
         <div className="utility-bar--container">
             <div className="utility-bar--icons-container">
                 <Link href="https://www.instagram.com/drawlys_deco/">
-                  <img className="utility-bar--icons" src="../../assets/Instagram.png" />
+                  <Image className="utility-bar--icons" width={76} height={76} src={instaIcon} alt='instagram icon'/>
                 </Link>
                 <Link href="https://www.instagram.com/drawlys_deco/">
-                  <img className="utility-bar--icons z-50" src="../../assets/tiktok.png" />
+                  <Image className="utility-bar--icons z-50" width={76} height={76} src={tiktokIcon} alt='tiktok icon'/>
                 </Link>
             </div>
             <h5>
@@ -36,12 +42,12 @@ function Header() {
         </div>
     </div>
     <header>
-        <img onClick={handleSideToggel} src="../../assets/burger.png" className="burger-button" /> 
+        <Image onClick={handleSideToggel} src={burger} alt='' width={25} height={20} className="burger-button" /> 
         <div>
           <div className="w-full">
             <div className='m-auto mb-4 max-w-20'>
               <Link href='/led-painting'>
-               <img src='../../assets/logo.png' className="header--logo " /> </Link>
+               <Image src={logo} alt='Drawlys' className="header--logo" height={80} width={80} /> </Link>
             </div>
           </div>
         </div>
@@ -54,10 +60,10 @@ function Header() {
             </section>
             <section className="side-menu--low">
                 <Link href="https://www.instagram.com/drawlys_deco/">
-                  <img className="utility-bar--icons" src='../../assets/instagram.png' />                 
+                  <Image className="utility-bar--icons" alt='' width={76} height={76} src={instaIcon} />                 
                 </Link>
                 <Link href="https://www.instagram.com/drawlys_deco/">
-                  <img className="utility-bar--icons" src="../../assets/tiktok.png" />
+                  <Image className="utility-bar--icons" alt='' width={76} height={76} src={tiktokIcon} />
                 </Link>
             </section>
         </div>

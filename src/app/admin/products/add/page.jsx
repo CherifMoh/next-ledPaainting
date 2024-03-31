@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
+import Image from "next/image";
 
 
 function Admin() {
@@ -109,7 +110,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e,'On')}
                     />
                     {imageOn
-                        ?<img src={imageOn} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
+                        ?<Image src={imageOn} width={96} height={96} alt="" className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
                         :<div className='absolute left-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge on</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12"/>
@@ -124,7 +125,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e,'Off')}
                     />
                     {imageOff
-                        ?<img src={imageOff} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
+                        ?<Image src={imageOff} width={96} height={96} alt="" className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
                         :<div className='absolute right-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge off</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12"/>

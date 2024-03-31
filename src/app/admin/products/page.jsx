@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 
 
 
@@ -13,7 +14,7 @@ async function fetchProducts() {
 
 
 
-function page() {
+function Page() {
 
     const { data: products, isLoading, isError } = useQuery({
         queryKey:['products'],
@@ -30,7 +31,7 @@ function page() {
                 <div>{product._id}</div>
             </td>
             <td className='w-24'>
-                <img src={product.imageOn} alt="" />
+                <Image src={product.imageOn} width={96} height={96} alt="" />
             </td>
             <td>{product.title}</td>
             <td>
@@ -76,4 +77,4 @@ function page() {
   )
 }
 
-export default page
+export default Page

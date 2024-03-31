@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 
 const fetchTags = async()=>{
     const res = await axios.get('http://localhost:3000/api/products/tags');
@@ -146,7 +147,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e,'On')}
                     />
                     {imageOn
-                        ?<img src={imageOn} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
+                        ?<Image alt="" src={imageOn} width={96} height={96} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
                         :<div className='absolute left-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge on</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12"/>
@@ -161,7 +162,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e,'Off')}
                     />
                     {imageOff
-                        ?<img src={imageOff} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
+                        ?<Image alt="" src={imageOff} width={96} height={96} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
                         :<div className='absolute right-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge off</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12"/>

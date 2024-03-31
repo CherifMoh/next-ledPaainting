@@ -1,6 +1,6 @@
 import  Dashboard   from "../../components/Dashboard"
 
-function loading() {
+function Loading() {
   typeof document !== 'undefined' && document.body.classList.add('bg-white')
   return (
     <div className="bg-white h-screen w-screen">
@@ -9,4 +9,4 @@ function loading() {
   )
 }
 
-export default loading
+export default Loading

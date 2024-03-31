@@ -11,7 +11,7 @@ async function fetchCategorys() {
 }
 
 
-function categorys() {
+function Categorys() {
   typeof document !== 'undefined' && document.body.classList.add('bg-white')
 
   const { data: categoreis, isLoading, isError } = useQuery({
@@ -42,4 +42,4 @@ function categorys() {
   )
 }
 
-export default categorys
+export default Categorys

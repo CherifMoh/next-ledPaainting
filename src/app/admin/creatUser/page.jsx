@@ -1,6 +1,6 @@
 import UserForm from '../../../components/userForm'
 
-function creatUser() {
+function CreatUser() {
   return (
     <div  >       
         <h1>Only Admins!</h1>
@@ -9,4 +9,4 @@ function creatUser() {
   )
 }
 
-export default creatUser
+export default CreatUser

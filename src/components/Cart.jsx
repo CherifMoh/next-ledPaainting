@@ -10,6 +10,8 @@ import { setTotalPrice } from '../app/redux/features/totalePrice/totalePrice'
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link'
+import Image from 'next/image'
+import shoppingBag from '../../public/assets/shopping-bag.png'
 
 
 async function fetchProducts(idArray) {
@@ -73,8 +75,8 @@ function Cart() {
     handelTotalPrice(totalPrice)
   },[totalPrice])
 
-  if(!cart) return 0
   const dispatch = useDispatch();
+  if(!cart) return 0
 
   const handleUpdateCart = (productId, qnt) => {
       dispatch(updatedQuntity({
@@ -107,9 +109,7 @@ function Cart() {
   
   const cartItemsElements =cart.map(cartItem =>{
     let product 
-    console.log(products)
     products.forEach(p=>{
-      console.log(p)
       if(p._id === cartItem._id ){
         product = p
       }
@@ -118,9 +118,9 @@ function Cart() {
       handleRemoveCartItem(cartItem._id)
     }
     return(
-      <div key={cartItem._id} className="cart-item-container">
+      <div key={cartItem._id} className="cart-item-container flex items-center">
                 <div className="cart-item-img-container">
-                    <img src={product.imageOn} className="cart-item-img" />
+                    <Image src={product.imageOn} className="cart-item-Image" width={60} height={60} alt={product.title}/>
                 </div>
                 <div className="cart-item-info-container">
                     <div className="cart-item-top-row">
@@ -180,10 +180,15 @@ function Cart() {
   return (
     <>
       <div onClick={handelCartToggle} className="cart-button-container ">
-          <img className="cart-shopping-bag" src="../../assets/shopping-bag.png" alt="" />
+          <Image className="cart-shopping-bag"  src={shoppingBag} width={64} height={64} alt="" />
           <span className="cart-button-quntity-number">{totalQnt}</span>
       </div>
-      <div style={cartShadowStyle} className='bg-black fixed left-0 top-0 h-screen w-full opacity-40'></div>
+      <div 
+       style={cartShadowStyle} 
+       className='bg-black fixed left-0 top-0 h-screen w-full opacity-40'
+       onClick={handelCartToggle}
+      >
+      </div>
       <div style={cartStyle} className="cart-container ">
           <div className="cart-header">
               <h2 className="cart-header-quntity">Cart • {totalQnt}</h2>

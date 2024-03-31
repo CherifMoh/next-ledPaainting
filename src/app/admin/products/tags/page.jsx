@@ -10,7 +10,7 @@ const fetchTags = async()=>{
     return res.data;
 }
 
-function addTag() {
+function AddTag() {
 
     const createTag = async(tagData)=>{
         try{
@@ -129,4 +129,4 @@ function addTag() {
     )
 }
 
-export default addTag;
+export default AddTag;

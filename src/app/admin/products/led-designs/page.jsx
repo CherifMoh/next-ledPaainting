@@ -5,6 +5,9 @@ import axios from "axios";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
+import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
 
 async function fetchDesigns() {
@@ -17,7 +20,7 @@ async function fetchDesigns() {
 }
 
 
-function page() {
+function Page() {
     const router = useRouter()
     const queryClient = useQueryClient()
     
@@ -30,6 +33,8 @@ function page() {
         queryKey:['designs'],
         queryFn: fetchDesigns
     });
+
+    const [search,setSearch] = useState('')
 
     if (isLoading) return <div>Loading...</div>;
 
@@ -50,35 +55,43 @@ function page() {
         }
     }
 
-    const productsElemnts = designs.map(design=>(
-        <tr key={design._id} className='h-5 flex-none'>
-            <td className='w-24'>
-                <div>{design._id}</div>
-            </td>
-            <td className='w-24'>
-                <img src={design.imageOn} alt="" />
-            </td>
-            <td>
-                {design.title}
-            </td>
-            <td>
-                <div className='capitalize'>
-                    {design.tags}
-                </div>
-            </td>
-            <td>               
-                <Link href={`/admin/products/${design._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>                
-            </td>
-            <td>               
-                <button 
-                 onClick={()=>handleDelete(design._id)} 
-                 className='bg-red-400 p-2 rounded-md'
-                >
-                    {deleting.state && deleting.id === design._id ?'Deleting':'Delete'}
-                </button>                
-            </td>
-        </tr>
-    ))
+    const productsElemnts = designs.map(design=>{
+        if(
+            search === ''||
+            design.title.toLowerCase().includes(search.toLocaleLowerCase()) ||
+            design.tags.includes(search)  
+        ){
+            return(
+                <tr key={design._id} className='h-5 flex-none'>
+                    <td className='w-24'>
+                        <div>{design._id}</div>
+                    </td>
+                    <td className='w-24'>
+                        <Image src={design.imageOn} width={96} height={96} alt="" />
+                    </td>
+                    <td>
+                        {design.title}
+                    </td>
+                    <td>
+                        <div className='capitalize'>
+                            {design.tags}
+                        </div>
+                    </td>
+                    <td>               
+                        <Link href={`/admin/products/${design._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>                
+                    </td>
+                    <td>               
+                        <button 
+                        onClick={()=>handleDelete(design._id)} 
+                        className='bg-red-400 p-2 rounded-md'
+                        >
+                            {deleting.state && deleting.id === design._id ?'Deleting':'Delete'}
+                        </button>                
+                    </td>
+                </tr>
+            )
+        }
+    })
 
     const tHeades =[
         {name:'ID'},
@@ -101,6 +114,22 @@ function page() {
         >
             Add
         </Link>
+
+        <div className='flex gap-4'>
+            <div className='relative'>
+                <FontAwesomeIcon 
+                    icon={faMagnifyingGlass}
+                    className={`absolute left-72 top-0 pt-3 z-10 ${search?'hidden':'opacity-50'}`}
+                />
+                <input 
+                onChange={e=>setSearch(e.target.value)}
+                type="search" 
+                placeholder="Search"
+                className='w-80 p-2 border-2 border-gray-500 rounded-xl no-focus-outline'
+                />
+            </div>
+        </div>
+
         <table border='1' className='font-normal h-1'>
             <thead>
                 <tr>
@@ -115,4 +144,4 @@ function page() {
   )
 }
 
-export default page
+export default Page

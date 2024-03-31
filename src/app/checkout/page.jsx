@@ -6,52 +6,30 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {wilayat} from '../data/wilayat'
-import Link from 'next/link';
+import Image from 'next/image';
+import logo from '../../../public/assets/logo.png' 
 
 
-async function fetchProducts(idArray) {
-    try {
-      const promises = idArray.map(async id => {
-        const res = await axios.get(`http://localhost:3000/api/products/${id}`);
-        return res.data[0];
-      });
-      return await Promise.all(promises);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw error;
-    }
-}
 
-async function fetchPlaceOrder(name,phoneNumber,wilaya,adresse,shippingMethod,totalPrice,orders,imagesOn) {
-    try {
-        const res = await axios.post(`http://localhost:3000/api/orders`,{
-            name,
-            phoneNumber,
-            wilaya,
-            adresse,
-            shippingMethod,
-            totalPrice,
-            orders,
-            imagesOn
-        });
-        return res.data;
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw error;
-    }
-}
 
 
 function Checkout() {
+    async function fetchProducts(idArray) {
+        try {
+          const promises = idArray.map(async id => {
+            const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+            return res.data[0];
+          });
+          return await Promise.all(promises);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+          throw error;
+        }
+    }
 
     // Form Data States
-    const [name, setName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [selectedWilaya, setSelectedWilaya] = useState('');
-    const [adresse, setAdresse] = useState('');
-    const [selectedShipping, setSelectedShipping] = useState('');
+    const [formData, setFormData] = useState({});
     const [imagesOn, setImagesOn] = useState([]);
-    console.log(imagesOn)
 
     // Form validation States
     const [isShippingSelected, setIsShippingSelected] = useState(true);
@@ -59,27 +37,16 @@ function Checkout() {
     const [isPhoneCorrect, setIsPhoneCorrect] = useState(true);
 
     // Form Change Functions
-    const handleNameChange = (e) => {
-        setName(e.target.value);
-    };
-    const handlePhoneChange = (e) => {
-        setIsPhoneCorrect(true)
-        setPhoneNumber(e.target.value);
-    };
-    const handleWilayaChange = (e) => {
-        setIsWilayaSelected(true)
-        setSelectedWilaya(e.target.value);
-    };
-    const handleAdresseChange = (e) => {
-        setAdresse(e.target.value);
-    };
-    const handleShippingChange = (e) => {
-        setIsShippingSelected(true)
-        setSelectedShipping(e.target.value);
-    };
-    
+    const handleChange =(e)=>{
+        const value = e.target.value
+        const name = e.target.name
+        setFormData(preState=>({
+            ...preState,
+            [name]:value
+        }))
+    }
 
-    
+
     let cart = useSelector((state) =>state.cart.cart)
     
     const subTotalPriceState = useSelector((state) =>state.totalPrice.totalPrice)
@@ -88,19 +55,55 @@ function Checkout() {
         queryKey: cart.map(cartItem => cartItem._id),
         queryFn: (queryKey) => fetchProducts(queryKey.queryKey)
     });
+
+    let shippingPrice =''
+    if(formData.wilaya && formData.shippingMethod){
+        wilayat.forEach(wilaya=>{
+            if(wilaya.name === formData.wilaya){
+                shippingPrice = formData.shippingMethod === 'بيت'
+                    ?wilaya.dar
+                    :wilaya.beru
+            }
+        })
+    }
+
+    const totalPrice = subTotalPriceState +shippingPrice
     
     useEffect(()=>{
+        setFormData(pre=>({
+            ...pre,
+            totalPrice:totalPrice,
+        }))
+        
+    },[totalPrice])
+
+
+    useEffect(()=>{
         if(products){
-            products.forEach(p=>{
-                setImagesOn(pre=>{
-                    console.log('pre ',pre)
-                    return [...pre,{imageOn:p.imageOn}]
+            let orders =[]
+            cart.forEach(cartItem=>{
+                products.forEach(product=>{
+                    if(cartItem._id === product._id){                    
+                        orders=
+                        [...orders,
+                            {
+                                qnt:cartItem.qnt,
+                                imageOn:product.imageOn
+                            }
+                        ]
+                    }
                 })
-                    
             })
+            
+
+            setFormData(pre=>({
+                ...pre,
+                orders:orders
+            }))
         }
         
     },[products])
+
     if(!products) return 0
 
     const productsElemtnt =cart.map(cartItem=>{
@@ -111,59 +114,42 @@ function Checkout() {
         }
         })
         return(
-            <div key={cartItem._id} className="product">
-                <div className="product-image-container">
+            <div key={cartItem._id} className="flex text-left items-center mb-3 ">
+                <div className="product-image-container min-w-16">
                     <span className="product-quntity">
                         {cartItem.qnt}
                     </span>
-                    <img src={product.imageOn} className="product-image" />
+                    <Image alt='' src={product.imageOn} width={64} height={64} className="product-image h-16 w-16" />
                 </div>
-                <div className="product-title">
+                <div className="product-title text-sm">
                     {product.title}
                 </div>
-                <div className="product-price">
+                <div className="product-price text-sm">
                     <span className="products-price">{cartItem.price *cartItem.qnt}
                 </span> Da</div>
             </div>
         )
     })
 
+
     const phonePattern = /^\d{10}$/;
 
-    let shippingPrice 
-    if(selectedWilaya && selectedShipping){
-        wilayat.forEach(wilaya=>{
-            if(wilaya.name === selectedWilaya){
-                shippingPrice = selectedShipping === 'بيت'
-                    ?wilaya.dar
-                    :wilaya.beru
-            }
-        })
-    }
-
-    const totalPrice = subTotalPriceState +shippingPrice
-    function handelSubmit(e){
+    async function handelSubmit(e){
         e.preventDefault()
 
-        if (!phonePattern.test(phoneNumber)) return setIsPhoneCorrect(false)
+        if (!phonePattern.test(formData.phoneNumber)) return setIsPhoneCorrect(false)
 
-        if(!selectedWilaya) return setIsWilayaSelected(false)
+        if(!formData.wilaya) return setIsWilayaSelected(false)
         
-        if(!selectedShipping) return setIsShippingSelected(false)
+        if(!formData.shippingMethod) return setIsShippingSelected(false)
 
-        fetchPlaceOrder(name,phoneNumber,selectedWilaya,adresse,selectedShipping,totalPrice,cart,imagesOn)
+        const res = await axios.post(`http://localhost:3000/api/orders`,formData )
 
-        console.log('oreder placed')
+        console.log(res)
         
-        cart =[]
-        localStorage.setItem('cart', JSON.stringify(cart))
-           
-
+        localStorage.setItem('cart', [])
         
     }
-
-    
-
     const wilayatOptionsElement = wilayat.map(wilaya=>(
         <option key={wilaya.name} value={wilaya.name}>{wilaya.name}</option>
     ))
@@ -176,40 +162,81 @@ function Checkout() {
   return (
   <div className='bg-white h-screen overflow-x-hidden lg:overflow-hidden'>
     <header className='flex items-center justify-center'>
-        <Link href="/" className="logo-container w-24 block">
-            <img src="assets/logo.png" className="logo" />
-        </Link>
+        <a href="/" className="logo-container w-24 block">
+            <Image alt='' src={logo} width={80} height={80} className="logo" />
+        </a>
     </header>
     <main>
         <section className="form-section bg-white h-screen">
             <div className="form-container">
                 <h1 className='font-bold text-2xl mt-5 mb-5'>Delivery</h1>
+
                 <form onSubmit={handelSubmit}>
-                    <input onChange={handleNameChange} required className="name"  placeholder="Name" name="name" type="text" />
-                    {!isPhoneCorrect && <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
-                        أدخل رقم هاتف صحيح 
-                    </h1>}
-                    <input onChange={handlePhoneChange} required className="phone"  placeholder="Phone" name="phone" type="text" />
-                    {!isWilayaSelected && <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
-                          أدخل الولاية 
-                    </h1>}
-                    <select  value={selectedWilaya} onChange={handleWilayaChange} required className="wilaya"  name="wilaya"  >
+                    <input 
+                     onChange={handleChange} 
+                     required 
+                     className="name"  
+                     placeholder="Name" 
+                     name="name" 
+                     type="text" 
+                    />
+
+                    {!isPhoneCorrect && 
+                        <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
+                            أدخل رقم هاتف صحيح 
+                        </h1>
+                    }
+
+                    <input 
+                     onChange={handleChange} 
+                     required 
+                     className="phone"  
+                     placeholder="Phone" 
+                     name="phoneNumber" 
+                     type="text" 
+                    />
+
+                    {!isWilayaSelected && 
+                        <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
+                            أدخل الولاية 
+                        </h1>
+                    }
+
+                    <select  
+                     value={formData.wilaya} 
+                     onChange={handleChange} 
+                     required className="wilaya"  
+                     name="wilaya"  
+                    >
                         <option value="الولاية" hidden >الولاية</option>
                         {wilayatOptionsElement}
                     </select>
-                    <input onChange={handleAdresseChange} required className="baldia"  placeholder="Adresse" name="Adresse" type="text" />
-                    {!isShippingSelected && <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
-                          أدخل طريقة التوصيل 
-                    </h1>}
-                    <select value={selectedShipping} onChange={handleShippingChange} required className="shippingmethod" name="shippingmethod"  >
+
+                    <input 
+                     onChange={handleChange} 
+                     required 
+                     className="baldia"  
+                     placeholder="Adresse" 
+                     name="adresse" 
+                     type="text" 
+                    />
+
+                    {!isShippingSelected && 
+                        <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
+                            أدخل طريقة التوصيل 
+                        </h1>
+                    }
+
+                    <select 
+                     value={formData.shippingMethod} 
+                     onChange={handleChange} 
+                     required className="shippingmethod" 
+                     name="shippingMethod"  
+                    >
                         <option value='طريقة التوصيل' hidden >طريقة التوصيل</option>
                         <option value="بيت">بيت</option>
                         <option value="مكتب">مكتب</option>
                     </select>
-                    <div className="hidden-inputs">
-                       
-                        <input required  name="totalPrice" id="totalPrice" type="hidden" />
-                    </div>
                     
                     <button type="submit" className="submit-button">أطلب الان</button>
                 </form>

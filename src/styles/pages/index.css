@@ -126,3 +126,8 @@
         margin: 0;
     }
 }
+@media (max-width: 450px) {
+    .product-grid{
+        grid-template-columns: 1fr;
+    }
+}

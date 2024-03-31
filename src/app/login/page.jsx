@@ -1,6 +1,6 @@
 import Login from '../../components/LoginForm'
 
-function page() {
+function Page() {
   return (
     <div>
         <h1>page</h1>
@@ -9,4 +9,4 @@ function page() {
   )
 }
 
-export default page
+export default Page

@@ -31,6 +31,10 @@ body{
     margin: 0;
 }
 
+.no-focus-outline:focus {
+    outline: none;
+}
+
 td ,th ,tr{
     border: 2px solid black;
     padding: 12px;

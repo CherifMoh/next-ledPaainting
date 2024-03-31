@@ -9,7 +9,7 @@ function Providers({children}) {
     const [queryClient] =useState(()=>new QueryClient())
   return (
     <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         {children}
     </QueryClientProvider>
   )

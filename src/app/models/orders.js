@@ -29,10 +29,6 @@ const OrderSchem = new mongoose.Schema({
         type: Array,
         required: true
     },
-    imagesOn: {
-        type: Array,
-        required: true
-    },
     state:{
         type: String,
         default: 'ordered'

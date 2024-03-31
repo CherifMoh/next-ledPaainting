@@ -7,7 +7,7 @@ import { useState } from "react"
 
 
 
-function categoryadd() {
+function Categoryadd() {
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
 
     const router = useRouter()
@@ -51,4 +51,4 @@ function categoryadd() {
   )
 }
 
-export default categoryadd
+export default Categoryadd
