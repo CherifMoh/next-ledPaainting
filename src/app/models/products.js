@@ -13,8 +13,24 @@ const productSchem = new mongoose.Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        required: true
+    },
+    options: {
+        type: Array,
+        required: true
+    },
     price: {
         type: Number,
+        required: true
+    },
+    sales: {
+        type: Array,
+        required: true
+    },
+    gallery: {
+        type: Array,
         required: true
     },
 },{timestamps: true})

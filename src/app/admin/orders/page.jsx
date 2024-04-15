@@ -10,6 +10,8 @@ import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import {deleteOrder} from '../../actions/order'
+import { useRouter } from "next/navigation";
 
 
 async function fetchOrders() {
@@ -20,10 +22,22 @@ async function fetchOrders() {
 function Orders() {
     
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
+
+    const [deleting,setDeleting] = useState([])
     
     const { data: Orders, isLoading, isError } = useQuery({
         queryKey:['orders'],
         queryFn: fetchOrders
+    });
+
+    async function fetchProducts() {
+        const res = await axios.get('http://localhost:3000/api/products/ledDesigns');
+        return res.data;
+    }
+
+    const { data: Designs, isLoading:designsLoding, isError:designsIsError,error } = useQuery({
+        queryKey:['AdminledDesigne'],
+        queryFn: fetchProducts
     });
     
     const [editedOrder,setEditedOrder] = useState({})
@@ -34,7 +48,14 @@ function Orders() {
 
     const [search,setSearch] = useState('')
     
+    const [isdesigns,setIsdesigns] = useState({_id:'',state : false})
+
+    const [newOrders,setNewOrders] = useState({})
+
+    const router = useRouter()
+
     const queryClient = useQueryClient()
+
 
     useEffect(() => {        
             const inputs = document.querySelectorAll('.dynamic-width');
@@ -43,11 +64,18 @@ function Orders() {
             });
     }, [editedOrderId]);
 
+    useEffect(() => {        
+        setNewOrders(editedOrder.orders)
+    }, [editedOrder]);
+
+
 
     if (isLoading) return <div>Loading...</div>;
     
     if (isError) return <div>Error fetching Orders</div>;
-    console.log(Orders)
+    if (designsLoding) return <div>Loading...</div>;
+    
+    if (designsIsError) return <div>Error fetching Designs</div>;
     
     function orderIdToggel(id){
         if(editedOrderId === id){
@@ -69,7 +97,21 @@ function Orders() {
             [name]: value
         }));
     }
-    console.log(editedOrder)
+
+    function handleQntChange(e,i) {
+        const input = e.target
+
+        
+        const name = input.name;
+        const value = input.value;
+
+        input.style.width = `${(input.value.length+2)*9}px`;
+
+        setNewOrders(pre =>{
+            pre[i] = {...pre[i],[name]:value}
+            return pre
+        });
+    }
 
     function handleDateChange(date) {
 
@@ -82,7 +124,20 @@ function Orders() {
 
         }));
     }
+
+    async function handleDelete(id){
+        setDeleting(pre=>([...pre,{
+            id:id,
+            state:true
+        }]))
+        setEditedOrderId('')
+        await deleteOrder(id)
+        router.refresh()
+        router.push('/admin/orders')
+        queryClient.invalidateQueries('AdminledDesigne');
+    }
     
+    console.log(newOrders)
     
     let longesOrder = []
     Orders.forEach(order=>{
@@ -93,33 +148,117 @@ function Orders() {
     })
     
     async function handleUpdatingOrder(){
+        setEditedOrder(pre=>({...pre,orders:newOrders}))
         const res = await axios.put(`http://localhost:3000/api/orders/${editedOrderId}`,editedOrder)
         
         queryClient.invalidateQueries('orders');
         setSelectedDate(null)
 
     }
+    
 
     const ordersElement = Orders.map( order=>{
+        console.log(order)
         if(
             search === ''||
             order.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
             order.wilaya.toLowerCase().includes(search.toLocaleLowerCase()) ||
+            order.phoneNumber.includes(search.toLocaleLowerCase()) ||
             order.adresse.toLowerCase().includes(search.toLocaleLowerCase()) 
 
         ){        
             let cartItemsElemnt
             if(order.orders){
                 cartItemsElemnt = order.orders.map((product,i)=>{
+                    const designOptionsElent = Designs.map(design=>{
+                        if(design.title.toLowerCase().includes(search.toLocaleLowerCase() ) ||search === '' ){
+                            return(
+                                <div key={design._id} className='border-gray-500 border-b-2 p-4 bg-white'>
+                                    <Image 
+                                    src={design.imageOn} 
+                                    alt='' 
+                                    width={128} height={128}  
+                                    onClick={()=>{
+                                        setNewOrders(pre=>{
+                                            pre[i] = {...pre[i],imageOn:design.imageOn}
+                                            return pre
+                                        })
+                                        setIsdesigns({_id:'',state : false})
+                                    }}
+                                    /> 
+                                </div>
+                            )
+                        }
+                       
+                    })
                     return(
-                        <td key={product.imageOn} className="border-black relative border-2 font-medium p-3 h-8">
-                            <Image className='min-w-24 w-24' src={product.imageOn} width={24} height={24} alt="" />
+                        <td key={product._id} className="border-black relative border-2 font-medium p-3 text-center h-8">
+                            {order._id === editedOrderId
+                                ?<input 
+                                 type="text" 
+                                 onChange={(e)=>handleQntChange(e,i)} 
+                                 name="option"
+                                 defaultValue={product.option} 
+                                 min={1}
+                                 className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
+                                />
+                                :
+                                <div 
+                                className="mb-4 "
+                                >
+                                    {product.option}
+                                </div>
+                            }
+
+                            <Image 
+                             className='min-w-24 w-24' 
+                             src={product.imageOn} 
+                             width={24} height={24} alt="" 
+                             onClick={()=>{
+                                if(order._id === editedOrderId){
+                                   setIsdesigns(pre=>({
+                                    _id:product._id,
+                                    state:!pre.state
+                                   })) 
+                                } 
+                             }}
+                            />
+                            {isdesigns.state && isdesigns._id === product._id &&
+                                 <div className='max-w-96 border-2 border-gray-500 absolute mt-2 bg-white'>
+                                    <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
+                                        <FontAwesomeIcon 
+                                        icon={faMagnifyingGlass}
+                                        className={`pointer-events-none absolute left-60 top-6 ${search?'hidden':'opacity-50'}`}
+                                        />
+                                        <input 
+                                        id="search"
+                                        type='search' 
+                                        className='w-64 px-2 py-1 m-2 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200' 
+                                        placeholder={`Search`}
+                                        onChange={(e)=>setSearch(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className='grid grid-cols-2 max-h-[484px] overflow-y-auto'>
+                                        {designOptionsElent}
+                                    </div>
+                                </div>
+                            }
                             
-                            <span 
-                            className="bg-red-500 absolute left-24 top-2 rounded-lg px-1 text-sm text-white text-center"
+                            {order._id === editedOrderId
+                            ?<input 
+                             type="number" 
+                             onChange={(e)=>handleQntChange(e,i)} 
+                             name="qnt"
+                             defaultValue={product.qnt} 
+                             min={1}
+                             className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
+                            />
+                            :<span 
+                                className="bg-red-500 absolute left-24 bottom-24 rounded-lg px-1 text-sm text-white text-center"
                             >
                                 {product.qnt}
                             </span>
+                            }
                         </td>
                 )
             })
@@ -128,12 +267,19 @@ function Orders() {
                 return(
                     <tr key={order._id} className='h-5'>
                         <td>
+                           
+                            <button 
+                            onClick={()=>handleDelete(order._id)}
+                            className='px-3 py-2 text-white bg-red-500 rounded-lg'
+                            >
+                                {deleting.some(item => item.id === order._id && item.state)?'Deleting':'Delete'}
+                            </button>
                             <button 
                             onClick={()=>{
                                 handleUpdatingOrder()
                                 orderIdToggel(order._id)
                             }}
-                            className='px-3 py-2 bg-green-400 rounded-lg'
+                            className='px-3 py-2 ml-2  text-white bg-green-400 rounded-lg'
                             >
                                 Save
                             </button>
@@ -195,6 +341,24 @@ function Orders() {
                             />
                         </td>
                         <td>
+                            <input 
+                            type="text"
+                            onChange={handleChange} 
+                            name="shippingPrice"
+                            defaultValue={editedOrder.shippingPrice} 
+                            className='border-2 border-black pl-1 dynamic-width' 
+                            />
+                        </td>
+                        <td>
+                            <input 
+                            type="text"
+                            onChange={handleChange} 
+                            name="note"
+                            defaultValue={editedOrder.note} 
+                            className='border-2 border-black pl-1 dynamic-width' 
+                            />
+                        </td>
+                        <td>
                             <select 
                             onChange={handleChange} 
                             value={editedOrder.state} 
@@ -245,17 +409,22 @@ function Orders() {
                 return(
                     <tr key={order._id} className='h-5'>
                         <td>
+                            
+                            <button 
+                             disabled={editedOrderId !== order._id && editedOrderId !== ''} 
+                             onClick={()=>handleDelete(order._id)}
+                             className='disabled:bg-red-200 text-white px-3 py-2 bg-red-500 rounded-lg'
+                            >
+                                {deleting.some(item => item.id === order._id && item.state)?'Deleting':'Delete'}
+                            </button>
+
                             <button 
                             onClick={()=>{
                                 setEditedOrderId(order._id)
                                 setEditedOrder(order)
                             }}
                             disabled={editedOrderId !== order._id && editedOrderId !== ''}                        
-                            className={`
-                            ${editedOrderId !== order._id && editedOrderId !== ''
-                            ?'bg-gray-200' 
-                            : 'bg-green-400' }
-                            rounded-lg px-3 py-2`}
+                            className={`disabled:bg-green-100 ml-2 text-white  bg-green-400 rounded-lg px-3 py-2`}
                             >
                                 Edit
                             </button>
@@ -266,6 +435,8 @@ function Orders() {
                         <td>{order.adresse}</td>
                         <td>{order.shippingMethod}</td>
                         <td>{order.totalPrice}</td>
+                        <td>{order.shippingPrice}</td>
+                        <td>{order.note}</td>
                         <td>{order.state}</td>
                         <td>{order.schedule}</td>
                         <td className="text-center">{order.inDelivery?'true':'false'}</td>
@@ -314,6 +485,8 @@ function Orders() {
                     <th>Address</th>
                     <th>Shipping Method</th>
                     <th>Total Price</th>
+                    <th>Shipping Price</th>
+                    <th>Notes</th>
                     <th>State</th>
                     <th>Schedule</th>
                     <th>In Delivery</th>

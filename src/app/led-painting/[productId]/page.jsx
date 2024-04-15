@@ -6,6 +6,7 @@ import  ProductsGrid  from "../../../components/ProductsGrid"
 import  ProductsPage from "../../..//components/ProductPage"
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import ProductPSkelaton from "../../../components/ProductPSkelaton";
 
 
 
@@ -22,9 +23,10 @@ function Product({params}) {
     queryFn: fetchProducts
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><ProductPSkelaton /></div>;
 
   if (isError) return <div>Error fetching products</div>;
+  
   const mproduct = products[0]
 
   console.log(typeof products)

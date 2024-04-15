@@ -24,10 +24,7 @@ function Page() {
     const router = useRouter()
     const queryClient = useQueryClient()
     
-    const [deleting,setDeleting] = useState({
-        id:'',
-        state:false
-    })
+    const [deleting,setDeleting] = useState([])
     
     const { data: designs, isLoading, isError } = useQuery({
         queryKey:['designs'],
@@ -42,10 +39,10 @@ function Page() {
 
     const handleDelete = async (id)=>{
         try{
-            setDeleting({
+            setDeleting(pre=>([...pre,{
                 id:id,
                 state:true
-            })
+            }]))
             const res = await axios.delete(`http://localhost:3000/api/products/ledDesigns/${id}`);       
             console.log(res.data);
             router.refresh()
@@ -78,14 +75,14 @@ function Page() {
                         </div>
                     </td>
                     <td>               
-                        <Link href={`/admin/products/${design._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>                
+                        <Link href={`/admin/products/led-designs/${design._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>                
                     </td>
                     <td>               
                         <button 
-                        onClick={()=>handleDelete(design._id)} 
-                        className='bg-red-400 p-2 rounded-md'
+                         onClick={()=>handleDelete(design._id)} 
+                         className='bg-red-400 p-2 rounded-md'
                         >
-                            {deleting.state && deleting.id === design._id ?'Deleting':'Delete'}
+                            {deleting.some(item => item.id === design._id && item.state)?'Deleting':'Delete'}
                         </button>                
                     </td>
                 </tr>
@@ -107,13 +104,21 @@ function Page() {
     ))
 
   return (
-    <div className='p-4 flex flex-col gap-5'>
-        <Link 
-         href={'/admin/products/led-designs/add'}
-         className='bg-gray-700 p-3 rounded-md text-white text-center'
-        >
-            Add
-        </Link>
+    <div className='p-4 flex flex-col gap-6'>
+        <div className='flex w-full justify-around'>
+            <Link 
+            href={'/admin/products/led-designs/add'}
+            className='bg-gray-700 p-3 rounded-md text-white text-center w-1/4'
+            >
+                Add
+            </Link>
+            <Link 
+            className='bg-gray-700 p-3 rounded-md text-white text-center w-1/4' 
+            href={'/admin/products/led-designs/tags'}
+            >
+                Tages
+            </Link>
+        </div>
 
         <div className='flex gap-4'>
             <div className='relative'>

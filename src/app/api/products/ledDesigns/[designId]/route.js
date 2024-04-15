@@ -14,3 +14,16 @@ export async function DELETE(req,{params}) {
     }
     
 }
+export async function PUT(req,{params}) {
+    try{
+      await dbConnect()
+      const newDesign = await req.json()
+      await Design.findByIdAndUpdate({_id:params.designId},newDesign)
+  
+      return new NextResponse("Design Updated ")
+  
+    }catch(err){
+      return new NextResponse("Error :" + err)
+    }
+    
+}

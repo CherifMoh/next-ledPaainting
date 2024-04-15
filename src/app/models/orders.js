@@ -21,6 +21,10 @@ const OrderSchem = new mongoose.Schema({
         type: String,
         required: true
     },
+    shippingPrice: {
+        type: Number,
+        required: true
+    },
     totalPrice: {
         type: Number,
         required: true
@@ -42,6 +46,10 @@ const OrderSchem = new mongoose.Schema({
         default: false
     },
     tracking:{
+        type: String,
+        default: ''
+    },
+    note:{
         type: String,
         default: ''
     },

@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic'
 
 const Cart = dynamic(()=>import('../../components/Cart'),{
   ssr: false,
-  loading:()=><p>Loding...</p>
+  loading:()=><p>Loading...</p>
 })
 
 

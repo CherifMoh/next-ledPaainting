@@ -26,7 +26,7 @@ export const cartSlice = createSlice({
           
           return { ...state, cart: updatedCart };
       } else {
-          return { ...state, cart: [...cart, { _id:action.payload._id, qnt: action.payload.qnt, price:action.payload.price}] };
+          return { ...state, cart: [...cart, { _id:action.payload._id, qnt: action.payload.qnt, price:action.payload.price,option:action.payload.option}] };
       }
   },
   removeProduct: (state, action) => {

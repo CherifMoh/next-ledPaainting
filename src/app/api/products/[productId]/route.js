@@ -32,3 +32,17 @@ export async function DELETE(req,{params}) {
   }
   
 }
+
+export async function PUT(req,{params}) {
+  try{
+    await dbConnect()
+    const newProduct = await req.json()
+    await Product.findByIdAndUpdate({_id:params.productId},newProduct)
+
+    return new NextResponse("Product Updated ")
+
+  }catch(err){
+    return new NextResponse("Error :" + err)
+  }
+  
+}

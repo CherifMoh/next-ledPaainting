@@ -13,14 +13,17 @@ const designSchem = new mongoose.Schema({
         type: String,
         required: true
     },
-    price: {
-        type: Number,
-        default: 3900,
-        required: false
+    description: {
+        type: String,
+        required: true
     },
     tags: {
         type: Array,
         required: false
+    },
+    gallery: {
+        type: Array,
+        required: true
     },
 },{timestamps: true})
 

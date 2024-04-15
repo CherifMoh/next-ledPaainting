@@ -1,6 +1,7 @@
 
 import '../../styles/pages/index.css'
 import  ProductsGrid  from "../../components/ProductsGrid"
+import  ProductGSkeleton  from "../../components/ProductGSkeleton"
 import { Suspense } from 'react'
 
 
@@ -9,10 +10,10 @@ function Home() {
     <>
     <main className="main">
       <div className="main-container">
-        <h1 className="text-4xl font-bold mt-5 mb-5">
+        <h1 className="text-4xl font-bold mb-5">
           Luminous Frames
         </h1>            
-        <ProductsGrid />        
+        <ProductsGrid />   
       </div>
     </main>
     </>

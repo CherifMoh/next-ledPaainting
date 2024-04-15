@@ -8,6 +8,9 @@ import { useEffect, useState } from 'react';
 import {wilayat} from '../data/wilayat'
 import Image from 'next/image';
 import logo from '../../../public/assets/logo.png' 
+import { useRouter } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
+import Spinner from '../../components/spinner';
 
 
 
@@ -29,12 +32,15 @@ function Checkout() {
 
     // Form Data States
     const [formData, setFormData] = useState({});
-    const [imagesOn, setImagesOn] = useState([]);
 
     // Form validation States
     const [isShippingSelected, setIsShippingSelected] = useState(true);
     const [isWilayaSelected, setIsWilayaSelected] = useState(true);
     const [isPhoneCorrect, setIsPhoneCorrect] = useState(true);
+
+    const [isBeruAvailable,setIsBeruAvailable] = useState(true)
+
+    const [isSubmiting,setIsSubmitting] = useState(false)
 
     // Form Change Functions
     const handleChange =(e)=>{
@@ -48,6 +54,8 @@ function Checkout() {
 
 
     let cart = useSelector((state) =>state.cart.cart)
+
+    const router = useRouter()
     
     const subTotalPriceState = useSelector((state) =>state.totalPrice.totalPrice)
     
@@ -57,38 +65,67 @@ function Checkout() {
     });
 
     let shippingPrice =''
-    if(formData.wilaya && formData.shippingMethod){
-        wilayat.forEach(wilaya=>{
+    wilayat.forEach(wilaya=>{
+
+        if(wilaya.name === formData.wilaya){
+            if(wilaya.beru === ''){
+                return shippingPrice = wilaya.dar     
+            }
+        }
+
+        if(formData.wilaya && formData.shippingMethod){
             if(wilaya.name === formData.wilaya){
                 shippingPrice = formData.shippingMethod === 'بيت'
                     ?wilaya.dar
                     :wilaya.beru
             }
+        }
+    })
+
+    useEffect(()=>{
+        wilayat.forEach(wilaya=>{
+            if(wilaya.name === formData.wilaya){
+                if(wilaya.beru === ''){
+                    setIsBeruAvailable(false) 
+                    setFormData(pre=>({
+                        ...pre,
+                        shippingMethod:'مكتب'
+                    }))    
+                }else{
+                    setIsBeruAvailable(true)     
+                }
+                
+            }
         })
-    }
+    },[formData.wilaya])
 
     const totalPrice = subTotalPriceState +shippingPrice
+
     
     useEffect(()=>{
         setFormData(pre=>({
             ...pre,
-            totalPrice:totalPrice,
+            totalPrice,
+            shippingPrice,
         }))
         
     },[totalPrice])
 
+    
 
     useEffect(()=>{
         if(products){
             let orders =[]
-            cart.forEach(cartItem=>{
+            cart.forEach((cartItem,i)=>{
                 products.forEach(product=>{
                     if(cartItem._id === product._id){                    
                         orders=
                         [...orders,
                             {
+                                _id:uuidv4(),
                                 qnt:cartItem.qnt,
-                                imageOn:product.imageOn
+                                imageOn:product.imageOn,
+                                option:cart[i].option
                             }
                         ]
                     }
@@ -104,7 +141,7 @@ function Checkout() {
         
     },[products])
 
-    if(!products) return 0
+    if(!products) return 
 
     const productsElemtnt =cart.map(cartItem=>{
         let product 
@@ -135,19 +172,47 @@ function Checkout() {
     const phonePattern = /^\d{10}$/;
 
     async function handelSubmit(e){
-        e.preventDefault()
-
-        if (!phonePattern.test(formData.phoneNumber)) return setIsPhoneCorrect(false)
-
-        if(!formData.wilaya) return setIsWilayaSelected(false)
-        
-        if(!formData.shippingMethod) return setIsShippingSelected(false)
-
-        const res = await axios.post(`http://localhost:3000/api/orders`,formData )
-
-        console.log(res)
-        
-        localStorage.setItem('cart', [])
+        e.preventDefault();
+        setIsSubmitting(true); // Set isSubmitting to true
+      
+        // Check phone pattern
+        if (!phonePattern.test(formData.phoneNumber)) {
+          setIsPhoneCorrect(false);
+          setIsSubmitting(false); // Set isSubmitting to false
+          return; // Exit the function
+        }
+      
+        // Check if wilaya is selected
+        if (!formData.wilaya) {
+          setIsWilayaSelected(false);
+          setIsSubmitting(false); // Set isSubmitting to false
+          return; // Exit the function
+        }
+      
+        // Check if shipping method is selected
+        if (!formData.shippingMethod) {
+          setIsShippingSelected(false);
+          setIsSubmitting(false); // Set isSubmitting to false
+          return; // Exit the function
+        }
+      
+        try {
+          // Make API call
+          const res = await axios.post(`http://localhost:3000/api/orders`, formData);
+      
+          console.log(res);
+      
+          // Reset cart in localStorage
+          localStorage.removeItem('cart');
+          localStorage.setItem('cart', JSON.stringify([]));
+      
+          // Refresh and navigate to thank you page
+          router.refresh();
+          router.push('/thankYou');
+        } catch (error) {
+          // Handle error if necessary
+          console.error('Error submitting form:', error);
+        }
         
     }
     const wilayatOptionsElement = wilayat.map(wilaya=>(
@@ -227,7 +292,8 @@ function Checkout() {
                         </h1>
                     }
 
-                    <select 
+                    {isBeruAvailable
+                    ?<select 
                      value={formData.shippingMethod} 
                      onChange={handleChange} 
                      required className="shippingmethod" 
@@ -237,8 +303,18 @@ function Checkout() {
                         <option value="بيت">بيت</option>
                         <option value="مكتب">مكتب</option>
                     </select>
+                    :<div className='my-5 text-xl font-semibold'>
+                        التوصيل الى البيت فقط
+                    </div>
+                    }   
                     
-                    <button type="submit" className="submit-button">أطلب الان</button>
+                    <button type="submit" className={`submit-button ${isSubmiting&&'h-16'} flex justify-center items-start`}>
+                        {isSubmiting
+                            ?<Spinner color={'border-gray-500'} size={'h-10 w-10 '}/>
+                            :
+                            ' أطلب الان'
+                        }
+                    </button>
                 </form>
             </div>
         </section>

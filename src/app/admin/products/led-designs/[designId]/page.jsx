@@ -13,18 +13,29 @@ const fetchTags = async()=>{
     return res.data;
 }
 
-function Admin() {
+const fetchDesign = async(id)=>{
+    const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+    return res.data[0];
+}
+
+function DesignUpdate({params}) {
 
     const { data: TagsA, isLoading, isError , error} = useQuery({
             queryKey:['tags'],
             queryFn: fetchTags
     });
+    const { data: SelectedDesign, isLoading:isDesignL, isError:isDesignIsE , error:DesignE} = useQuery({
+            queryKey:['designForUpdate'],
+            queryFn: ()=>fetchDesign(params.designId)
+    });
 
     const [newDesign,setNewDesign] = useState({});
 
-    const textareaRef = useRef(null);
+    const [isImages,setIsImages] = useState(false);
 
     const [isSubmiting,setIsSubmitting] = useState(false)
+
+    const textareaRef = useRef(null);
 
     async function convertToBase64(file) {
         return new Promise((resolve, reject) => {
@@ -42,8 +53,9 @@ function Admin() {
     async function handleSubmit(e) {
         e.preventDefault();
         setIsSubmitting(true)
+        if(!newDesign.imageOff || !newDesign.imageOn) return setIsImages(true)
         try {
-            const res =await axios.post("http://localhost:3000/api/products/ledDesigns", newDesign)
+            const res =await axios.put(`http://localhost:3000/api/products/ledDesigns/${params.designId}`, newDesign)
             console.log(res.data);
             queryClient.invalidateQueries('designs');
             router.refresh()
@@ -53,6 +65,11 @@ function Admin() {
             setIsSubmitting(false)
         }
     }
+
+    useEffect(()=>{
+        setNewDesign(SelectedDesign)
+    },[SelectedDesign])
+
 
     const queryClient = useQueryClient()
 
@@ -68,13 +85,7 @@ function Admin() {
             }
             if(!checkFileSize(file,e.target)) return setNewDesign(pre=>({...pre,imageOn:''}))
             const base64 = await convertToBase64(file);
-            setNewDesign(pre=>({
-                ...pre,
-                imageOn:base64,
-                gallery:pre.gallery
-                 ?[...pre.gallery,base64]
-                 :[base64]
-            }))
+            setNewDesign(pre=>({...pre,imageOn:base64,gallery:[...pre.gallery,base64]}))
         }else{
             if(!file){
                 setNewDesign(pre=>({...pre,imageOff:''}))
@@ -82,13 +93,7 @@ function Admin() {
             }
             if(!checkFileSize(file,e.target)) return setNewDesign(pre=>({...pre,imageOff:''})) 
             const base64 = await convertToBase64(file);
-            setNewDesign(pre=>({
-                ...pre,
-                imageOff:base64,
-                gallery:pre.gallery
-                 ?[...pre.gallery,base64]
-                 :[base64]
-            }))
+            setNewDesign(pre=>({...pre,imageOff:base64,gallery:[...pre.gallery,base64]}))
         }
     }
 
@@ -108,6 +113,11 @@ function Admin() {
 
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>{error.message}</div>
+
+    if(DesignE) return <div>Loding...</div>
+    if(isDesignIsE) return <div>{DesignE.message}</div>
+
+    if(!newDesign) return 
 
     
     const tagsElement = TagsA.map(tag=>(
@@ -145,10 +155,15 @@ function Admin() {
             return e.target.value = ''
         }
         if(!checkFileSize(file,e.target)) return 
+
         const base64 = await convertToBase64(file);
+
+        if(newDesign.gallery?.includes(base64))return 
+
+
         setNewDesign(pre=>(Array.isArray(pre.gallery)
-        ?{...pre,gallery:[...pre?.gallery, base64]}
-        :{...pre,gallery:[base64]}
+            ?{...pre,gallery:[...pre?.gallery, base64]}
+            :{...pre,gallery:[base64]}
         ))
     }
 
@@ -177,7 +192,7 @@ function Admin() {
             </div> 
         )
     })
-
+    
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             e.preventDefault(); // Prevents the default behavior of creating a new line
@@ -200,14 +215,19 @@ function Admin() {
             textareaRef.current.selectionEnd = newCursorPosition;
           }
     };
-    
+
     return (
         <div className="w-full min-h-svh flex items-center justify-center overflow-y-scroll">
             <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-5 bg-white p-8 rounded-lg shadow-md">
-                    
+                
+                {isImages && 
+                    <div className="text-center text-red-500 font-medium text-lg">
+                        Enter An on and off Images
+                    </div>
+                }
+
                 <div className="flex items-center justify-between relative w-full mb-10">
                     <input
-                        required
                         className="imageOn w-96 h-96 bg-white hover:bg-gray-200 hover:text-gray-200 text-white mr-5 rounded-full border-dashed cursor-pointer border-black border-2"
                         type="file"
                         label="imageOn"
@@ -222,7 +242,6 @@ function Admin() {
                         </div>
                     }   
                     <input
-                        required
                         className="imageOff w-96 h-96 bg-white hover:bg-gray-200 hover:text-gray-200 text-white ml-5 rounded-full border-dashed cursor-pointer border-black border-2"
                         type="file"
                         label="imageOff"
@@ -270,12 +289,12 @@ function Admin() {
                     type='text'
                     label="description"
                     name="description"       
-                    className='border-2 border-gray-400 rounded-md p-4 pb-10 resize-y w-full min-h-[200px]'
+                    className='border-2 border-gray-400 rounded-md p-4 pb-10'
                     value={newDesign.description}
                     onKeyDown={handleKeyDown}
                     onChange={(e) => setNewDesign(pre=>({...pre,description:e.target.value}))}
                 />
-
+                
                 <h1>tags</h1>
                 <div className="grid grid-cols-4">
                     {tagsElement}
@@ -294,4 +313,4 @@ function Admin() {
     );
 }
 
-export default Admin;
+export default DesignUpdate;

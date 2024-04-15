@@ -29,7 +29,7 @@ function Dashboard() {
   })
 
   return (
-    <div className='h-screen w-72 bg-gray-100 pt-5 mr-5 absolute left-0'>
+    <div className='w-72 h-screen bg-gray-100 pt-5 mr-5 z-[9999999] fixed left-0 overflow-y-auto'>
         <Link 
          href='/admin' 
          className='font-semibold text-3xl text-center block mb-10'

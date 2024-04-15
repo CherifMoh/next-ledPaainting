@@ -214,9 +214,9 @@
 }
 
 @media(max-width: 1250px){
-    .product-grid{
+    /* .product-grid{
         width: auto;
-    }
+    } */
 }
 @media(max-width: 750px){
     .main-section,.product-grid{

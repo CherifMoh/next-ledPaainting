@@ -6,75 +6,252 @@ import '../styles/pages/index.css'
 import { useSelector, useDispatch } from 'react-redux'
 import { addProduct, removeProduct, updatedQuntity } from '../app/redux/features/cart/cartSlice'
 import { showCartToggle } from "../app/redux/features/showCart/showCartSlice";
-import { useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import ruler from '../../public/assets/ruler.svg'
+import { useQuery } from "@tanstack/react-query";
 import arrowDown from '../../public/assets/arrow-down.svg'
 import Material from '../../public/assets/Material.svg'
+import ProductPSkelaton from "./ProductPSkelaton";
+import axios from "axios";
 
+
+const fetchLedPainting= async()=>{
+    const res = await axios.get(`http://localhost:3000/api/products/6614791ccb0b4173298b236b`);
+    return res.data[0];
+}
 
 function ProductPage({ mproduct }) {
+
+    const { data: ledPainting, isLoading, isError , error} = useQuery({
+        queryKey:['led Painting'],
+        queryFn: ()=>fetchLedPainting()
+    });
 
     const [qnt, setQnt] = useState(1)
     const [isDimensions, setIsDimensions] = useState(false)
     const [isMaterial, setIsMaterial] = useState(false)
 
-    const isCartShown = useSelector((state) =>state.isCartShown.isCartShown)
+    const [selectedOption, setSelectedOption] = useState()
 
+    const [isSelectedOption, setIsSelectedOption] = useState(true)
+
+    const isCartShown = useSelector((state) =>state.isCartShown.isCartShown)
     
     const cart = useSelector((state) => state.cart.cart)
+
     const dispatch = useDispatch();
     
     const handelCartToggle =()=>{
         dispatch(showCartToggle());
     }
+
+    const [mainImage, setMainImage] = useState(mproduct.imageOn);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isImageChanging, setIsImageChanging] = useState(false);
+
+    const [sales, setSales] = useState('');
+
+    const galleryImages = mproduct.gallery;
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentIndex(prevIndex =>
+                prevIndex === galleryImages.length - 1 ? 0 : prevIndex + 1
+            );
+        }, 3000); // Change image every 1 second
+
+        return () => clearInterval(intervalId); // Cleanup interval on unmount
+    }, [galleryImages.length]);
+
+    useEffect(() => {
+        setIsImageChanging(true);
+        const timeoutId = setTimeout(() => {
+            setIsImageChanging(false);
+            setMainImage(galleryImages[currentIndex]);
+        }, 400); // Time for the fade-out effect
+
+        return () => clearTimeout(timeoutId);
+
+    }, [currentIndex, galleryImages]);
+
+    useEffect(() => {
+       checkIfSale(qnt)
+    }, [qnt]);
+
+    if(isLoading) return <div>{<ProductPSkelaton />}</div>
+    if(isError) return <div>{error.message}</div>
+
+    if(!ledPainting) return 0
     
     const handleAddToCart = (productId, qnt, price) => {
-        console.log("Adding product to cart:", productId, qnt);
+        if(!selectedOption) return setIsSelectedOption(false)
         handelCartToggle()
         dispatch(addProduct({
             _id: productId,
             qnt: qnt,
-            price:price
+            price:price,
+            option:selectedOption.title
         }));
     };
-    const handleUpdateCart = (productId, qnt) => {
-        dispatch(updatedQuntity({
-            _id: productId,
-            qnt: qnt
-        }));
-    };
-
-    
+        
     localStorage.setItem('cart', JSON.stringify(cart))
 
-    
+
+    function checkIfSale(qnt){
+        
+        let isSales = false;
+
+
+        for (let i = 0; i < ledPainting?.sales.length; i++) {
+            const sale = ledPainting.sales[i];
+            if (Number(sale.qnt) === qnt) {
+                isSales = true;
+                setSales(sale.percen)
+                console.log(sale.percen)
+                break; // Exit the loop since the condition is met
+            }
+        }
+
+        if(!isSales){
+            setSales('')
+        }
+        return isSales;
+        
+    }
+
+    const galleryElement = mproduct.gallery.map((image,i)=>{
+        return (
+            <Image 
+             key={image} 
+             alt=''
+             src={image} 
+             width={20} height={20} 
+             className="gallery-image cursor-pointer" 
+             onClick={()=>setMainImage(image)}
+            />
+        )
+    })
+
+    const Plines = ledPainting.description.split('\n');
+
+    const PDescriptionElement = Plines.map((line,i)=>{
+        return (
+        <Fragment key={line+i} >
+            <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
+            <br />
+          </Fragment>
+        )
+    })
+
+    const Dlines = mproduct.description.split('\n');
+
+    const DDescriptionElement = Dlines.map((line,i)=>{
+        return (
+        <Fragment key={line+i} >
+            <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
+            <br />
+        </Fragment>
+        )
+    })
+
+    const priceElement = ledPainting.options?.map((option,i)=>{
+        return(
+            <div 
+             className="price-after-sale "
+             key={i}
+            >
+                {option.price} 
+                {i !== ledPainting.options.length - 1 
+                 && <span className=' w-4 h-2 inline-block border-t-[2px] ml-2 border-black text-center'></span>
+                }
+            </div>
+        )
+    })
+
+    const optionsElement = ledPainting.options?.map(option=>{
+
+        const buttonStyle={
+            boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
+        }
+
+        return(
+            <button 
+             className={`flex transition-all justify-center items-center gap-4 px-4 py-2 rounded-full ${selectedOption?.title === option.title ?'bg-zinc-300 ':'bg-zinc-100'}` }
+             style={buttonStyle}
+             key={option.title} 
+             onClick={()=>{setSelectedOption(option);setIsSelectedOption(true)}}
+            >
+                <Image
+                 src={option.image}
+                 alt=''
+                 width={100} height={100}
+                 className='w-4'
+                />
+                <div className='flex flex-col justify-center items-center'>
+                    <span className='price-after-sale text-sm'>{option.title}</span>
+                    <span className='price-after-sale text-sm'>{option.price} DA</span>
+                </div>
+            </button>
+        )
+    })
+
     return (
         <section className="selected-prodect-container">
             <section className="product-gallery">
-                <div className="main-image-container">
-                    <Image alt='' src={mproduct.imageOn} width={20} height={20} className="main-image main-image-on" />
-                    <Image alt='' src={mproduct.imageOff} width={20} height={20} className="main-image main-image-off" />
+                <div className={`main-image-container transition-all duration-1000 ${isImageChanging ? ' opacity-50' : ' opacity-100'}`}>
+                    <Image alt='' src={mainImage} width={20} height={20} className="main-image main-image-on" />
                 </div>
-                <div className="gallery-container flex gap-1">
-                    <Image alt='' src={mproduct.imageOff} width={20} height={20} className="gallery-image" />
-                    <Image alt='' src={mproduct.imageOn} width={20} height={20} className="gallery-image" />
+                <div className="gallery-container justify-center items-center flex gap-2 overflow-hidden">
+                    {galleryElement}
                 </div>
             </section>
             <section className="product-info">
-                <div className="product-title spawn-anime">{mproduct.title}</div>
-                <div className="price-container spawn-anime">
-                    {/* <span className="price-befor-sale ">{mproduct.price} DA</span> */}
-                    <span className="price-after-sale ">{mproduct.price} DA</span>
-                    <span className="sale-mark">Sale</span>
+                <div className="product-title spawn-anime">{mproduct.title}</div>               
+                <div className="spawn-anime flex items-center">
+                    {DDescriptionElement}
+                </div>              
+                <div className="price-container flex gap-6 spawn-anime">
+                    {sales && priceElement &&
+                        <>
+                            <span className="price-befor-sale ">{selectedOption.price} DA</span>
+                            <span className="price-after-sale ">{selectedOption.price-(selectedOption.price*sales)/100} DA</span>
+                        </>
+                    }
+
+                    {!sales?priceElement
+                        ?selectedOption?<span className='price-after-sale'>{selectedOption.price} DA</span>:<div className='flex'>{priceElement} DA</div>
+                        :<span className="price-after-sale ">{ledPainting.price}  DA</span>                 
+                    :''}
+
+                    {sales && priceElement &&
+                        <span className="sale-mark">Sale {sales} %</span>     
+                    }
+                </div>
+                <p className="spawn-anime mt-4 mb-4">Options</p>
+
+                {!isSelectedOption && 
+                    <div className='text-red-500 text-xl text-center font-semibold'>
+                        اختر احد الخيارات                       
+                    </div>
+                }
+
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 my-6 items-center justify-evenly gap-2 spawn-anime'>
+                    {optionsElement}
                 </div>
                 <p className="spawn-anime mt-4 mb-4">Quantity</p>
                 <div className="quantity-container spawn-anime flex">
                     <button
                         className="minus-quantity-button flex items-start justify-center"
                         onClick={() =>{
-                            if(qnt > 1 ){
+                            if(optionsElement){
+                                if(!selectedOption){
+                                 return setIsSelectedOption(false)    
+                                }else if(qnt > 1){
+                                    setQnt(pre => pre - 1)
+                                }              
+                            }else if(qnt > 1){
                                 setQnt(pre => pre - 1)
                             }
                         }}
@@ -86,7 +263,17 @@ function ProductPage({ mproduct }) {
                     >{qnt}</div>
                     <button
                         className="plus-quantity-button pb-1"
-                        onClick={() => (setQnt(pre => pre + 1))}
+                        onClick={() =>{
+                            if(optionsElement){
+                                if(!selectedOption){
+                                 return setIsSelectedOption(false)    
+                                }else{
+                                    setQnt(pre => pre + 1)
+                                }              
+                            }else{
+                                setQnt(pre => pre + 1)
+                            }
+                        }}
                     >
                         +
                     </button>
@@ -94,22 +281,22 @@ function ProductPage({ mproduct }) {
                 <button
                     className="Add-to-cart spawn-anime"
                     data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, 4500)}
+                    onClick={() => handleAddToCart(mproduct._id, qnt, selectedOption.price-(selectedOption.price*sales)/100)}
                 >
                     Add to cart
                 </button>
-                <Link href="/checkout">
+                <a href="/checkout">
                     <button 
                     className="Add-to-cart spawn-anime buy-now" 
                     data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, 4500)}
-                    >Buy now</button></Link>
+                    onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price)}
+                    >Buy now</button>
+                </a>
 
                 <div className="discription-container spawn-anime">
-                    <p className="discription mt-4 mb-4">
-                        An emotional reunion between two destined lovers. This piece perfectly captures the essence of this entire scene and the true meaning of love that we all yearn for. When the light ignites, it&apos;s as if magic unfolds before your eyes<br />—our cherished long-lost lovers are reunited for one last time.
-                        <br /><br />Step into the enchanting world of &quot;Your Name&quot; with our handcrafted masterpiece, where each brushstroke is lovingly crafted to perfection, ensuring an experience that touches your heart and soul.
-                    </p>
+                    <div className="discription mt-4 mb-4 ">
+                      {PDescriptionElement}
+                    </div>
                     <div className="drop-container">
                         <div className="drop-down">
                             <div className="drop-header js-dimensions cursor-pointer" onClick={()=>setIsDimensions(pre=>!pre)}>
