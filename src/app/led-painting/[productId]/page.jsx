@@ -2,11 +2,11 @@
 
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
-import  ProductsGrid  from "../../../components/ProductsGrid"
-import  ProductsPage from "../../..//components/ProductPage"
+import  ProductsGrid  from "../../../components/led painting/ProductsGrid"
+import  ProductsPage from "../../../components/led painting/ProductPage"
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import ProductPSkelaton from "../../../components/ProductPSkelaton";
+import ProductPSkelaton from "../../../components/loadings/ProductPSkelaton";
 
 
 

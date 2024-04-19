@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import ruler from '../../public/assets/ruler.svg'
-import arrowDown from '../../public/assets/arrow-down.svg'
-import Material from '../../public/assets/Material.svg'
+import ruler from '../../../public/assets/ruler.svg'
+import arrowDown from '../../../public/assets/arrow-down.svg'
+import Material from '../../../public/assets/Material.svg'
 
 
 const ProductGSkeleton = () => {

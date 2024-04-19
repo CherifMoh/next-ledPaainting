@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic'
 
-const Cart = dynamic(()=>import('../../components/Cart'),{
+const Cart = dynamic(()=>import('../../components/shared/Cart'),{
   ssr: false,
   loading:()=><p>Loading...</p>
 })

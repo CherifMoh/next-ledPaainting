@@ -6,7 +6,7 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import Spinner from "../../../../components/spinner";
+import Spinner from "../../../../components/loadings/spinner";
 
 
 const fetchProduct = async(id)=>{
@@ -27,10 +27,6 @@ function ProductUpdate({params}) {
 
     const [isSubmiting,setIsSubmitting] = useState(false)
     
-    const [optionsArray,setOptionsArray] = useState([1])
-    
-    const [salesArray,setSalesArray] = useState([1])
-
     const textareaRef = useRef(null);
    
 
@@ -114,7 +110,7 @@ function ProductUpdate({params}) {
             if(prevState?.options){
 
                 const updatedOptions = [...prevState.options]; // Create a copy of options array
-                updatedOptions[i] = { ...updatedOptions[i], [name]: value}; // Update the specific option at index i
+                updatedOptions[i] = { ...updatedOptions[i], [name]: value,selected:false}; // Update the specific option at index i
                 
                 return {
                     ...prevState,
@@ -123,7 +119,7 @@ function ProductUpdate({params}) {
             }else{
                 return{
                     ...prevState,
-                    options:[{[name]:value}]
+                    options:[{[name]:value,selected:false}]
                 }
             }
         });

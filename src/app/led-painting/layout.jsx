@@ -1,8 +1,8 @@
-import  Header  from "../../components/Header"
-import  Footer  from "../../components/Footer"
+import  Header  from "../../components/shared/Header"
+import  Footer  from "../../components/shared/Footer"
 import dynamic from 'next/dynamic'
 
-const Cart = dynamic(()=>import('../../components/Cart'),{
+const Cart = dynamic(()=>import('../../components/shared/Cart'),{
   ssr: false,
   loading:()=><p>Loading...</p>
 })

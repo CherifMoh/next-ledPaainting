@@ -1,12 +1,12 @@
 "use client"
 import { useState } from 'react'
-import '../styles/shared/header.css'
+import '../../styles/shared/header.css'
 import Link from 'next/link'
 import Image from 'next/image'
-import instaIcon from '../../public/assets/Instagram.png'
-import tiktokIcon from '../../public/assets/tiktok.png'
-import burger from '../../public/assets/burger.png'
-import logo from '../../public/assets/logo.png'
+import instaIcon from '../../../public/assets/Instagram.png'
+import tiktokIcon from '../../../public/assets/tiktok.png'
+import burger from '../../../public/assets/burger.png'
+import logo from '../../../public/assets/logo.png'
 
 
 function Header() {

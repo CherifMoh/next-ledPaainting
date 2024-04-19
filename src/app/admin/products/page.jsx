@@ -30,7 +30,6 @@ function Page() {
 
     if (isError) return <div>Error fetching products</div>;
 
-    console.log(products)
 
     function handleDelete (id){
         setDeleting(pre=>([...pre,{

@@ -6,7 +6,7 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import Spinner from "../../../../../components/spinner";
+import Spinner from "../../../../../components/loadings/spinner";
 
 const fetchTags = async()=>{
     const res = await axios.get('http://localhost:3000/api/products/tags');

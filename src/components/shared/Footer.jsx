@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import '../styles/shared/footer.css'
+import '../../styles/shared/footer.css'
 function Footer() {
   return (
     <div className="footer">

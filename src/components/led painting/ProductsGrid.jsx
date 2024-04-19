@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
-import ProductGSkeleton from './ProductGSkeleton'
+import ProductGSkeleton from '../loadings/ProductGSkeleton'
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -10,8 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
-import arrow from '../../public/assets/arrow-down.svg'
-import logo from '../../public/assets/logo.jpg'
+import arrow from '../../../public/assets/arrow-down.svg'
+import logo from '../../../public/assets/logo.jpg'
 
 const fetchTags = async()=>{
     const res = await axios.get('http://localhost:3000/api/products/tags');

@@ -1,19 +1,19 @@
 "use client"
 
-import '../styles/pages/ledProductPage.css'
-import '../styles/pages/index.css'
+import '../../styles/pages/ledProductPage.css'
+import '../../styles/pages/index.css'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { addProduct, removeProduct, updatedQuntity } from '../app/redux/features/cart/cartSlice'
-import { showCartToggle } from "../app/redux/features/showCart/showCartSlice";
+import { addProduct, removeProduct, updatedQuntity } from '../../app/redux/features/cart/cartSlice'
+import { showCartToggle } from "../../app/redux/features/showCart/showCartSlice";
 import { Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import ruler from '../../public/assets/ruler.svg'
+import ruler from '../../../public/assets/ruler.svg'
 import { useQuery } from "@tanstack/react-query";
-import arrowDown from '../../public/assets/arrow-down.svg'
-import Material from '../../public/assets/Material.svg'
-import ProductPSkelaton from "./ProductPSkelaton";
+import arrowDown from '../../../public/assets/arrow-down.svg'
+import Material from '../../../public/assets/Material.svg'
+import ProductPSkelaton from "../loadings/ProductPSkelaton";
 import axios from "axios";
 
 
@@ -84,16 +84,28 @@ function ProductPage({ mproduct }) {
     if(isError) return <div>{error.message}</div>
 
     if(!ledPainting) return 0
+
     
-    const handleAddToCart = (productId, qnt, price) => {
+    const handleAddToCart = (productId, qnt, price, sales ) => {
         if(!selectedOption) return setIsSelectedOption(false)
+
+        const newOptions = ledPainting.options.map(option=>{
+            if(option.title === selectedOption.title){
+                return {...option,selected:true}
+            }
+            return option
+        })
+
         handelCartToggle()
+
         dispatch(addProduct({
             _id: productId,
-            qnt: qnt,
+            qnt:qnt,
             price:price,
-            option:selectedOption.title
+            options:newOptions,
+            sales:sales,
         }));
+        console.log(cart)
     };
         
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -281,7 +293,7 @@ function ProductPage({ mproduct }) {
                 <button
                     className="Add-to-cart spawn-anime"
                     data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, selectedOption.price-(selectedOption.price*sales)/100)}
+                    onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price, ledPainting.sales)}
                 >
                     Add to cart
                 </button>
@@ -289,7 +301,7 @@ function ProductPage({ mproduct }) {
                     <button 
                     className="Add-to-cart spawn-anime buy-now" 
                     data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price)}
+                    onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price, ledPainting.sales)}
                     >Buy now</button>
                 </a>
 
@@ -308,7 +320,11 @@ function ProductPage({ mproduct }) {
                                 />
                             </div>
                                 <div className={`dimensions-body transition-all duration-500 ${!isDimensions && 'hidden'}`}>
-                                    <p className="drop-dimensions-title">(L x W)</p>
+                                    <p 
+                                     className="drop-dimensions-title font-semibold text-lg"
+                                    >
+                                        (L x W)
+                                    </p>
                                     <p className="dimensions">
                                         21 cm x 29.7 cm
                                     </p>

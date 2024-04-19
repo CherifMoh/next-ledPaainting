@@ -10,7 +10,7 @@ import Image from 'next/image';
 import logo from '../../../public/assets/logo.png' 
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
-import Spinner from '../../components/spinner';
+import Spinner from '../../components/loadings/Spinner';
 
 
 
@@ -125,7 +125,7 @@ function Checkout() {
                                 _id:uuidv4(),
                                 qnt:cartItem.qnt,
                                 imageOn:product.imageOn,
-                                option:cart[i].option
+                                options:cart[i].options
                             }
                         ]
                     }

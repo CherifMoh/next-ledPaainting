@@ -199,9 +199,13 @@
 .drop-dimensions-title,.dimensions{
     letter-spacing: normal;
     padding-left: 15px;
-    font-family: 'DM Serif Display', serif!important;
+    margin-bottom: 10px;
     font-weight: 500;
     color: #11151CBF;
+}
+.dimensions{
+    font-family: 'DM Serif Display', serif!important; 
+    padding-left: 25px;
 }
 .material{
     padding-left: 15px;

@@ -1,4 +1,4 @@
-import  Dashboard   from "../../components/Dashboard"
+import  Dashboard   from "../../components/admin/Dashboard"
 
 function Loading() {
   typeof document !== 'undefined' && document.body.classList.add('bg-white')

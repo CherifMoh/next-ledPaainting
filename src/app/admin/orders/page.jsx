@@ -113,6 +113,30 @@ function Orders() {
         });
     }
 
+    function handleOptChange(e,i) {
+        const input = e.target
+        const name = input.name;
+        const value = input.value;
+
+        input.style.width = `${(input.value.length+4)*10}px`;
+
+        console.log(value)
+        
+        setNewOrders(pre =>{
+            const newOption = pre[i].options.map(option=>{
+                if(option.title === value){
+                    return {...option,selected:true}
+                }
+                if(option.selected){
+                    return {...option,selected:false}
+                }
+                return option
+            })
+            pre[i] = {...pre[i],options:newOption}
+            return pre
+        });
+    }
+
     function handleDateChange(date) {
 
         setSelectedDate(date);
@@ -137,8 +161,6 @@ function Orders() {
         queryClient.invalidateQueries('AdminledDesigne');
     }
     
-    console.log(newOrders)
-    
     let longesOrder = []
     Orders.forEach(order=>{
         if(order.orders.length > longesOrder.length){
@@ -158,7 +180,6 @@ function Orders() {
     
 
     const ordersElement = Orders.map( order=>{
-        console.log(order)
         if(
             search === ''||
             order.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
@@ -170,6 +191,23 @@ function Orders() {
             let cartItemsElemnt
             if(order.orders){
                 cartItemsElemnt = order.orders.map((product,i)=>{
+                    const optionElement = product.options.map(option=>{
+                        return(
+                            <option 
+                             value={option.title} 
+                             className="p-2"
+                            >
+                                {option.title}
+                            </option>
+                        )
+                    })
+                    let slectedOption
+                    product.options.forEach(option=>{
+                        if(option.selected){
+                            slectedOption = option.title
+                        }
+                    })
+                    console.log(slectedOption)
                     const designOptionsElent = Designs.map(design=>{
                         if(design.title.toLowerCase().includes(search.toLocaleLowerCase() ) ||search === '' ){
                             return(
@@ -194,19 +232,20 @@ function Orders() {
                     return(
                         <td key={product._id} className="border-black relative border-2 font-medium p-3 text-center h-8">
                             {order._id === editedOrderId
-                                ?<input 
-                                 type="text" 
-                                 onChange={(e)=>handleQntChange(e,i)} 
+                                ?<select 
+                                 onChange={(e)=>handleOptChange(e,i)} 
                                  name="option"
-                                 defaultValue={product.option} 
+                                 defaultValue={slectedOption} 
                                  min={1}
                                  className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
-                                />
+                                >
+                                    {optionElement}
+                                </select>
                                 :
                                 <div 
                                 className="mb-4 "
                                 >
-                                    {product.option}
+                                    {slectedOption}
                                 </div>
                             }
 
