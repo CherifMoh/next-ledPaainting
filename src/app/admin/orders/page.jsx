@@ -13,6 +13,8 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import {deleteOrder} from '../../actions/order'
 import { useRouter } from "next/navigation";
 
+import Spinner from '../../../components/loadings/Spinner'
+
 
 async function fetchOrders() {
     const res = await axios.get('http://localhost:3000/api/orders');
@@ -52,6 +54,12 @@ function Orders() {
 
     const [newOrders,setNewOrders] = useState({})
 
+    const [scheduleQnt,setScheduleQnt] = useState()
+
+    const [isSchedule,setIsSchedule] = useState(false)
+
+    const [saving,setSaving] = useState([])
+
     const router = useRouter()
 
     const queryClient = useQueryClient()
@@ -67,6 +75,19 @@ function Orders() {
     useEffect(() => {        
         setNewOrders(editedOrder.orders)
     }, [editedOrder]);
+
+    useEffect(() => {
+        let newSchedule = 0       
+        Orders?.forEach(order=>{
+            const currentDate = format(new Date(), 'yyyy-MM-dd');
+    
+            // Check if the saved date is the same as today
+            const isSameAsToday = order.schedule === currentDate;
+            if(isSameAsToday) newSchedule++    
+        })
+        setScheduleQnt(newSchedule)
+    }, [editedOrder, Orders]);
+
 
 
 
@@ -120,7 +141,6 @@ function Orders() {
 
         input.style.width = `${(input.value.length+4)*10}px`;
 
-        console.log(value)
         
         setNewOrders(pre =>{
             const newOption = pre[i].options.map(option=>{
@@ -169,23 +189,30 @@ function Orders() {
         
     })
     
-    async function handleUpdatingOrder(){
+    async function handleUpdatingOrder(id){
         setEditedOrder(pre=>({...pre,orders:newOrders}))
+        setSaving(pre=>([...pre,id]))
         const res = await axios.put(`http://localhost:3000/api/orders/${editedOrderId}`,editedOrder)
         
         queryClient.invalidateQueries('orders');
         setSelectedDate(null)
+        setSaving(pre=>{
+            const nweSaving = pre.filter(SId=>SId!==id)
+            return nweSaving
+        })
 
     }
     
 
     const ordersElement = Orders.map( order=>{
+        const currentDate = format(new Date(), 'yyyy-MM-dd');
         if(
-            search === ''||
-            order.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
-            order.wilaya.toLowerCase().includes(search.toLocaleLowerCase()) ||
-            order.phoneNumber.includes(search.toLocaleLowerCase()) ||
-            order.adresse.toLowerCase().includes(search.toLocaleLowerCase()) 
+            search === '' && !isSchedule||
+            search !== '' && !isSchedule && order.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
+            search !== '' && !isSchedule && order.wilaya.toLowerCase().includes(search.toLocaleLowerCase()) ||
+            search !== '' && !isSchedule && order.phoneNumber.includes(search.toLocaleLowerCase()) ||
+            search !== '' && !isSchedule && order.adresse.toLowerCase().includes(search.toLocaleLowerCase())||
+            isSchedule && order.schedule === currentDate
 
         ){        
             let cartItemsElemnt
@@ -194,7 +221,8 @@ function Orders() {
                     const optionElement = product.options.map(option=>{
                         return(
                             <option 
-                             value={option.title} 
+                             value={option.title}
+                             key={option.title} 
                              className="p-2"
                             >
                                 {option.title}
@@ -207,7 +235,6 @@ function Orders() {
                             slectedOption = option.title
                         }
                     })
-                    console.log(slectedOption)
                     const designOptionsElent = Designs.map(design=>{
                         if(design.title.toLowerCase().includes(search.toLocaleLowerCase() ) ||search === '' ){
                             return(
@@ -232,11 +259,11 @@ function Orders() {
                     return(
                         <td key={product._id} className="border-black relative border-2 font-medium p-3 text-center h-8">
                             {order._id === editedOrderId
-                                ?<select 
+                                ?
+                                <select 
                                  onChange={(e)=>handleOptChange(e,i)} 
                                  name="option"
                                  defaultValue={slectedOption} 
-                                 min={1}
                                  className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
                                 >
                                     {optionElement}
@@ -252,7 +279,8 @@ function Orders() {
                             <Image 
                              className='min-w-24 w-24' 
                              src={product.imageOn} 
-                             width={24} height={24} alt="" 
+                             width={24} height={24} alt=""
+                             key={product._id} 
                              onClick={()=>{
                                 if(order._id === editedOrderId){
                                    setIsdesigns(pre=>({
@@ -304,7 +332,7 @@ function Orders() {
             }
             if (editedOrderId === order._id) {
                 return(
-                    <tr key={order._id} className='h-5'>
+                    <tr key={order._id} className={`h-5`}>
                         <td>
                            
                             <button 
@@ -315,12 +343,12 @@ function Orders() {
                             </button>
                             <button 
                             onClick={()=>{
-                                handleUpdatingOrder()
+                                handleUpdatingOrder(order._id)
                                 orderIdToggel(order._id)
                             }}
                             className='px-3 py-2 ml-2  text-white bg-green-400 rounded-lg'
                             >
-                                Save
+                                save
                             </button>
                         </td>
                         <td>
@@ -446,27 +474,33 @@ function Orders() {
                 )
             }else{
                 return(
-                    <tr key={order._id} className='h-5'>
+                    <tr key={order._id} className={`h-5 ${saving.includes(order._id) && 'opacity-40 pointer-events-none'}`}>
                         <td>
-                            
+                        {saving.includes(order._id)
+                            ?
+                            <Spinner size={'w-8 h-8'} color={'border-green-500'}  containerStyle={'ml-14 mb-10'}/>
+                            :
+                            <div>
                             <button 
-                             disabled={editedOrderId !== order._id && editedOrderId !== ''} 
+                             disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)} 
                              onClick={()=>handleDelete(order._id)}
                              className='disabled:bg-red-200 text-white px-3 py-2 bg-red-500 rounded-lg'
                             >
                                 {deleting.some(item => item.id === order._id && item.state)?'Deleting':'Delete'}
                             </button>
-
+                           
                             <button 
                             onClick={()=>{
                                 setEditedOrderId(order._id)
                                 setEditedOrder(order)
                             }}
-                            disabled={editedOrderId !== order._id && editedOrderId !== ''}                        
-                            className={`disabled:bg-green-100 ml-2 text-white  bg-green-400 rounded-lg px-3 py-2`}
+                            disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)}                        
+                            className={`disabled:bg-green-100 ml-2 text-white bg-green-400 ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'} rounded-lg px-3 py-2`}
                             >
                                 Edit
                             </button>
+                            </div>
+                            }
                         </td>
                         <td>{order.name}</td>
                         <td>{order.phoneNumber}</td>
@@ -499,18 +533,33 @@ function Orders() {
             Add
         </Link>
 
-        <div className='flex gap-4'>
-            <div className='relative'>
-                <FontAwesomeIcon 
-                    icon={faMagnifyingGlass}
-                    className={`absolute left-72 top-0 pt-3 z-10 ${search?'hidden':'opacity-50'}`}
-                />
-                <input 
-                onChange={e=>setSearch(e.target.value)}
-                type="search" 
-                placeholder="Search"
-                className='w-80 p-2 border-2 border-gray-500 rounded-xl no-focus-outline'
-                />
+        <div className=" flex items-center gap-12">
+            <div className='flex gap-4'>
+                <div className='relative'>
+                    <FontAwesomeIcon 
+                        icon={faMagnifyingGlass}
+                        className={`absolute left-72 top-0 pt-3 z-10 ${search?'hidden':'opacity-50'}`}
+                    />
+                    <input 
+                    onChange={e=>setSearch(e.target.value)}
+                    type="search" 
+                    placeholder="Search"
+                    className='w-80 p-2 border-2 border-gray-500 rounded-xl no-focus-outline'
+                    />
+                </div>
+            </div>
+
+            <div 
+             className='relative border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+             onClick={()=>setIsSchedule(pre=>!pre)}
+            >
+                <div 
+                 className='absolute -right-3 -top-3 bg-red-500 px-2 rounded-full text-white'
+                >
+                    {scheduleQnt}
+                </div>
+                <div
+                >Scheduled</div>
             </div>
         </div>
 

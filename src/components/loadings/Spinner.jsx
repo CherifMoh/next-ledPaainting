@@ -1,8 +1,8 @@
 
-function Spinner({ color, size }) {
+function Spinner({ color, size, containerStyle }) {
 
   return (
-    <div className="flex">
+    <div className={`${containerStyle}`}>
         <div className="relative">
             <div
              className={`${size} rounded-full absolute border-4 

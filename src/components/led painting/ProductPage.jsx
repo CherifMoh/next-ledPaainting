@@ -227,8 +227,8 @@ function ProductPage({ mproduct }) {
                 <div className="price-container flex gap-6 spawn-anime">
                     {sales && priceElement &&
                         <>
-                            <span className="price-befor-sale ">{selectedOption.price} DA</span>
-                            <span className="price-after-sale ">{selectedOption.price-(selectedOption.price*sales)/100} DA</span>
+                            <span className="price-befor-sale ">{selectedOption.price*qnt} DA</span>
+                            <span className="price-after-sale ">{(selectedOption.price-(selectedOption.price*sales)/100)*qnt} DA</span>
                         </>
                     }
 
