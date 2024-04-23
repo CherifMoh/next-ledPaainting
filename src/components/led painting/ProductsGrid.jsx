@@ -102,7 +102,7 @@ function ProductsGrid() {
     Designs.forEach((design, index) => {
         if (
             (design.tags.includes(selectedTag) || selectedTag === "all") &&
-            (design.title.toLowerCase().includes(search.toLowerCase()) || search === "")
+            (design.title.toLowerCase().includes(search.toLowerCase()) || design.description.toLowerCase().includes(search.toLowerCase()) || search === "")
         ) {
             const productElement = (
                 <Link key={design._id} className="product-card" href={`/led-painting/${design._id}`}>
@@ -175,25 +175,25 @@ function ProductsGrid() {
         <div>
             <div className="flex items-center lg:flex-row lg:justify-between text-start relative">
                 {isRightShown && 
-                        <div className="flex absolute bg-[#dfdfd8] z-50 lg:left-[570px] sm:left-[370px] left-[270px]">
-                        <div
-                        className='bg-gradient-to-r rounded-e-xl from-gray-900 to-stone-300 z-50 w-8 h-8'
-                        >                       
-                        </div>
-                        <button
-                         className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 -rotate-90 "
-                         onClick={handleRightArrow} 
-                        >
-                            <Image 
-                            src={arrow} 
-                            width={20} height={20}
-                            alt="" 
-                            />
-                        </button>
+                    <div className="flex absolute bg-[#DCCCB3] z-50 lg:left-[570px] sm:left-[370px] left-[270px]">
+                    <div
+                    className='bg-gradient-to-r rounded-e-xl from-gray-900 to-stone-300 z-50 w-8 h-8'
+                    >                       
+                    </div>
+                    <button
+                        className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 -rotate-90 "
+                        onClick={handleRightArrow} 
+                    >
+                        <Image 
+                        src={arrow} 
+                        width={20} height={20}
+                        alt="" 
+                        />
+                    </button>
                 </div>
                 }
                 {isLeftShown && 
-                        <div className="flex absolute left-0 z-50  bg-[#dfdfd8]">
+                    <div className="flex absolute left-0 z-50 bg-[#DCCCB3]">
                         
                         <button
                          className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 rotate-90 "
@@ -210,7 +210,7 @@ function ProductsGrid() {
                         className='bg-gradient-to-l rounded-s-xl from-gray-900 to-stone-300 z-50 w-8 h-8'
                         >                       
                         </div>
-                </div>
+                    </div>
                 }
 
                 <div className="lg:max-w-[600px] sm:max-w-[400px] max-w-[300px]  overflow-hidden">
@@ -242,8 +242,8 @@ function ProductsGrid() {
                     <input 
                      id="search"
                      type='search' 
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200' 
                      placeholder={`Search`}
+                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#1a2332] no-focus-outline text-[#1a2332] placeholder-[#1a2332] bg-[#bda780]' 
                      onChange={(e)=>setSearch(e.target.value)}
                     />
                 </div>
@@ -254,12 +254,12 @@ function ProductsGrid() {
                 >
                  
                 </div>
-                <div className={`fixed right-0 ${isMobileShown?'top-0':'-top-32'} z-[99999] w-full flex bg-[#dfdfd8] items-center justify-center h-20 `}>
+                <div className={`fixed right-0 ${isMobileShown?'top-0':'-top-32'} z-[99999] w-full flex bg-[#DCCCB3] items-center justify-center h-20 `}>
                     <input 
                      id="search"
                      type='search' 
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200' 
                      placeholder={`Search`}
+                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#1a2332] no-focus-outline text-[#1a2332] placeholder-[#1a2332] bg-[#bda780]' 
                      onChange={(e)=>setSearch(e.target.value)}
                     />
                     <div

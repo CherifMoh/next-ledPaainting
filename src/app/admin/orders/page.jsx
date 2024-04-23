@@ -60,6 +60,8 @@ function Orders() {
 
     const [saving,setSaving] = useState([])
 
+    const [dateFilter,setDateFilter] = useState('')
+
     const router = useRouter()
 
     const queryClient = useQueryClient()
@@ -143,17 +145,18 @@ function Orders() {
 
         
         setNewOrders(pre =>{
-            const newOption = pre[i].options.map(option=>{
+            let newOption =[]
+            pre[i].options.forEach(option=>{
                 if(option.title === value){
-                    return {...option,selected:true}
+                    newOption=[...newOption,{...option,selected:true}]
                 }
                 if(option.selected){
-                    return {...option,selected:false}
+                    newOption=[...newOption,{...option,selected:false}]
                 }
                 return option
             })
             pre[i] = {...pre[i],options:newOption}
-            return pre
+            return newOption=[...newOption,pre]
         });
     }
 
@@ -202,23 +205,56 @@ function Orders() {
         })
 
     }
+
+    function isWithinPastWeek(dateString) {
+        // Convert the date string to a Date object
+        const date = new Date(dateString);
+        
+        // Get the current date
+        const currentDate = new Date();
+        
+        // Calculate the difference in milliseconds between the current date and the provided date
+        const difference = currentDate - date;
+        
+        // Calculate the number of milliseconds in a week
+        const millisecondsInWeek = 7 * 24 * 60 * 60 * 1000;
+    
+        // Check if the difference is less than the number of milliseconds in a week
+        return difference <= millisecondsInWeek;
+    }
+
+    function handleDateFilterChange(e){
+        const value = e.target.value
+
+        const currentDate = format(new Date(), 'yyyy-MM-dd')
+
+        const cDate = new Date();
+        cDate.setDate(cDate.getDate() - 1);
+        const yesterdayDate = cDate.toISOString().slice(0, 10);
+
+        if(value === 'maximum')setDateFilter('')
+        if(value === 'today')setDateFilter(currentDate)
+        if(value === 'yesterday')setDateFilter(yesterdayDate)
+    }
     
 
-    const ordersElement = Orders.map( order=>{
+    console.log('Orders:', Orders)
+    const ordersElement = Orders.map( (order,i)=>{
         const currentDate = format(new Date(), 'yyyy-MM-dd');
-        if(
+        if(order.createdAt.slice(0, 10) === dateFilter || !dateFilter)if(
             search === '' && !isSchedule||
             search !== '' && !isSchedule && order.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
             search !== '' && !isSchedule && order.wilaya.toLowerCase().includes(search.toLocaleLowerCase()) ||
             search !== '' && !isSchedule && order.phoneNumber.includes(search.toLocaleLowerCase()) ||
             search !== '' && !isSchedule && order.adresse.toLowerCase().includes(search.toLocaleLowerCase())||
             isSchedule && order.schedule === currentDate
-
+            
+            
         ){        
             let cartItemsElemnt
             if(order.orders){
                 cartItemsElemnt = order.orders.map((product,i)=>{
-                    const optionElement = product.options.map(option=>{
+                    const optionElement = product.options?.map(option=>{
                         return(
                             <option 
                              value={option.title}
@@ -230,7 +266,7 @@ function Orders() {
                         )
                     })
                     let slectedOption
-                    product.options.forEach(option=>{
+                    product.options?.forEach(option=>{
                         if(option.selected){
                             slectedOption = option.title
                         }
@@ -238,7 +274,10 @@ function Orders() {
                     const designOptionsElent = Designs.map(design=>{
                         if(design.title.toLowerCase().includes(search.toLocaleLowerCase() ) ||search === '' ){
                             return(
-                                <div key={design._id} className='border-gray-500 border-b-2 p-4 bg-white'>
+                                <div 
+                                 key={design._id} 
+                                 className='border-gray-500 border-b-2 p-4 bg-white'
+                                >
                                     <Image 
                                     src={design.imageOn} 
                                     alt='' 
@@ -257,7 +296,11 @@ function Orders() {
                        
                     })
                     return(
-                        <td key={product._id} className="border-black relative border-2 font-medium p-3 text-center h-8">
+                        <td 
+                         key={i} 
+                         className="border-black relative border-2 font-medium p-3 text-center h-8"
+                        >
+                            
                             {order._id === editedOrderId
                                 ?
                                 <select 
@@ -290,6 +333,7 @@ function Orders() {
                                 } 
                              }}
                             />
+                            
                             {isdesigns.state && isdesigns._id === product._id &&
                                  <div className='max-w-96 border-2 border-gray-500 absolute mt-2 bg-white'>
                                     <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
@@ -327,7 +371,7 @@ function Orders() {
                             </span>
                             }
                         </td>
-                )
+                    )
             })
             }
             if (editedOrderId === order._id) {
@@ -474,7 +518,10 @@ function Orders() {
                 )
             }else{
                 return(
-                    <tr key={order._id} className={`h-5 ${saving.includes(order._id) && 'opacity-40 pointer-events-none'}`}>
+                    <tr 
+                     key={order._id}
+                     className={`h-5 ${saving.includes(order._id) && 'opacity-40 pointer-events-none'}`}
+                    >
                         <td>
                         {saving.includes(order._id)
                             ?
@@ -522,6 +569,23 @@ function Orders() {
         }
     })
 
+    const dateFilterArray = [
+        'maximum','today','yesterday'
+    ]
+    const dateFilterElements= dateFilterArray.map((value,i)=>(
+        <option 
+         key={i}
+         value={value}
+         className='capitalize'
+        >
+            {value}
+        </option>
+    ))
+
+    const buttonStyle={
+        boxShadow: isSchedule && 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
+      }
+
 
   return (
     <div className="p-4 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
@@ -533,7 +597,9 @@ function Orders() {
             Add
         </Link>
 
-        <div className=" flex items-center gap-12">
+        <div 
+         className="flex items-center 2xl:max-w-7xl xl:max-w-5xl justify-start gap-12"
+        >
             <div className='flex gap-4'>
                 <div className='relative'>
                     <FontAwesomeIcon 
@@ -550,8 +616,9 @@ function Orders() {
             </div>
 
             <div 
-             className='relative border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+             className='relative justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
              onClick={()=>setIsSchedule(pre=>!pre)}
+             style={buttonStyle}
             >
                 <div 
                  className='absolute -right-3 -top-3 bg-red-500 px-2 rounded-full text-white'
@@ -561,6 +628,14 @@ function Orders() {
                 <div
                 >Scheduled</div>
             </div>
+
+            <select 
+             name="date" 
+             onChange={handleDateFilterChange}
+             className="ml-auto capitalize border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer"
+            >
+                {dateFilterElements}
+            </select>
         </div>
 
         <table border='1' className='font-normal w-full ml-auto'>

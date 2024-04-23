@@ -12,8 +12,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 
-async function fetchProducts() {
+async function fetchDesigns() {
     const res = await axios.get('http://localhost:3000/api/products/ledDesigns');
+    return res.data;
+}
+async function fetchProducts() {
+    const res = await axios.get('http://localhost:3000/api/products');
     return res.data;
 }
 
@@ -30,14 +34,19 @@ function Page() {
     const [isdesigns, setIsdesigns] = useState(false);
     const [selectedImage, setSelectedImage] = useState(false);
     const [selectqnt, setSelectqnt] = useState(1);
+    const [selectOpt, setSelectOpt] = useState([]);
 
     const [search,setSearch] = useState('')
     const [orders,setOrders] = useState([])
 
     const [isBeruAvailable,setIsBeruAvailable] = useState(true)
 
-    const { data: Designs, isLoading, isError,error } = useQuery({
+    const { data: Designs, isLoading:designsLoding, isError:designsIsErr,error:designsErr } = useQuery({
         queryKey:['AdminledDesigne'],
+        queryFn: fetchDesigns
+    });
+    const { data: Products, isLoading:productsLoding, isError:productsIsErr,error:productsErr } = useQuery({
+        queryKey:['AdminProducts'],
         queryFn: fetchProducts
     });
 
@@ -97,9 +106,10 @@ function Page() {
     },[formData.wilaya , formData.shippingMethod])
 
 
-    if (isLoading) return <div>Loading...</div>;
+    if (productsLoding || designsLoding) return <div>Loading...</div>;
 
-    if (isError) return <div>Error: {error.message}</div>;
+    if (productsIsErr) return <div>Error: {productsErr.message}</div>;
+    if (designsIsErr) return <div>Error: {designsErr.message}</div>;
 
 
 
@@ -138,7 +148,7 @@ function Page() {
     ))
 
     const designOptionsElent = Designs.map(design=>{
-        if(design.title.toLowerCase().includes(search.toLocaleLowerCase() ) ||search === '' ){
+        if(design.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '' ){
             return(
                 <div key={design._id} className='border-gray-500 border-b-2 p-4 bg-white'>
                     <Image 
@@ -196,7 +206,8 @@ function Page() {
             ...pre,
             {
                 imageOn:selectedImage,
-                qnt:selectqnt
+                qnt:selectqnt,
+                options:selectOpt
             }
         ]))
         setSelectedImage('')
@@ -225,173 +236,190 @@ function Page() {
     })
     
   return (
-    <div className='p-4'>
-        <div className='flex items-center justify-center gap-16'> 
-        
-            {selectedImage 
-            ?
-            <Image 
-                src={selectedImage} 
-                alt='' 
-                width={64} height={64}
-                onClick={()=>{
-                    setIsdesigns(pre=>!pre)
-                    setSelectedImage('')
-                }} 
-            />
-            :
-            <div className='flex items-center gap-16'>
-                <div>  
-                    <div
-                    onClick={()=>setIsdesigns(pre=>!pre)} 
-                    className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
-                    >
-                        <p>Select Image</p>
-                    </div>
-                    
-                    {isdesigns && 
-                        <div className='max-w-96 border-2 border-gray-500 absolute mt-2'>
-                            <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
-                                <FontAwesomeIcon 
-                                icon={faMagnifyingGlass}
-                                className={`pt-2 pointer-events-none z-10 absolute left-64 ${search?'hidden':'opacity-50'}`}
-                                />
-                                <input 
-                                id="search"
-                                type='search' 
-                                className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200' 
-                                placeholder={`Search`}
-                                onChange={(e)=>setSearch(e.target.value)}
-                                />
-                            </div>
-                            <div className='grid grid-cols-2 max-h-[484px] overflow-y-auto'>
-                                {designOptionsElent}
-                            </div>
-                        </div>
-                    }
-                </div>   
-                <div>Or</div>       
-                <div className='border-2 border-dashed h-14 border-slate-800 relative text-center flex justify-center'>
-                    <span 
-                    className='absolute top-4'
-                    >
-                        Add a custom
-                    </span>
-                    <input 
-                     type='file' 
-                     onChange={handleFileUpload}
-                     className='w-full h-full opacity-0 m-0'
-                    />
-                </div> 
-            </div>     
-        }
+    <div className='p-4 pt-0 flex gap-4'>
+        <form 
+         onSubmit={handelSubmit} 
+         className='border-r-2 h-screen border-gray-400 pr-4'
+        >
+            <h1 className='text-center mt-4 text-2xl font-semibold mb-10'>Order details</h1>
             <input 
-             type="number"
-             placeholder='Qntity' 
-             value={selectqnt} 
-             className='m-0 w-24 h-14'
-             min={1}
-             onChange={(e)=>setSelectqnt(e.target.value)}
+            onChange={handleChange} 
+            required 
+            className="name"  
+            placeholder="Name" 
+            name="name" 
+            type="text" 
             />
 
-            <button
-             className='bg-green-300 px-3 py-2 rounded-lg'
-             onClick={addToOrders}
-            >
-                Add
-            </button>
-                
-        </div>
+            {!isPhoneCorrect && 
+                <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
+                    أدخل رقم هاتف صحيح 
+                </h1>
+            }
 
-        <div className='mt-10 text-center text-2xl font-semibold flex-col'>
-            <h1>Orders</h1>
-            <div className='flex gap-8'>
-                {ordersElement}
+            <input 
+            onChange={handleChange} 
+            required 
+            className="phone"  
+            placeholder="Phone" 
+            name="phoneNumber" 
+            type="text" 
+            />
+
+            {!isWilayaSelected && 
+                <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
+                    أدخل الولاية 
+                </h1>
+            }
+
+            <select  
+            value={formData.wilaya} 
+            onChange={handleChange} 
+            required className="wilaya"  
+            name="wilaya"  
+            >
+                <option value="الولاية" hidden >الولاية</option>
+                {wilayatOptionsElement}
+            </select>
+
+            <input 
+            onChange={handleChange} 
+            required 
+            className="baldia"  
+            placeholder="Adresse" 
+            name="adresse" 
+            type="text" 
+            />
+
+            {!isShippingSelected && 
+                <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
+                    أدخل طريقة التوصيل 
+                </h1>
+            }
+
+            {isBeruAvailable
+                ?<select 
+                value={formData.shippingMethod} 
+                onChange={handleChange} 
+                required className="shippingmethod" 
+                name="shippingMethod"  
+                >
+                    <option value='طريقة التوصيل' hidden >طريقة التوصيل</option>
+                    <option value="بيت">بيت</option>
+                    <option value="مكتب">مكتب</option>
+                </select>
+                :<div className='my-5 text-xl font-semibold'>
+                    التوصيل الى البيت فقط
+                </div>
+            }   
+
+            <input 
+            onChange={handleChange} 
+            required 
+            placeholder="Total Price" 
+            name="totalPrice" 
+            type="number" 
+            />
+            
+            <button type="submit" className="submit-button">أطلب الان</button>
+        </form> 
+        <div>
+            <h1 
+                className='text-center mt-4 text-2xl font-semibold mb-10'
+            >
+                Add Order
+            </h1>
+            <div className='flex items-center justify-center gap-16'> 
+                {selectedImage 
+                ?
+                <Image 
+                    src={selectedImage} 
+                    alt='' 
+                    width={64} height={64}
+                    onClick={()=>{
+                        setIsdesigns(pre=>!pre)
+                        setSelectedImage('')
+                    }} 
+                />
+                :
+                <div className='flex items-center gap-16'>
+                    <div>  
+                        <div
+                         onClick={()=>setIsdesigns(pre=>!pre)} 
+                         className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
+                        >
+                            <p>Select Image</p>
+                        </div>
+                        
+                        {isdesigns && 
+                            <div className='max-w-96 border-2 border-gray-500 absolute mt-2'>
+                                <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
+                                    <FontAwesomeIcon 
+                                    icon={faMagnifyingGlass}
+                                    className={`pt-2 pointer-events-none z-10 absolute left-64 ${search?'hidden':'opacity-50'}`}
+                                    />
+                                    <input 
+                                    id="search"
+                                    type='search' 
+                                    className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200' 
+                                    placeholder={`Search`}
+                                    onChange={(e)=>setSearch(e.target.value)}
+                                    />
+                                </div>
+                                <div className='grid grid-cols-2 max-h-[484px] overflow-y-auto'>
+                                    {designOptionsElent}
+                                </div>
+                            </div>
+                        }
+                    </div>   
+                    <div>Or</div>       
+                    <div className='border-2 w-36 border-dashed h-14 border-slate-800 relative text-center flex justify-center'>
+                        <span 
+                        className='absolute top-4'
+                        >
+                            Add a custom
+                        </span>
+                        <input 
+                        type='file' 
+                        onChange={handleFileUpload}
+                        className='w-full h-full opacity-0 m-0'
+                        />
+                    </div> 
+                </div>     
+            }
+                <input 
+                type="number"
+                placeholder='Qntity' 
+                value={selectqnt} 
+                className='m-0 w-24 h-14'
+                min={1}
+                onChange={(e)=>setSelectqnt(e.target.value)}
+                />
+                <input 
+                type="text"
+                placeholder='Option' 
+                value={selectOpt[0]?.title} 
+                className='m-0 w-24 h-14'
+                min={1}
+                onChange={(e)=>setSelectOpt([{title:e.target.value,selected:true}])}
+                />
+
+                <button
+                className='bg-green-300 px-3 py-2 rounded-lg'
+                onClick={addToOrders}
+                >
+                    Add
+                </button>
+                    
+            </div>
+
+            <div className='mt-10 text-center text-2xl font-semibold flex-col'>
+                <h1>Orders</h1>
+                <div className='flex gap-8'>
+                    {ordersElement}
+                </div>
             </div>
         </div>
-    
-        <form onSubmit={handelSubmit} className='mt-16'>
-                        <input 
-                        onChange={handleChange} 
-                        required 
-                        className="name"  
-                        placeholder="Name" 
-                        name="name" 
-                        type="text" 
-                        />
-
-                        {!isPhoneCorrect && 
-                            <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
-                                أدخل رقم هاتف صحيح 
-                            </h1>
-                        }
-
-                        <input 
-                        onChange={handleChange} 
-                        required 
-                        className="phone"  
-                        placeholder="Phone" 
-                        name="phoneNumber" 
-                        type="text" 
-                        />
-
-                        {!isWilayaSelected && 
-                            <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
-                                أدخل الولاية 
-                            </h1>
-                        }
-
-                        <select  
-                        value={formData.wilaya} 
-                        onChange={handleChange} 
-                        required className="wilaya"  
-                        name="wilaya"  
-                        >
-                            <option value="الولاية" hidden >الولاية</option>
-                            {wilayatOptionsElement}
-                        </select>
-
-                        <input 
-                        onChange={handleChange} 
-                        required 
-                        className="baldia"  
-                        placeholder="Adresse" 
-                        name="adresse" 
-                        type="text" 
-                        />
-
-                        {!isShippingSelected && 
-                            <h1 className='flex justify-end text-red-600 font-semibold mb-1'>
-                                أدخل طريقة التوصيل 
-                            </h1>
-                        }
-
-                        {isBeruAvailable
-                            ?<select 
-                            value={formData.shippingMethod} 
-                            onChange={handleChange} 
-                            required className="shippingmethod" 
-                            name="shippingMethod"  
-                            >
-                                <option value='طريقة التوصيل' hidden >طريقة التوصيل</option>
-                                <option value="بيت">بيت</option>
-                                <option value="مكتب">مكتب</option>
-                            </select>
-                            :<div className='my-5 text-xl font-semibold'>
-                                التوصيل الى البيت فقط
-                            </div>
-                        }   
-
-                        <input 
-                        onChange={handleChange} 
-                        required 
-                        placeholder="Total Price" 
-                        name="totalPrice" 
-                        type="number" 
-                        />
-                        
-                        <button type="submit" className="submit-button">أطلب الان</button>
-        </form> 
     </div>
   )
 }
