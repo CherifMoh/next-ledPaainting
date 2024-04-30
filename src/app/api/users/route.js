@@ -4,6 +4,17 @@ import bcrypt from 'bcrypt'
 import {dbConnect} from '../../lib/dbConnect'
 
 
+export async function GET(req){
+    try{
+        await dbConnect()
+        return User.find().sort({_id: -1})
+            .then(result=> Response.json(result))
+            .catch(err=>Response.json({message:err.message}))
+      }catch(err){
+        return new NextResponse("Error :" + err)
+      }
+    
+}
 export async function POST(req){
     await dbConnect()
     try{

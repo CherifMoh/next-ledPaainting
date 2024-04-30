@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 
 async function fetchProducts() {
-    const res = await axios.get('http://localhost:3000/api/products');
+    const res = await axios.get('/api/products');
     return res.data;
 }
 

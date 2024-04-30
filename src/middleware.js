@@ -2,7 +2,6 @@ import {  NextResponse } from 'next/server'
 import verifyAuth from './app/lib/verifyAuth'
 
  
-// This function can be marked `async` if using `await` inside
 export default async function middleware(request) {
     try{
         const cookie = request.cookies.get('access-token')

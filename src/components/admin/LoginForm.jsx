@@ -61,6 +61,16 @@ function UserForm() {
                 className="m-2 bg-slate-300 rounded"
             />
 
+            <label htmlFor="role">Role</label>
+            <input 
+                type="text" 
+                name="role" 
+                id="role" 
+                onChange={handleChange} 
+                required 
+                value={formData.role}
+                className="m-2 bg-slate-300 rounded"
+            />
             <label htmlFor="password">password</label>
             <input 
                 type="password" 

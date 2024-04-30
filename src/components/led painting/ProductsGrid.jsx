@@ -99,6 +99,20 @@ function ProductsGrid() {
     const restOfTheProducts = [];
     let counter = 0;
 
+    const priceElement = ledPainting.options?.map((option,i)=>{
+        return(
+            <div 
+             className="price-after-sale "
+             key={i}
+            >
+                {option.price} 
+                {i !== ledPainting.options.length - 1 
+                 && <span className=' w-4 h-2 inline-block border-t-[2px] ml-2 border-black text-center'></span>
+                }
+            </div>
+        )
+    })
+
     Designs.forEach((design, index) => {
         if (
             (design.tags.includes(selectedTag) || selectedTag === "all") &&
@@ -112,8 +126,8 @@ function ProductsGrid() {
                     </div>
                     <div className="card-info">
                         <span className="product-title">{design.title}</span>
-                        <span className="sale-product-price">
-                            {ledPainting.price} DA
+                        <span className="flex items-center">
+                            {priceElement} DA
                         </span>
                     </div>
                 </Link>
@@ -237,13 +251,13 @@ function ProductsGrid() {
                 <div className="hidden lg:block">
                     <FontAwesomeIcon 
                      icon={faMagnifyingGlass}
-                     className={`pt-2 pointer-events-none z-10 absolute right-2 ${search?'hidden':'opacity-50'}`}
+                     className={`pt-2 text-[#ead8bd] pointer-events-none z-10 absolute right-2 ${search?'hidden':'opacity-50'}`}
                     />
                     <input 
                      id="search"
                      type='search' 
                      placeholder={`Search`}
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#1a2332] no-focus-outline text-[#1a2332] placeholder-[#1a2332] bg-[#bda780]' 
+                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#514b3f] no-focus-outline text-[#d7c09e] placeholder-[#d7c09e] bg-[#514b3f]' 
                      onChange={(e)=>setSearch(e.target.value)}
                     />
                 </div>
@@ -259,7 +273,7 @@ function ProductsGrid() {
                      id="search"
                      type='search' 
                      placeholder={`Search`}
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#1a2332] no-focus-outline text-[#1a2332] placeholder-[#1a2332] bg-[#bda780]' 
+                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#514b3f] no-focus-outline text-[#d7c09e] placeholder-[#d7c09e] bg-[#514b3f]' 
                      onChange={(e)=>setSearch(e.target.value)}
                     />
                     <div
@@ -274,7 +288,7 @@ function ProductsGrid() {
              className="lg:hidden cursor-pointer z-50 hover:bg-gray-400 px-2 py-1 rounded-full absolute right-14 top-20"
             >
                 <FontAwesomeIcon 
-                    icon={faMagnifyingGlass}                     
+                    icon={faMagnifyingGlass}                 
                 />
             </div>
 

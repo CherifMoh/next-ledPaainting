@@ -1,7 +1,15 @@
+'use client'
+
+import { useRouter } from "next/navigation";
+
+
 function Admin() {
-  return (
-    <div>Admin</div>
-  )
+
+  const router = useRouter()
+
+  router.push('/admin/dashboard')
+
+
 }
 
-export default Admin
+export default Admin;

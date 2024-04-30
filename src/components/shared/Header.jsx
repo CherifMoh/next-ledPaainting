@@ -6,7 +6,7 @@ import Image from 'next/image'
 import instaIcon from '../../../public/assets/Instagram.png'
 import tiktokIcon from '../../../public/assets/tiktok.png'
 import burger from '../../../public/assets/burger.png'
-import logo from '../../../public/assets/logo.png'
+import logo from '../../../public/assets/logo.jpg'
 
 
 function Header() {

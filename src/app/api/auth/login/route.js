@@ -20,7 +20,11 @@ export async function POST(req){
         try {
             const match = await bcrypt.compare(body.password, user.password);
             if(match) {
-                const token = await new SignJWT({})
+                const token = await new SignJWT({
+                    name:user.name,
+                    email:user.email,
+                    role:user.role
+                })
                 .setProtectedHeader({alg: 'HS256'})
                 .setJti(nanoid())
                 .setIssuedAt()

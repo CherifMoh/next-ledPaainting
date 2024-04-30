@@ -11,7 +11,7 @@ function Spinner({ color, size, containerStyle }) {
             </div>
             <div 
              className={`${size} rounded-full animate-spin absolute
-               border-4 border-solid ${color} border-t-transparent`}
+               border-4 border-solid ${color?color:'border-black'} border-t-transparent`}
              >
             </div>
         </div>

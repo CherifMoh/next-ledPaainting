@@ -7,7 +7,7 @@ import { NextResponse } from "next/server"
 export async function GET() {
   try{
     await dbConnect()
-    return Order.find()
+    return Order.find().sort({_id: -1})
         .then(result=> Response.json(result))
         .catch(err=>Response.json({message:err.message}))
   }catch(err){

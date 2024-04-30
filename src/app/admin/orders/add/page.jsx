@@ -32,9 +32,9 @@ function Page() {
 
 
     const [isdesigns, setIsdesigns] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(false);
+    const [isproducts, setIsproducts] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState({});
     const [selectqnt, setSelectqnt] = useState(1);
-    const [selectOpt, setSelectOpt] = useState([]);
 
     const [search,setSearch] = useState('')
     const [orders,setOrders] = useState([])
@@ -111,6 +111,8 @@ function Page() {
     if (productsIsErr) return <div>Error: {productsErr.message}</div>;
     if (designsIsErr) return <div>Error: {designsErr.message}</div>;
 
+    console.log(formData)
+
 
 
     const handleChange =(e)=>{
@@ -150,13 +152,17 @@ function Page() {
     const designOptionsElent = Designs.map(design=>{
         if(design.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '' ){
             return(
-                <div key={design._id} className='border-gray-500 border-b-2 p-4 bg-white'>
+                <div 
+                 key={design._id} 
+                 className='border-gray-500 z-50 border-b-2 p-4 bg-white'
+                >
                     <Image 
                     src={design.imageOn} 
                     alt='' 
                     width={128} height={128}  
                     onClick={()=>{
-                        setSelectedImage(design.imageOn)
+                        setSelectedProduct(pre=>({...pre,image:design.imageOn}))
+                        setIsproducts(false)
                         setIsdesigns(false)
                     }}
                     /> 
@@ -165,6 +171,38 @@ function Page() {
         }
        
     })
+
+    const productsOptionsElent = Products.map(products=>{
+        if(products.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '' ){
+            return(
+                <div 
+                 key={products._id} 
+                 className='flex p-4 z-50 border-gray-500 border-b-2 w-full items-center justify-evenly bg-white'
+                >
+                    <Image 
+                    src={products.imageOn} 
+                    alt='' 
+                    width={128} height={128}  
+                    onClick={()=>{
+                        if(products.title === 'Led Painting'){
+                            setIsdesigns(true)
+                            setSelectedProduct(products)
+                        }else{
+                            setSelectedProduct(products)
+                            setIsproducts(false)   
+                            setIsdesigns(false)
+                        }
+                    }}
+                    /> 
+                    <h1>
+                        {products.title} 
+                    </h1>
+                </div>
+            )
+        }
+       
+    })
+
 
     function checkFileSize(file) {
         if(file){
@@ -198,23 +236,48 @@ function Page() {
         }
         if(!checkFileSize(file)) return 
         const base64 = await convertToBase64(file);
-        setSelectedImage(base64);
+        setSelectedProduct(pre=>({...pre,image:base64}));
     }
 
     function addToOrders(){
         setOrders(pre=>([
             ...pre,
             {
-                imageOn:selectedImage,
+                imageOn:selectedProduct.image,
                 qnt:selectqnt,
-                options:selectOpt
+                options:selectedProduct.options
             }
         ]))
-        setSelectedImage('')
+        setSelectedProduct({})
         setSelectqnt('')
     }
     localStorage.setItem('adminOrder',JSON.stringify(orders))
 
+    function handelOptChange(e){
+        const value = e.target.value
+        let options =selectedProduct.options
+        const newOptions = options.map((option,i)=>{
+            if(option.title === value){
+                return {...option,selected:true}
+            }
+            if(option.selected){
+                return {...option,selected:false}
+            }
+            return option
+        })
+        setSelectedProduct(pre=>({...pre,options:newOptions}))
+    }
+
+    const productOptsElement = selectedProduct.options?.map(option=>{
+        return(
+            <option 
+             key={option.title} 
+             value={option.title}
+            >
+                {option.title}
+            </option>
+        )
+    })
    
 
     const ordersElement = orders.map(order=>{
@@ -330,29 +393,34 @@ function Page() {
                 Add Order
             </h1>
             <div className='flex items-center justify-center gap-16'> 
-                {selectedImage 
+                {selectedProduct.image 
                 ?
                 <Image 
-                    src={selectedImage} 
+                    src={selectedProduct.image } 
                     alt='' 
                     width={64} height={64}
                     onClick={()=>{
-                        setIsdesigns(pre=>!pre)
-                        setSelectedImage('')
+                        setIsproducts(pre=>!pre)
+                        setSelectedProduct({})
                     }} 
                 />
                 :
                 <div className='flex items-center gap-16'>
                     <div>  
                         <div
-                         onClick={()=>setIsdesigns(pre=>!pre)} 
+                         onClick={()=>{
+                            setIsproducts(pre=>!pre)
+                            setIsdesigns(false)
+                        }} 
                          className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
                         >
                             <p>Select Image</p>
                         </div>
                         
-                        {isdesigns && 
-                            <div className='max-w-96 border-2 border-gray-500 absolute mt-2'>
+                        {isproducts && 
+                            <div 
+                             className='max-w-96 border-2 border-gray-500 z-50 absolute mt-2'
+                            >
                                 <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
                                     <FontAwesomeIcon 
                                     icon={faMagnifyingGlass}
@@ -366,9 +434,18 @@ function Page() {
                                     onChange={(e)=>setSearch(e.target.value)}
                                     />
                                 </div>
-                                <div className='grid grid-cols-2 max-h-[484px] overflow-y-auto'>
-                                    {designOptionsElent}
-                                </div>
+                                    {isdesigns
+                                    ?<div 
+                                     className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
+                                    >
+                                        {designOptionsElent}
+                                    </div>
+                                    :<div 
+                                     className='max-h-[484px] w-80 z-50 overflow-y-auto'
+                                    >
+                                        {productsOptionsElent}
+                                    </div>
+                                    }
                             </div>
                         }
                     </div>   
@@ -395,14 +472,13 @@ function Page() {
                 min={1}
                 onChange={(e)=>setSelectqnt(e.target.value)}
                 />
-                <input 
-                type="text"
-                placeholder='Option' 
-                value={selectOpt[0]?.title} 
-                className='m-0 w-24 h-14'
-                min={1}
-                onChange={(e)=>setSelectOpt([{title:e.target.value,selected:true}])}
-                />
+                <select 
+                 name="options" 
+                 onChange={handelOptChange}
+                 className='m-0'
+                >
+                    {productOptsElement}
+                </select>
 
                 <button
                 className='bg-green-300 px-3 py-2 rounded-lg'

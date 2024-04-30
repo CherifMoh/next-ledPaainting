@@ -101,7 +101,7 @@ nav a:hover{
     left: 0;
     width: 400px;
     height: 100%;
-    background-color: #dfdfd8;
+    background-color: #DCCCB3;
     z-index: 1000;
     text-align: start;
     transition: translate 0.2s ease ;

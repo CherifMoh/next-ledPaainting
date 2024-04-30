@@ -116,13 +116,19 @@ function ProductPage({ mproduct }) {
         let isSales = false;
 
 
-        for (let i = 0; i < ledPainting?.sales.length; i++) {
-            const sale = ledPainting.sales[i];
-            if (Number(sale.qnt) === qnt) {
-                isSales = true;
-                setSales(sale.percen)
-                console.log(sale.percen)
-                break; // Exit the loop since the condition is met
+        if(qnt > ledPainting?.sales.length+1){
+            const sale = ledPainting.sales[ledPainting.sales.length-1];
+            setSales(sale.percen)
+            isSales = true;
+        }else{   
+            for (let i = 0; i < ledPainting?.sales.length; i++) {
+                const sale = ledPainting.sales[i];
+                
+                if (Number(sale.qnt) === qnt) {
+                    isSales = true;
+                    setSales(sale.percen)
+                    break; // Exit the loop since the condition is met
+                }
             }
         }
 
@@ -190,7 +196,7 @@ function ProductPage({ mproduct }) {
 
         return(
             <button 
-             className={`flex transition-all justify-center items-center gap-4 px-4 py-2 rounded-full ${selectedOption?.title === option.title ?'bg-zinc-300 ':'bg-zinc-100'}` }
+             className={`flex transition-all text-white justify-center items-center gap-4 px-4 py-2 rounded-full ${selectedOption?.title === option.title ?'bg-[#9f865d] ':'bg-[#bda780]'}` }
              style={buttonStyle}
              key={option.title} 
              onClick={()=>{setSelectedOption(option);setIsSelectedOption(true)}}
@@ -201,9 +207,9 @@ function ProductPage({ mproduct }) {
                  width={100} height={100}
                  className='w-4'
                 />
-                <div className='flex flex-col justify-center items-center'>
-                    <span className='price-after-sale text-sm'>{option.title}</span>
-                    <span className='price-after-sale text-sm'>{option.price} DA</span>
+                <div className='flex flex-col justify-center text-white items-center'>
+                    <span className='price-after-sale text-white text-sm'>{option.title}</span>
+                    <span className='price-after-sale text-white text-sm'>{option.price} DA</span>
                 </div>
             </button>
         )
@@ -220,11 +226,11 @@ function ProductPage({ mproduct }) {
                 </div>
             </section>
             <section className="product-info">
-                <div className="product-title spawn-anime">{mproduct.title}</div>               
+                <div className="product-title capitalize spawn-anime">{mproduct.title}</div>               
                 <div className="spawn-anime flex items-center">
                     {DDescriptionElement}
                 </div>              
-                <div className="price-container flex gap-6 spawn-anime">
+                <div className="price-container flex gap-1 spawn-anime">
                     {sales && priceElement &&
                         <>
                             <span className="price-befor-sale ">{selectedOption.price*qnt} DA</span>
@@ -244,12 +250,12 @@ function ProductPage({ mproduct }) {
                 <p className="spawn-anime mt-4 mb-4">Options</p>
 
                 {!isSelectedOption && 
-                    <div className='text-red-500 text-xl text-center font-semibold'>
-                        اختر احد الخيارات                       
+                    <div className='text-red-500 text-lg text-end pr-4 font-semibold'>
+                        اختر احد الخيارات *                      
                     </div>
                 }
 
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 my-6 items-center justify-evenly gap-2 spawn-anime'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 mb-6 items-center justify-evenly gap-2 spawn-anime'>
                     {optionsElement}
                 </div>
                 <p className="spawn-anime mt-4 mb-4">Quantity</p>
@@ -291,7 +297,7 @@ function ProductPage({ mproduct }) {
                     </button>
                 </div>
                 <button
-                    className="Add-to-cart spawn-anime"
+                    className="Add-to-cart spawn-anime text-[rgb(133,88,50)]"
                     data-product-id={mproduct._id}
                     onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price, ledPainting.sales)}
                 >
@@ -299,7 +305,7 @@ function ProductPage({ mproduct }) {
                 </button>
                 <a href="/checkout">
                     <button 
-                    className="Add-to-cart spawn-anime buy-now" 
+                    className="Add-to-cart spawn-anime text-[#1a2332] bg-[#bda780]" 
                     data-product-id={mproduct._id}
                     onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price, ledPainting.sales)}
                     >Buy now</button>

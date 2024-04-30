@@ -9,7 +9,7 @@ function Dashboard() {
   const AdminLinks =[
     {name:'Orders',href:'/admin/orders'},
     {name:'Products',href:'/admin/products'},
-    {name:'Users',href:'/admin/creatUser'},
+    {name:'Users',href:'/admin/users'},
     {name:'Category',href:'/admin/categoreis'},
   ]
 
@@ -31,7 +31,7 @@ function Dashboard() {
   return (
     <div className='w-72 h-screen bg-gray-100 pt-5 mr-5 z-[9999999] fixed left-0 overflow-y-auto'>
         <Link 
-         href='/admin' 
+         href='/admin/dashboard' 
          className='font-semibold text-3xl text-center block mb-10'
         >
           Dashboard
