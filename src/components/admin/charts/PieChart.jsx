@@ -12,7 +12,7 @@ function PieChartC() {
 
   return (
     <div className='flex justify-center items-center'>
-       <PieChart width={300} height={300}>
+       <PieChart width={500} height={300}>
         <Pie 
          data={data} 
          dataKey="value" 
