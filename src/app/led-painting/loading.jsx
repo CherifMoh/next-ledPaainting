@@ -13,7 +13,7 @@ function Home() {
         <h1 className="text-4xl text-[#1a2332] font-bold mb-5">
           Luminous Frames
         </h1>            
-        <ProductsGrid />   
+        <ProductGSkeleton />   
       </div>
     </main>
     </>

@@ -12,6 +12,8 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link'
 import Image from 'next/image'
 import shoppingBag from '../../../public/assets/shopping-bag.png'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
 
 async function fetchProducts(idArray) {
@@ -46,8 +48,8 @@ function Cart() {
     display:isCartShown ?`block`: `none`
   }
   
-  const bodyClass = document.body.classList
-  isCartShown
+  const bodyClass = typeof document !== 'undefined' && document.body.classList
+  if(bodyClass)isCartShown
     ?bodyClass.add('overflow-hidden')
     :bodyClass.remove('overflow-hidden');
   
@@ -110,7 +112,7 @@ function Cart() {
       price:price
     }));
   }
-  localStorage.setItem('cart', JSON.stringify(cart));
+  typeof localStorage !== 'undefined' && localStorage.setItem('cart', JSON.stringify(cart));
 
   if (isLoading) return console.log('Loading...');
   if (isError) return console.log("Error fetching products"); 
@@ -141,8 +143,12 @@ function Cart() {
       }
     }
 
-    console.log(isSales)
-    console.log(sales)
+    let price = cartItem.price
+    cartItem.options?.forEach(option=>{
+      if(option.selected){
+        price = option.price
+      }
+    })
 
     return(
       <div 
@@ -160,11 +166,11 @@ function Cart() {
             <div className="cart-item-top-row">
                 <div className="cart-item-title">{product.title}</div>
                 <div
-                 className="cart-item-trash z-20" 
+                 className="cart-item-trash z-20 flex items-center justify-center cart-off font-extralight bg-gray-100" 
                  data-product-id={product._id}
                  onClick={()=>handleRemoveCartItem(product._id)}
                 >
-                  X
+                  <FontAwesomeIcon icon={faTrash} />
                 </div>
             </div>
             <div className="cart-item-lower-row">
@@ -199,17 +205,17 @@ function Cart() {
                     <div className="cart-item-price">
                         {isSales&&
                           <span className="cart-item-befor-price">
-                            {cartItem.price *cartItem.qnt}
+                            {price *cartItem.qnt}
                           </span>
                         }
                         <span className="cart-item-after-price" >
-                          {sales?(cartItem.price-(cartItem.price*sales)/100)*cartItem.qnt:cartItem.price*cartItem.qnt }DA
+                          {sales?(price-(price*sales)/100)*cartItem.qnt:price*cartItem.qnt }DA
                         </span>
                     </div>
                     {isSales &&
                       <div className="text-green-600 ">
                       <span className="font-medium">
-                        (Save {(cartItem.price)*cartItem.qnt-(cartItem.price-(cartItem.price*sales)/100)*cartItem.qnt}DA)
+                        (Save {(price)*cartItem.qnt-(price-(price*sales)/100)*cartItem.qnt}DA)
                       </span>
                       </div>
                     }

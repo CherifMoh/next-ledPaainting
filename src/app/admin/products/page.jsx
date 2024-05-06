@@ -7,15 +7,12 @@ import Image from 'next/image';
 
 import {deleteProduct} from '../../actions/product'
 import { useState } from 'react';
-
-
+import Spinner from '../../../components/loadings/Spinner';
 
 async function fetchProducts() {
     const res = await axios.get('/api/products');
     return res.data;
 }
-
-
 
 function Page() {
 
@@ -54,23 +51,29 @@ function Page() {
                     product.title === 'Led Painting' 
                     ?
                     <div className='flex gap-3'>
-                        <Link href={`/admin/products/led-designs`} className='bg-green-200 p-2 rounded-md'>All Designs</Link>
-                        <Link href={`/admin/products/${product._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>
-                        <button 
+                        <Link href={`/admin/products/led-designs`} className='bg-green-300 p-2 rounded-md'>All Designs</Link>
+                        <Link href={`/admin/products/${product._id}`} className='bg-green-300 p-2 rounded-md'>Update</Link>
+                        {deleting.some(item => item.id === product._id && item.state)
+                        ?<Spinner size={'h-8 w-8'} color={'border-red-500'} />
+                        :<button 
                          className='bg-red-500 p-2 rounded-md'
                          onClick={()=>handleDelete(product._id)}
                         >
-                            {deleting.some(item => item.id === product._id && item.state)?'Deleting':'Delete'}
+                            Delete
                         </button>
+                        }
                     </div>
-                    :<div>
-                        <Link href={`/admin/products/${product._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>
-                        <button 
+                    :<div className='flex gap-3'>
+                        <Link href={`/admin/products/${product._id}`} className='bg-green-300 p-2 rounded-md'>Update</Link>
+                        {deleting.some(item => item.id === product._id && item.state)
+                        ?<Spinner size={'h-8 w-8'} color={'border-red-500'} />
+                        :<button 
                          className='bg-red-500 p-2 rounded-md'
                          onClick={()=>handleDelete(product._id)}
                         >
-                            {deleting.some(item => item.id === product._id && item.state)?'Deleting':'Delete'}
+                            Delete
                         </button>
+                        }
                     </div>
                 }
             </td>

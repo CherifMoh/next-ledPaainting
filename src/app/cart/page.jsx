@@ -12,7 +12,7 @@ import { updatedQuntity, updatedOptions, removeProduct } from "../redux/features
 import Link from "next/link";
 
 
-function page() {
+function CartPage() {
 
   typeof document !== 'undefined' && document.body.classList.add('bg-white')
   typeof document !== 'undefined' && document.body.classList.add('overflow-x-hidden')
@@ -89,7 +89,7 @@ function page() {
   let totalPrice = 0
   const cartItems = cart.map((cartItem)=>{
 
-    let beforePrice
+    let beforePrice = cartItem.price  
     let sales
     let isSales = false
 
@@ -285,4 +285,4 @@ function page() {
   )
 }
 
-export default page
+export default CartPage

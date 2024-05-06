@@ -81,15 +81,13 @@ const ProductGSkeleton = () => {
                 </button>
             </div>
             <button
-                className="Add-to-cart spawn-anime"                
+                className="Add-to-cart bg-[#bda780] spawn-anime text-[#1a2332]"                
             >
                 Add to cart
             </button>
-            <a href="/checkout">
                 <button 
-                className="Add-to-cart spawn-anime buy-now" 
+                className="Add-to-cart spawn-anime text-[#DCCCB3] bg-[#4a3623]"  
                 >Buy now</button>
-            </a>
 
             <div className="discription-container spawn-anime">
                 {descElemnt}

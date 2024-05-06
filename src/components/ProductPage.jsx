@@ -1,33 +1,24 @@
 "use client"
 
-import '../../styles/pages/ledProductPage.css'
-import '../../styles/pages/index.css'
+import '../styles/pages/ledProductPage.css'
+import '../styles/pages/index.css'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { addProduct, removeProduct, updatedQuntity } from '../../app/redux/features/cart/cartSlice'
-import { showCartToggle } from "../../app/redux/features/showCart/showCartSlice";
+import { addProduct, removeProduct, updatedQuntity } from '../app/redux/features/cart/cartSlice'
+import { showCartToggle } from "../app/redux/features/showCart/showCartSlice";
 import { Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import ruler from '../../../public/assets/ruler.svg'
+import ruler from '../../public/assets/ruler.svg'
 import { useQuery } from "@tanstack/react-query";
-import arrowDown from '../../../public/assets/arrow-down.svg'
-import Material from '../../../public/assets/Material.svg'
-import ProductPSkelaton from "../loadings/ProductPSkelaton";
+import arrowDown from '../../public/assets/arrow-down.svg'
+import Material from '../../public/assets/Material.svg'
+import ProductPSkelaton from "./loadings/ProductPSkelaton";
 import axios from "axios";
 
 
-const fetchLedPainting= async()=>{
-    const res = await axios.get(`http://localhost:3000/api/products/6614791ccb0b4173298b236b`);
-    return res.data[0];
-}
 
 function ProductPage({ mproduct }) {
-
-    const { data: ledPainting, isLoading, isError , error} = useQuery({
-        queryKey:['led Painting'],
-        queryFn: ()=>fetchLedPainting()
-    });
 
     const [qnt, setQnt] = useState(1)
     const [isDimensions, setIsDimensions] = useState(false)
@@ -80,16 +71,12 @@ function ProductPage({ mproduct }) {
        checkIfSale(qnt)
     }, [qnt]);
 
-    if(isLoading) return <div>{<ProductPSkelaton />}</div>
-    if(isError) return <div>{error.message}</div>
-
-    if(!ledPainting) return 0
-
     
     const handleAddToCart = (productId, qnt, price, sales ) => {
-        if(!selectedOption) return setIsSelectedOption(false)
+        console.log(sales)
+        if(!selectedOption && optionsElement.length>0) return setIsSelectedOption(false)
 
-        const newOptions = ledPainting.options.map(option=>{
+        const newOptions = mproduct.options?.map(option=>{
             if(option.title === selectedOption.title){
                 return {...option,selected:true}
             }
@@ -116,13 +103,13 @@ function ProductPage({ mproduct }) {
         let isSales = false;
 
 
-        if(qnt > ledPainting?.sales.length+1){
-            const sale = ledPainting.sales[ledPainting.sales.length-1];
-            setSales(sale.percen)
+        if(qnt > mproduct?.sales.length+1){
+            const sale = mproduct.sales[mproduct.sales.length-1];
+            setSales(sale?.percen)
             isSales = true;
         }else{   
-            for (let i = 0; i < ledPainting?.sales.length; i++) {
-                const sale = ledPainting.sales[i];
+            for (let i = 0; i < mproduct?.sales.length; i++) {
+                const sale = mproduct.sales[i];
                 
                 if (Number(sale.qnt) === qnt) {
                     isSales = true;
@@ -152,7 +139,7 @@ function ProductPage({ mproduct }) {
         )
     })
 
-    const Plines = ledPainting.description.split('\n');
+    const Plines = mproduct.description.split('\n');
 
     const PDescriptionElement = Plines.map((line,i)=>{
         return (
@@ -163,32 +150,22 @@ function ProductPage({ mproduct }) {
         )
     })
 
-    const Dlines = mproduct.description.split('\n');
 
-    const DDescriptionElement = Dlines.map((line,i)=>{
-        return (
-        <Fragment key={line+i} >
-            <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
-            <br />
-        </Fragment>
-        )
-    })
-
-    const priceElement = ledPainting.options?.map((option,i)=>{
+    const priceElement = mproduct.options?.map((option,i)=>{
         return(
             <div 
              className="price-after-sale "
              key={i}
             >
                 {option.price} 
-                {i !== ledPainting.options.length - 1 
+                {i !== mproduct.options.length - 1 
                  && <span className=' w-4 h-2 inline-block border-t-[2px] ml-2 border-black text-center'></span>
                 }
             </div>
         )
     })
 
-    const optionsElement = ledPainting.options?.map(option=>{
+    const optionsElement = mproduct.options?.map(option=>{
 
         const buttonStyle={
             boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
@@ -215,6 +192,7 @@ function ProductPage({ mproduct }) {
         )
     })
 
+
     return (
         <section className="selected-prodect-container">
             <section className="product-gallery">
@@ -226,28 +204,40 @@ function ProductPage({ mproduct }) {
                 </div>
             </section>
             <section className="product-info">
-                <div className="product-title capitalize spawn-anime">{mproduct.title}</div>               
-                <div className="spawn-anime flex items-center">
-                    {DDescriptionElement}
-                </div>              
+                <div className="product-title capitalize spawn-anime">{mproduct.title}</div>                           
                 <div className="price-container flex gap-1 spawn-anime">
                     {sales && priceElement &&
                         <>
-                            <span className="price-befor-sale ">{selectedOption.price*qnt} DA</span>
-                            <span className="price-after-sale ">{(selectedOption.price-(selectedOption.price*sales)/100)*qnt} DA</span>
+                            <span className="price-befor-sale ">
+                            {priceElement.length>0
+                                ?selectedOption.price*qnt
+                                :mproduct.price*qnt
+                            } DA
+                            </span>
+                            <span className="price-after-sale ">
+                                {(selectedOption.price-(selectedOption.price*sales)/100)*qnt} DA
+                            </span>
                         </>
                     }
 
-                    {!sales?priceElement
-                        ?selectedOption?<span className='price-after-sale'>{selectedOption.price} DA</span>:<div className='flex'>{priceElement} DA</div>
-                        :<span className="price-after-sale ">{ledPainting.price}  DA</span>                 
-                    :''}
+                    {!sales
+                        ?priceElement
+                            ?selectedOption
+                            ?<span className='price-after-sale'>{selectedOption.price} DA</span>
+                            :<div className='flex'>{priceElement.length>0 ? priceElement : mproduct.price*qnt} DA</div>
+                            :<span className="price-after-sale ">{mproduct.price*qnt}  DA</span>                 
+                        :''
+                    }
 
                     {sales && priceElement &&
                         <span className="sale-mark">Sale {sales} %</span>     
                     }
                 </div>
-                <p className="spawn-anime mt-4 mb-4">Options</p>
+                {optionsElement.length > 0 && 
+                 <p className="spawn-anime mt-4 mb-4">
+                    Options
+                 </p>
+                 }
 
                 {!isSelectedOption && 
                     <div className='text-red-500 text-lg text-end pr-4 font-semibold'>
@@ -263,7 +253,7 @@ function ProductPage({ mproduct }) {
                     <button
                         className="minus-quantity-button flex items-start justify-center"
                         onClick={() =>{
-                            if(optionsElement){
+                            if(optionsElement.length>0){
                                 if(!selectedOption){
                                  return setIsSelectedOption(false)    
                                 }else if(qnt > 1){
@@ -282,7 +272,7 @@ function ProductPage({ mproduct }) {
                     <button
                         className="plus-quantity-button pb-1"
                         onClick={() =>{
-                            if(optionsElement){
+                            if(optionsElement.length>0){
                                 if(!selectedOption){
                                  return setIsSelectedOption(false)    
                                 }else{
@@ -297,17 +287,17 @@ function ProductPage({ mproduct }) {
                     </button>
                 </div>
                 <button
-                    className="Add-to-cart spawn-anime text-[rgb(133,88,50)]"
+                    className="Add-to-cart bg-[#bda780] spawn-anime text-[#1a2332]"
                     data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price, ledPainting.sales)}
+                    onClick={() => handleAddToCart(mproduct._id, qnt, mproduct.price, mproduct.sales)}
                 >
                     Add to cart
                 </button>
                 <a href="/checkout">
                     <button 
-                    className="Add-to-cart spawn-anime text-[#1a2332] bg-[#bda780]" 
+                    className="Add-to-cart spawn-anime text-[#DCCCB3] bg-[#4a3623]" 
                     data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, ledPainting.price, ledPainting.sales)}
+                    onClick={() => handleAddToCart(mproduct._id, qnt, mproduct.price, mproduct.sales)}
                     >Buy now</button>
                 </a>
 

@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
-import ProductGSkeleton from '../loadings/ProductGSkeleton'
+import ProductGSkeleton from './loadings/ProductGSkeleton'
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -10,40 +10,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
-import arrow from '../../../public/assets/arrow-down.svg'
-import logo from '../../../public/assets/logo.jpg'
+import arrow from '../../public/assets/arrow-down.svg'
+import logo from '../../public/assets/logo.png'
 
-const fetchTags = async()=>{
-    const res = await axios.get('http://localhost:3000/api/products/tags');
+// const fetchTags = async()=>{
+//     const res = await axios.get('http://localhost:3000/api/products/tags');
+//     return res.data;
+// }
+
+async function fetchProducts() {
+    const res = await axios.get('http://localhost:3000/api/products');
     return res.data;
-}
-
-async function fetchDesigns() {
-    const res = await axios.get('http://localhost:3000/api/products/ledDesigns');
-    return res.data;
-}
-
-const fetchLedPainting= async()=>{
-    const res = await axios.get(`http://localhost:3000/api/products/6614791ccb0b4173298b236b`);
-    return res.data[0];
 }
 
 function ProductsGrid() {
 
-    const { data: Tags, isLoading:tagsloading, isError:tagsError , error:tagErr} = useQuery({
-        queryKey:['tags'],
-        queryFn: fetchTags
+    // const { data: Tags, isLoading:tagsloading, isError:tagsError , error:tagErr} = useQuery({
+    //     queryKey:['tags'],
+    //     queryFn: fetchTags
+    // });
+
+    const { data: Products, isLoading, isError, error:designErr } = useQuery({
+        queryKey:['All Products'],
+        queryFn: fetchProducts
     });
 
-    const { data: Designs, isLoading, isError, error:designErr } = useQuery({
-        queryKey:['Designs'],
-        queryFn: fetchDesigns
-    });
-
-    const { data: ledPainting, isLoading:ledLoading, isError:ledIsError , error:ledError} = useQuery({
-        queryKey:['products'],
-        queryFn: fetchLedPainting
-    });
 
     const [selectedTag,setSelectedTag] = useState('all')
 
@@ -63,71 +54,79 @@ function ProductsGrid() {
         if(typeof document !== 'undefined' && !isCustom)document.body.classList.remove('overflow-hidden');
     },[isCustom])
 
-    useEffect(()=>{
+    // useEffect(()=>{
 
-        let tagesLimet
-        if(window.innerWidth > 1024 ){
-            tagesLimet = 6
-        }else if(window.innerWidth > 640){
-            tagesLimet = 3 
-        }else{
-            tagesLimet = 2 
+    //     let tagesLimet
+    //     if(window.innerWidth > 1024 ){
+    //         tagesLimet = 6
+    //     }else if(window.innerWidth > 640){
+    //         tagesLimet = 3 
+    //     }else{
+    //         tagesLimet = 2 
 
-        }
+    //     }
 
-        Tags?.length >= tagesLimet
-        ?setIsRightShown(true)
-        :setIsRightShown(false)
+    //     Tags?.length >= tagesLimet
+    //     ?setIsRightShown(true)
+    //     :setIsRightShown(false)
         
-    },[Tags])
+    // },[Tags])
 
     if (isLoading) return <ProductGSkeleton />;
 
     if (isError) return <div>Error: {designErr.message}</div>;
 
-    if (tagsloading) return <ProductGSkeleton />;
+    // if (tagsloading) return <ProductGSkeleton />;
 
-    if (tagsError) return <div>Error: {tagErr.message}</div>;
-    
-    if (ledLoading) return <ProductGSkeleton />;
-    
-    if (ledIsError) return <div>Error: {ledError.message}</div>;
+    // if (tagsError) return <div>Error: {tagErr.message}</div>;
 
-    if(!Designs)return
+    if(!Products)return
 
     const firstEightProducts = [];
     const restOfTheProducts = [];
     let counter = 0;
 
-    const priceElement = ledPainting.options?.map((option,i)=>{
-        return(
-            <div 
-             className="price-after-sale "
-             key={i}
-            >
-                {option.price} 
-                {i !== ledPainting.options.length - 1 
-                 && <span className=' w-4 h-2 inline-block border-t-[2px] ml-2 border-black text-center'></span>
-                }
-            </div>
-        )
-    })
 
-    Designs.forEach((design, index) => {
+    Products.forEach((product, index) => {
+        const priceElement = product.options?.map((option,i)=>{
+            return(
+                <div 
+                 className="price-after-sale "
+                 key={i}
+                >
+                    {option.price} 
+                    {i !== product.options.length - 1 
+                     && <span className=' w-4 h-2 inline-block border-t-[2px] mx-2 border-black text-center'></span>
+                    }
+                </div>
+            )
+        })
+
         if (
-            (design.tags.includes(selectedTag) || selectedTag === "all") &&
-            (design.title.toLowerCase().includes(search.toLowerCase()) || design.description.toLowerCase().includes(search.toLowerCase()) || search === "")
+            (product.title.toLowerCase().includes(search.toLowerCase()) || 
+            product.description.toLowerCase().includes(search.toLowerCase()) || search === "")
         ) {
             const productElement = (
-                <Link key={design._id} className="product-card" href={`/led-painting/${design._id}`}>
+                <Link 
+                 key={product._id} 
+                 className="product-card" 
+                 href={product.title==='Led Painting'
+                  ?`/led-painting`
+                  :`/${product._id}`
+                 }
+                >
                     <div className="product-img-container">
-                        <Image alt="" src={`${design.imageOn}`} width={20} height={20} className="product-img product-img-on" />
-                        <Image alt="" src={`${design.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
+                        <Image alt="" src={`${product.imageOn}`} width={20} height={20} className="product-img product-img-on" />
+                        <Image alt="" src={`${product.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
                     </div>
                     <div className="card-info">
-                        <span className="product-title">{design.title}</span>
+                        <span className="product-title">{product.title}</span>
                         <span className="flex items-center">
-                            {priceElement} DA
+                            {priceElement.length>0 
+                             ?priceElement
+                             :product.price
+                            }
+                            DA
                         </span>
                     </div>
                 </Link>
@@ -151,19 +150,19 @@ function ProductsGrid() {
     });
 
     
-    const filterElement = Tags.map (tag=>(
-        <div 
-         key={tag.name}
-         className={` 
-          ${selectedTag ===tag.name
-            ?'bg-gray-700 text-white'
-            : 'bg-gray-900 text-white hover:bg-gray-700'}
-          cursor-pointer px-4 py-1 rounded-xl capitalize ml-4`}
-         onClick={()=>setSelectedTag(tag.name)}
-        >
-            {tag.name
-        }</div>
-    ))
+    // const filterElement = Tags.map (tag=>(
+    //     <div 
+    //      key={tag.name}
+    //      className={` 
+    //       ${selectedTag ===tag.name
+    //         ?'bg-[#68552a] text-[#dcccb3]'
+    //         : 'bg-[#4a3623] text-[#dcccb3] hover:bg-[#68552a]'}
+    //       cursor-pointer px-4 py-1 rounded-xl capitalize ml-4`}
+    //      onClick={()=>setSelectedTag(tag.name)}
+    //     >
+    //         {tag.name
+    //     }</div>
+    // ))
 
     function togelMobileSearch(){
         console.log('s')
@@ -187,7 +186,7 @@ function ProductsGrid() {
     
     return (
         <div>
-            <div className="flex items-center lg:flex-row lg:justify-between text-start relative">
+            <div className="flex items-center lg:flex-row lg:justify-end text-start relative">
                 {isRightShown && 
                     <div className="flex absolute bg-[#DCCCB3] z-50 lg:left-[570px] sm:left-[370px] left-[270px]">
                     <div
@@ -227,7 +226,7 @@ function ProductsGrid() {
                     </div>
                 }
 
-                <div className="lg:max-w-[600px] sm:max-w-[400px] max-w-[300px]  overflow-hidden">
+                {/* <div className="lg:max-w-[600px] sm:max-w-[400px] max-w-[300px]  overflow-hidden">
                     <div 
                      className={`flex my-8 relative transition-all
                         ${isLeftShown
@@ -237,8 +236,8 @@ function ProductsGrid() {
                         <div 
                             className={` 
                             ${selectedTag ==='all'
-                            ?'bg-gray-700 text-white'
-                            : 'bg-gray-900 text-white hover:bg-gray-700'}
+                            ?'bg-[#68552a] text-[#dcccb3]'
+                            :'bg-[#4a3623] text-[#dcccb3] hover:bg-[#68552a]'}
                             px-4 py-1 rounded-xl cursor-pointer`}
                             onClick={()=>setSelectedTag('all')}
                             >
@@ -246,18 +245,18 @@ function ProductsGrid() {
                         </div>
                         {filterElement}
                     </div>
-                </div>
+                </div> */}
 
                 <div className="hidden lg:block">
                     <FontAwesomeIcon 
                      icon={faMagnifyingGlass}
-                     className={`pt-2 text-[#ead8bd] pointer-events-none z-10 absolute right-2 ${search?'hidden':'opacity-50'}`}
+                     className={`pt-2 text-[#dcccb3] pointer-events-none z-10 absolute right-2 ${search?'hidden':'opacity-50'}`}
                     />
                     <input 
                      id="search"
                      type='search' 
                      placeholder={`Search`}
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#514b3f] no-focus-outline text-[#d7c09e] placeholder-[#d7c09e] bg-[#514b3f]' 
+                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#4a3623] no-focus-outline text-[#dcccb3] placeholder-[#dcccb3] bg-[#4a3623]' 
                      onChange={(e)=>setSearch(e.target.value)}
                     />
                 </div>
@@ -273,7 +272,7 @@ function ProductsGrid() {
                      id="search"
                      type='search' 
                      placeholder={`Search`}
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#514b3f] no-focus-outline text-[#d7c09e] placeholder-[#d7c09e] bg-[#514b3f]' 
+                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#4a3623] no-focus-outline text-[#dcccb3] placeholder-[#dcccb3] bg-[#4a3623]' 
                      onChange={(e)=>setSearch(e.target.value)}
                     />
                     <div
@@ -351,7 +350,7 @@ function ProductsGrid() {
             </div>
             }
 
-            {restOfTheProducts &&
+           {restOfTheProducts &&
                 <div className="flex my-32 items-center">
                 
                     {/* <Image 
@@ -361,13 +360,13 @@ function ProductsGrid() {
                      className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40' 
                     /> */}
 
-                    <div 
+                    {/* <div 
                      key="layer" 
                      onClick={togelCustomDesin}
                      className="w-full flex cursor-pointer items-center justify-center shadow-lg mx-10 h-32 bg-gray-200 py-4 text-center rounded-lg"
                     >
                         Add custom design
-                    </div>
+                    </div> */}
 
                     {/* <Image 
                      src={randomImg2} 

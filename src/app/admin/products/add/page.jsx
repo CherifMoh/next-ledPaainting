@@ -6,7 +6,7 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Spinner from "../../../../components/spinner";
+import Spinner from "../../../../components/loadings/Spinner";
 
 
 function Admin() {

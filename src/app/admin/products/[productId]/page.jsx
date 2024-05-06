@@ -6,7 +6,7 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import Spinner from "../../../../components/loadings/spinner";
+import Spinner from "../../../../components/loadings/Spinner";
 
 
 const fetchProduct = async(id)=>{

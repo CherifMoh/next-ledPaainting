@@ -31,7 +31,6 @@ export async function POST(req){
                 .setExpirationTime(thirtyDaysFromNow)
                 .sign(new TextEncoder().encode(process.env.JWT_KEY))
                     
-                console.log('token ' ,token)
                 cookies().set("access-token", token, {
                     path: "/",
                     domain: "localhost",

@@ -1,6 +1,17 @@
 import Link from 'next/link'
 import '../../styles/shared/footer.css'
-function Footer() {
+import axios from 'axios'
+
+
+async function Footer() {   
+    // try{
+    //     const res = await axios.put('/api/analytics/nonConvVisitors', {});
+    //     console.log('res: '+res.data)
+        
+    // }catch(err){
+    //     console.log('err: '+err)
+    // }
+
   return (
     <div className="footer">
             <div className="footer-container">

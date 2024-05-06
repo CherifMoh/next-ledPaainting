@@ -6,7 +6,7 @@ import Image from 'next/image'
 import instaIcon from '../../../public/assets/Instagram.png'
 import tiktokIcon from '../../../public/assets/tiktok.png'
 import burger from '../../../public/assets/burger.png'
-import logo from '../../../public/assets/logo.jpg'
+import logo from '../../../public/assets/logo.png'
 
 
 function Header() {
@@ -46,8 +46,9 @@ function Header() {
         <div>
           <div className="w-full">
             <div className='m-auto mb-4 max-w-20'>
-              <Link href='/led-painting'>
-               <Image src={logo} alt='Drawlys' className="header--logo" height={80} width={80} /> </Link>
+              <Link href='/'>
+               <Image src={logo} alt='Drawlys' className="header--logo" height={80} width={80} /> 
+              </Link>
             </div>
           </div>
         </div>

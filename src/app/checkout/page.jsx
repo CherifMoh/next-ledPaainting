@@ -1,6 +1,7 @@
 'use client'
 
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { emptyCart } from "../redux/features/cart/cartSlice";
 import '../../styles/pages/checkout.css'
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -141,6 +142,8 @@ function Checkout() {
         
     },[products])
 
+    const dispatch = useDispatch();
+
     if(!products) return 
 
     const productsElemtnt =cart.map(cartItem=>{
@@ -200,9 +203,8 @@ function Checkout() {
           // Make API call
           const res = await axios.post(`http://localhost:3000/api/orders`, formData);
       
-          console.log(res);
-      
           // Reset cart in localStorage
+          dispatch(emptyCart)
           localStorage.removeItem('cart');
           localStorage.setItem('cart', JSON.stringify([]));
       
