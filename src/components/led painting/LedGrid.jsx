@@ -14,17 +14,17 @@ import arrow from '../../../public/assets/arrow-down.svg'
 import logo from '../../../public/assets/logo.png'
 
 const fetchTags = async()=>{
-    const res = await axios.get('http://localhost:3000/api/products/tags');
+    const res = await axios.get('/api/products/tags');
     return res.data;
 }
 
 async function fetchDesigns() {
-    const res = await axios.get('http://localhost:3000/api/products/ledDesigns');
+    const res = await axios.get('/api/products/ledDesigns');
     return res.data;
 }
 
 const fetchLedPainting= async()=>{
-    const res = await axios.get(`http://localhost:3000/api/products/6614791ccb0b4173298b236b`);
+    const res = await axios.get(`/api/products/6614791ccb0b4173298b236b`);
     return res.data[0];
 }
 

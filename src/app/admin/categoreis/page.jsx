@@ -6,7 +6,7 @@ import Link from "next/link";
 
 
 async function fetchCategorys() {
-    const res = await axios.get('http://localhost:3000/api/category');
+    const res = await axios.get('/api/category');
     return res.data;
 }
 

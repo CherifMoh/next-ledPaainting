@@ -23,7 +23,7 @@ function Checkout() {
     async function fetchProducts(idArray) {
         try {
           const promises = idArray.map(async id => {
-            const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+            const res = await axios.get(`/api/products/${id}`);
             return res.data[0];
           });
           return await Promise.all(promises);
@@ -205,7 +205,7 @@ function Checkout() {
       
         try {
           // Make API call
-          const res = await axios.post(`http://localhost:3000/api/orders`, formData);
+          const res = await axios.post(`/api/orders`, formData);
       
           // Reset cart in localStorage
           dispatch(emptyCart)

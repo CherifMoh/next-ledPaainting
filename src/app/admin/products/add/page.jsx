@@ -43,7 +43,7 @@ function Admin() {
         setIsSubmitting(true)
 
         try {
-            const res =await axios.post(`http://localhost:3000/api/products`, newProduct)
+            const res =await axios.post(`/api/products`, newProduct)
             console.log(res.data);
             router.refresh()
             router.push('/admin/products')

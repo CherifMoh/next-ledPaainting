@@ -19,7 +19,7 @@ async function Home() {
 
   let images = []
   try{
-    const res = await axios.get('http://localhost:3000/api/products/ledDesigns/images');
+    const res = await axios.get('/api/products/ledDesigns/images');
     images = res.data.map(design=>design.imageOn)
   }catch(err){
     console.log(err)

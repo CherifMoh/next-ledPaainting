@@ -18,7 +18,7 @@ import Spinner from '../../../components/loadings/Spinner'
 
 
 async function fetchOrders() {
-    const res = await axios.get('http://localhost:3000/api/orders');
+    const res = await axios.get('/api/orders');
     return res.data;
 }
 

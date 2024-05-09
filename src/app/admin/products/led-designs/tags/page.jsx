@@ -6,7 +6,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 
 
 const fetchTags = async()=>{
-    const res = await axios.get('http://localhost:3000/api/products/tags');
+    const res = await axios.get('/api/products/tags');
     return res.data;
 }
 
@@ -14,7 +14,7 @@ function AddTag() {
 
     const createTag = async(tagData)=>{
         try{
-            const res = await axios.post('http://localhost:3000/api/products/tags',tagData);
+            const res = await axios.post('/api/products/tags',tagData);
             setErrorMessage('')
             router.refresh()
             queryClient.invalidateQueries('tags');
@@ -43,7 +43,7 @@ function AddTag() {
                 id:id,
                 state:true
             })
-            const res = await axios.delete(`http://localhost:3000/api/products/tags/${id}`);       
+            const res = await axios.delete(`/api/products/tags/${id}`);       
             router.refresh()
             queryClient.invalidateQueries('tags');
         }catch(err){

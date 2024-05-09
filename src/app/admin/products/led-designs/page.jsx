@@ -12,7 +12,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
 async function fetchDesigns() {
     try{
-        const res = await axios.get('http://localhost:3000/api/products/ledDesigns');
+        const res = await axios.get('/api/products/ledDesigns');
         return res.data;
     }catch(err){
         console.log(err)
@@ -43,7 +43,7 @@ function Page() {
                 id:id,
                 state:true
             }]))
-            const res = await axios.delete(`http://localhost:3000/api/products/ledDesigns/${id}`);       
+            const res = await axios.delete(`/api/products/ledDesigns/${id}`);       
             console.log(res.data);
             router.refresh()
             queryClient.invalidateQueries('designs');

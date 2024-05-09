@@ -27,7 +27,7 @@ function Categoryadd() {
         e.preventDefault()
         setErrorMessage('')
         try{
-            const res = await axios.post('http://localhost:3000/api/category',formData)
+            const res = await axios.post('/api/category',formData)
             router.refresh()
             router.push('/admin/categoreis')
         }catch(err){

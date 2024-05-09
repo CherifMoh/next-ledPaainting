@@ -22,7 +22,7 @@ function UserForm() {
         e.preventDefault()
         setErrorMessage('')
         try{
-            const res = await axios.post('http://localhost:3000/api/users',formData)
+            const res = await axios.post('/api/users',formData)
             router.refresh()
             router.push('/admin/users')
         }catch(err){

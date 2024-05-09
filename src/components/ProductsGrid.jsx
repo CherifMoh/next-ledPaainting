@@ -14,12 +14,12 @@ import arrow from '../../public/assets/arrow-down.svg'
 import logo from '../../public/assets/logo.png'
 
 // const fetchTags = async()=>{
-//     const res = await axios.get('http://localhost:3000/api/products/tags');
+//     const res = await axios.get('/api/products/tags');
 //     return res.data;
 // }
 
 async function fetchProducts() {
-    const res = await axios.get('http://localhost:3000/api/products');
+    const res = await axios.get('/api/products');
     return res.data;
 }
 

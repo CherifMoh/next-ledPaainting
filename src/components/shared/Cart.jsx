@@ -19,7 +19,7 @@ import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 async function fetchProducts(idArray) {
   try {
     const promises = idArray.map(async id => {
-      const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+      const res = await axios.get(`/api/products/${id}`);
       return res.data[0];
     });
     return await Promise.all(promises);

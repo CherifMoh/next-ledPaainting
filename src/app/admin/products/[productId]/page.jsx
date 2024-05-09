@@ -10,7 +10,7 @@ import Spinner from "../../../../components/loadings/Spinner";
 
 
 const fetchProduct = async(id)=>{
-    const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+    const res = await axios.get(`/api/products/${id}`);
     return res.data[0];
 }
 
@@ -52,7 +52,7 @@ function ProductUpdate({params}) {
         setIsSubmitting(true)
 
         try {
-            const res =await axios.put(`http://localhost:3000/api/products/${params.productId}`, newProduct)
+            const res =await axios.put(`/api/products/${params.productId}`, newProduct)
             console.log(res.data);
             queryClient.invalidateQueries('designs');
             router.refresh()

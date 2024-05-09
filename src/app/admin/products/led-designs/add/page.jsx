@@ -9,7 +9,7 @@ import Image from "next/image";
 import Spinner from "../../../../../components/loadings/Spinner";
 
 const fetchTags = async()=>{
-    const res = await axios.get('http://localhost:3000/api/products/tags');
+    const res = await axios.get('/api/products/tags');
     return res.data;
 }
 
@@ -43,7 +43,7 @@ function Admin() {
         e.preventDefault();
         setIsSubmitting(true)
         try {
-            const res =await axios.post("http://localhost:3000/api/products/ledDesigns", newDesign)
+            const res =await axios.post("/api/products/ledDesigns", newDesign)
             console.log(res.data);
             queryClient.invalidateQueries('designs');
             router.refresh()

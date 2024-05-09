@@ -13,11 +13,11 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 
 async function fetchDesigns() {
-    const res = await axios.get('http://localhost:3000/api/products/ledDesigns');
+    const res = await axios.get('/api/products/ledDesigns');
     return res.data;
 }
 async function fetchProducts() {
-    const res = await axios.get('http://localhost:3000/api/products');
+    const res = await axios.get('/api/products');
     return res.data;
 }
 
@@ -134,7 +134,7 @@ function Page() {
         
         if(!formData.shippingMethod) return setIsShippingSelected(false)
 
-        const res = await axios.post(`http://localhost:3000/api/orders`,formData )
+        const res = await axios.post(`/api/orders`,formData )
 
         console.log(res)
 

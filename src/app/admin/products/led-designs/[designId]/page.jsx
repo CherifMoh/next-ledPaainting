@@ -9,12 +9,12 @@ import Image from "next/image";
 import Spinner from "../../../../../components/loadings/Spinner";
 
 const fetchTags = async()=>{
-    const res = await axios.get('http://localhost:3000/api/products/tags');
+    const res = await axios.get('/api/products/tags');
     return res.data;
 }
 
 const fetchDesign = async(id)=>{
-    const res = await axios.get(`http://localhost:3000/api/products/${id}`);
+    const res = await axios.get(`/api/products/${id}`);
     return res.data[0];
 }
 
@@ -55,7 +55,7 @@ function DesignUpdate({params}) {
         setIsSubmitting(true)
         if(!newDesign.imageOff || !newDesign.imageOn) return setIsImages(true)
         try {
-            const res =await axios.put(`http://localhost:3000/api/products/ledDesigns/${params.designId}`, newDesign)
+            const res =await axios.put(`/api/products/ledDesigns/${params.designId}`, newDesign)
             console.log(res.data);
             queryClient.invalidateQueries('designs');
             router.refresh()

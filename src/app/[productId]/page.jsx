@@ -14,7 +14,7 @@ import ProductPSkelaton from "../../components/loadings/ProductPSkelaton";
 
 function Product({params}) {
   async function fetchProducts() {
-      const res = await axios.get(`http://localhost:3000/api/products/${params.productId}`);
+      const res = await axios.get(`/api/products/${params.productId}`);
       return res.data;
   }
 
