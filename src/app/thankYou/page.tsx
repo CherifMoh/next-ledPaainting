@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 import lines from '../../../public/assets/thankYou/lines.png'
 import logoDown from '../../../public/assets/thankYou/logoDown.png'
-import logoUP from '../../../public/assets/thankYou/logoUP.png'
+import logoUP from '../../../public/assets/thankYou/logoUp.png'
 import phone from '../../../public/assets/thankYou/phone.png'
 import shareArrow from '../../../public/assets/thankYou/shareArrow.png'
 import wave from '../../../public/assets/thankYou/wave.png'
