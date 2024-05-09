@@ -1,0 +1,36 @@
+@media(min-width: 320px){
+    .main-image,.right-image{
+        translate: -152px;
+    }
+    .right-image-placeHolder{
+        top: 112px;
+    }
+    
+}
+@media(min-width: 375px){
+    .main-image,.right-image{
+        translate: -172px;
+    }
+    .right-image-placeHolder{
+        top: 120px;
+    }
+    
+}
+@media(min-width: 425px){
+    .main-image,.right-image{
+        translate: -192px;
+    }
+    .right-image-placeHolder{
+        top: 125px;
+    }
+    
+}
+@media(min-width: 768px){
+    .main-image,.right-image{
+        translate: -192px;
+    }
+    .right-image-placeHolder{
+        top: 125px;
+    }
+    
+}

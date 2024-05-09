@@ -8,10 +8,12 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {wilayat} from '../data/wilayat'
 import Image from 'next/image';
-import logo from '../../../public/assets/logo.png' 
+import logo from '../../../public/assets/noBgLogo.png' 
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import Spinner from '../../components/loadings/Spinner';
+import ChechoutSkeleton from '../../components/loadings/ChechoutSkeleton';
+
 
 
 
@@ -60,7 +62,7 @@ function Checkout() {
     
     const subTotalPriceState = useSelector((state) =>state.totalPrice.totalPrice)
     
-    const { data: products, isLoading, isError } = useQuery({
+    const { data: products, isLoading, isError, error } = useQuery({
         queryKey: cart.map(cartItem => cartItem._id),
         queryFn: (queryKey) => fetchProducts(queryKey.queryKey)
     });
@@ -144,6 +146,8 @@ function Checkout() {
 
     const dispatch = useDispatch();
 
+    if(isLoading) return <ChechoutSkeleton />
+    if(isError) return <div>{error.message}</div>
     if(!products) return 
 
     const productsElemtnt =cart.map(cartItem=>{

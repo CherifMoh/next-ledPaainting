@@ -12,8 +12,8 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link'
 import Image from 'next/image'
 import shoppingBag from '../../../public/assets/shopping-bag.png'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 
 
 async function fetchProducts(idArray) {
@@ -166,11 +166,11 @@ function Cart() {
             <div className="cart-item-top-row">
                 <div className="cart-item-title">{product.title}</div>
                 <div
-                 className="cart-item-trash z-20 flex items-center justify-center cart-off font-extralight bg-gray-100" 
+                 className="cart-item-trash z-20 flex items-center justify-center cart-off font-extralight hover:bg-gray-100 rounded-md" 
                  data-product-id={product._id}
                  onClick={()=>handleRemoveCartItem(product._id)}
                 >
-                  <FontAwesomeIcon icon={faTrash} />
+                  <FontAwesomeIcon  icon={faTrashCan} />
                 </div>
             </div>
             <div className="cart-item-lower-row">

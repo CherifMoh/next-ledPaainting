@@ -10,6 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { updatedQuntity, updatedOptions, removeProduct } from "../redux/features/cart/cartSlice";
 import Link from "next/link";
+import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 
 
 function CartPage() {
@@ -199,7 +201,7 @@ function CartPage() {
             </div>
         </div>
         <div className='cursor-pointer absolute top-3 right-3' onClick={()=>handleRemoveCartItem(cartItem._id)}>
-          X
+          <FontAwesomeIcon  icon={faTrashCan} />
         </div>
       </div>
     )

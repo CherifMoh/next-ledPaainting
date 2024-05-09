@@ -103,12 +103,12 @@ function ProductPage({ mproduct }) {
         let isSales = false;
 
 
-        if(qnt > mproduct?.sales.length+1){
+        if(qnt > mproduct?.sales?.length+1){
             const sale = mproduct.sales[mproduct.sales.length-1];
             setSales(sale?.percen)
             isSales = true;
         }else{   
-            for (let i = 0; i < mproduct?.sales.length; i++) {
+            for (let i = 0; i < mproduct?.sales?.length; i++) {
                 const sale = mproduct.sales[i];
                 
                 if (Number(sale.qnt) === qnt) {
@@ -233,7 +233,7 @@ function ProductPage({ mproduct }) {
                         <span className="sale-mark">Sale {sales} %</span>     
                     }
                 </div>
-                {optionsElement.length > 0 && 
+                {optionsElement?.length > 0 && 
                  <p className="spawn-anime mt-4 mb-4">
                     Options
                  </p>

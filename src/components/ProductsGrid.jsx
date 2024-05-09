@@ -286,9 +286,9 @@ function ProductsGrid() {
              onClick={togelMobileSearch}
              className="lg:hidden cursor-pointer z-50 hover:bg-gray-400 px-2 py-1 rounded-full absolute right-14 top-20"
             >
-                <FontAwesomeIcon 
+                {/* <FontAwesomeIcon 
                     icon={faMagnifyingGlass}                 
-                />
+                /> */}
             </div>
 
             <div className="product-grid">

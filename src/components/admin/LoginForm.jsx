@@ -32,50 +32,52 @@ function UserForm() {
 
     }
     return(
-    <div className="flex justify-center items-center">
+    <div className="flex flex-col shadow-md justify-center gap-5 items-center w-96 h-[500px] bg-white">
+         <h1
+            className="text-2xl font-bold p-4" 
+        >
+            Login             
+        </h1>
         <form
          onSubmit={handelSubmit}
          method="POST"
-         className="flex flex-col gap-3 w-1/2"
+         className="flex flex-col w-full items-center gap-3"
         >
-            <h1>Log In</h1>
-            <label htmlFor="name">Full Name</label>
             <input 
                 type="text" 
                 name="name" 
-                id="name" 
+                placeholder="Name" 
                 onChange={handleChange} 
                 required 
-                value={formData.name}
-                className="m-2 bg-slate-300 rounded"
+                defaultValue={formData.name}
+                className="m-2 px-3 py-2 border w-72 border-gray-400 rounded"
             />
 
-            <label htmlFor="email">Email</label>
             <input 
                 type="text" 
                 name="email" 
-                id="email" 
+                placeholder="E-mail" 
                 onChange={handleChange} 
                 required 
-                value={formData.email}
-                className="m-2 bg-slate-300 rounded"
+                defaultValue={formData.email}
+                className="m-2 px-3 py-2 border w-72 border-gray-400 rounded"
             />
-            <label htmlFor="password">password</label>
+
             <input 
                 type="password" 
                 name="password" 
-                id="password" 
+                placeholder="Password" 
                 onChange={handleChange} 
                 required 
-                value={formData.password}
-                className="m-2 bg-slate-300 rounded"
+                defaultValue={formData.password}
+                className="m-2 px-3 py-2 border w-72 border-gray-400 rounded"
             />
 
             <button 
                 type='submit'
-                className="bg-blue-300 hover:bg-blue-100"
+                className="w-72 bg-blue-500 text-white py-3 rounded"
             >
-                Log In
+                Creat User
             </button>
         </form>
         <p className="text-red-500">{errorMessage}</p>

@@ -4,10 +4,12 @@ import Link from 'next/link'
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
-
 import {deleteProduct} from '../../actions/product'
 import { useState } from 'react';
 import Spinner from '../../../components/loadings/Spinner';
+import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
+import { faCircleInfo, faPen } from '@fortawesome/free-solid-svg-icons';
 
 async function fetchProducts() {
     const res = await axios.get('/api/products');
@@ -51,27 +53,33 @@ function Page() {
                     product.title === 'Led Painting' 
                     ?
                     <div className='flex gap-3'>
-                        <Link href={`/admin/products/led-designs`} className='bg-green-300 p-2 rounded-md'>All Designs</Link>
-                        <Link href={`/admin/products/${product._id}`} className='bg-green-300 p-2 rounded-md'>Update</Link>
+                        <Link href={`/admin/products/led-designs`} className='p-2 rounded-md'>
+                            <FontAwesomeIcon  icon={faCircleInfo} />
+                        </Link>
+                        <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
+                            <FontAwesomeIcon  icon={faPen} />
+                        </Link>
                         {deleting.some(item => item.id === product._id && item.state)
                         ?<Spinner size={'h-8 w-8'} color={'border-red-500'} />
                         :<button 
-                         className='bg-red-500 p-2 rounded-md'
+                         className=' p-2 rounded-md'
                          onClick={()=>handleDelete(product._id)}
                         >
-                            Delete
+                            <FontAwesomeIcon  icon={faTrashCan} />
                         </button>
                         }
                     </div>
                     :<div className='flex gap-3'>
-                        <Link href={`/admin/products/${product._id}`} className='bg-green-300 p-2 rounded-md'>Update</Link>
+                        <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
+                            <FontAwesomeIcon  icon={faPen} />
+                        </Link>
                         {deleting.some(item => item.id === product._id && item.state)
                         ?<Spinner size={'h-8 w-8'} color={'border-red-500'} />
                         :<button 
-                         className='bg-red-500 p-2 rounded-md'
+                         className=' p-2 rounded-md'
                          onClick={()=>handleDelete(product._id)}
                         >
-                            Delete
+                            <FontAwesomeIcon  icon={faTrashCan} />
                         </button>
                         }
                     </div>
@@ -85,7 +93,7 @@ function Page() {
         {name:'Image'},
         {name:'Title'},
         {name:'Price'},
-        {name:'Update'},
+        {name:'Actions'},
     ]
 
     const tHeadesElements=tHeades.map(tHead=>(

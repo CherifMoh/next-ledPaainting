@@ -9,7 +9,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faPen } from '@fortawesome/free-solid-svg-icons'
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import {deleteOrder} from '../../actions/order'
 import { useRouter } from "next/navigation";
 
@@ -238,7 +239,6 @@ function Orders() {
     }
     
 
-    console.log('Orders:', Orders)
     const ordersElement = Orders.map( (order,i)=>{
         const currentDate = format(new Date(), 'yyyy-MM-dd');
         if(order.createdAt.slice(0, 10) === dateFilter || !dateFilter)if(
@@ -307,20 +307,20 @@ function Orders() {
                                  onChange={(e)=>handleOptChange(e,i)} 
                                  name="option"
                                  defaultValue={slectedOption} 
-                                 className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
+                                 className='min-w-10 border-2 border-black pl-1 dynamic-width'
                                 >
                                     {optionElement}
                                 </select>
                                 :
                                 <div 
-                                className="mb-4 "
+                                className="mb-1 "
                                 >
                                     {slectedOption}
                                 </div>
                             }
 
                             <Image 
-                             className='min-w-24 w-24' 
+                             className='min-w-16 w-16' 
                              src={product.imageOn} 
                              width={24} height={24} alt=""
                              key={product._id} 
@@ -365,7 +365,7 @@ function Orders() {
                              className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
                             />
                             :<span 
-                                className="bg-red-500 absolute left-24 bottom-24 rounded-lg px-1 text-sm text-white text-center"
+                                className="bg-red-500 absolute left-16 bottom-16 rounded-lg px-1 text-sm text-white text-center"
                             >
                                 {product.qnt}
                             </span>
@@ -379,12 +379,16 @@ function Orders() {
                     <tr key={order._id} className={`h-5`}>
                         <td>
                            
-                            <button 
+                            {deleting.some(item => item.id === order._id && item.state)
+                            ?<Spinner size={'h-8 w-8'} color={'border-red-500'}  containerStyle={'ml-6 -mt-3'} />
+                            :<button 
+                            className=' p-2 rounded-md'
                             onClick={()=>handleDelete(order._id)}
-                            className='px-3 py-2 text-white bg-red-500 rounded-lg'
                             >
-                                {deleting.some(item => item.id === order._id && item.state)?'Deleting':'Delete'}
+                                <FontAwesomeIcon  icon={faTrashCan} />
                             </button>
+                            }
+
                             <button 
                             onClick={()=>{
                                 handleUpdatingOrder(order._id)
@@ -520,31 +524,36 @@ function Orders() {
                 return(
                     <tr 
                      key={order._id}
-                     className={`h-5 ${saving.includes(order._id) && 'opacity-40 pointer-events-none'}`}
+                     className={`h-5 ${saving.includes(order._id) || deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
                     >
                         <td>
                         {saving.includes(order._id)
                             ?
-                            <Spinner size={'w-8 h-8'} color={'border-green-500'}  containerStyle={'ml-14 mb-10'}/>
+                            <Spinner size={'w-8 h-8'} color={'border-green-500'}  containerStyle={'ml-6 -mt-3'}/>
                             :
                             <div>
-                            <button 
-                             disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)} 
+                            {deleting.some(item => item.id === order._id && item.state)
+                            ?<Spinner size={'h-8 w-8'} color={'border-red-500'}  containerStyle={'ml-6 -mt-3'} />
+                            :<button 
+                             className=' p-2 rounded-md'
                              onClick={()=>handleDelete(order._id)}
-                             className='disabled:bg-red-200 text-white px-3 py-2 bg-red-500 rounded-lg'
                             >
-                                {deleting.some(item => item.id === order._id && item.state)?'Deleting':'Delete'}
+                                <FontAwesomeIcon  icon={faTrashCan} />
                             </button>
-                           
+                            }
                             <button 
                             onClick={()=>{
                                 setEditedOrderId(order._id)
                                 setEditedOrder(order)
                             }}
                             disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)}                        
-                            className={`disabled:bg-green-100 ml-2 text-white bg-green-400 ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'} rounded-lg px-3 py-2`}
+                            className={`disabled:bg-green-100 ml-2 text-white 
+                                         ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'}
+                                         ${deleting.some(item => item.id === order._id) && 'hidden'}
+                                         rounded-lg px-3 py-2
+                                      `}
                             >
-                                Edit
+                                <FontAwesomeIcon  icon={faPen} className='text-black' />
                             </button>
                             </div>
                             }

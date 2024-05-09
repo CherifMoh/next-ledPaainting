@@ -31,8 +31,9 @@ function UserForm() {
         }
 
     }
+
     return(
-    <div className="flex flex-col justify-center gap-5 items-center w-96 h-[500px] bg-white">
+    <div className="flex flex-col shadow-md justify-center gap-5 items-center w-96 h-[500px] bg-white">
         <h1
             className="text-2xl font-bold p-4" 
         >

@@ -2,10 +2,9 @@ import Login from '../../components/admin/LoginForm'
 
 function Page() {
   return (
-    <div>
-        <h1>page</h1>
+    <main className='w-full h-screen bg-[#f5f5f5] flex justify-center items-center'> 
         <Login />
-    </div>
+    </main>
   )
 }
 
