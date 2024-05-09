@@ -17,9 +17,13 @@ import axios from 'axios'
 
 async function Home() {
 
-  const res = await axios.get('http://localhost:3000/api/products/ledDesigns/images');
-  const images = res.data.map(design=>design.imageOn)
-
+  let images = []
+  try{
+    const res = await axios.get('http://localhost:3000/api/products/ledDesigns/images');
+    images = res.data.map(design=>design.imageOn)
+  }catch(err){
+    console.log(err)
+  }
 
   return (
     <>

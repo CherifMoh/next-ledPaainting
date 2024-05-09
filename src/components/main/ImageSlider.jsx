@@ -21,6 +21,7 @@ const ImageSlider = ({ images }) => {
     return () => clearInterval(interval);
   }, [images]);
 
+
   const prevIndex = (currentIndex - 1 + images.length) % images.length;
   const nextIndex = (currentIndex + 1) % images.length;
   const nextIndex2 = (currentIndex + 2) % images.length;
