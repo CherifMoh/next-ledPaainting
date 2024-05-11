@@ -1,7 +1,9 @@
+'use client'
+
 
 import '../styles/pages/index.css'
-import  ProductsGrid  from "../components/ProductsGrid"
-import  ProductGSkeleton  from "../components/loadings/ProductGSkeleton"
+import ProductsGrid from "../components/ProductsGrid"
+import ProductGSkeleton from "../components/loadings/ProductGSkeleton"
 import { Suspense } from 'react'
 import Header from '../components/main/Header'
 // import Header from '../components/shared/Header'
@@ -12,24 +14,40 @@ import Image from 'next/image'
 
 import mainBg from '../../public/assets/oldlogo.jpg'
 import axios from 'axios'
+import { useQuery } from '@tanstack/react-query'
 
 
 
 async function Home() {
 
-  let images = []
-  try{
-    const res = await axios.get('/api/products/ledDesigns/images');
-    images = res.data.map(design=>design.imageOn)
-  }catch(err){
-    console.log(err)
+  async function fetchDesigns() {
+    try {
+      const res = await axios.get('/api/products/ledDesigns/images');
+      return res.data;
+    } catch (err) {
+      // console.log('*********************** Error *****************************')
+      console.log(err.message)
+    }
   }
+
+  const { data: Designs, isLoading, isError, error: designErr } = useQuery({
+    queryKey: ['Designs images'],
+    queryFn: fetchDesigns
+  });
+
+  if (isLoading) return <div>Loading...</div>
+  if (isError) return <div>{designErr.message}</div>
+
+  let images = Designs.map(design => design.imageOn)
+
+  console.log('*********************** Images *****************************')
+  console.log(images)
 
   return (
     <>
-    <Header />
+      <Header />
       <main className='relative w-full h-auto py-5 overflow-hidden mb-2'>
-        <Image 
+        <Image
           src={mainBg} alt=''
           width={2000} height={2000}
           className='h-auto w-full opacity-40 absolute -top-10 right-0 -z-20'
@@ -39,20 +57,20 @@ async function Home() {
         >
           Drawlys
           مرحبا بيك عندنا في
-          
+
         </h1>
         <ImageSlider images={images} />
       </main>
       <section>
-      <h1
+        <h1
           className='text-3xl font-bold text-center mb-4'
         >
-         اكتشف كل منتجاتنا
-          
+          اكتشف كل منتجاتنا
+
         </h1>
       </section>
-    <Cart />
-    <Footer /> 
+      <Cart />
+      <Footer />
     </>
   )
 }

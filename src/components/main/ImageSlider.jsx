@@ -27,40 +27,33 @@ const ImageSlider = ({ images }) => {
   const nextIndex2 = (currentIndex + 2) % images.length;
 
   return (
-    <div className="flex justify-center items-center space-x-8">
-
+    <div className={`flex justify-center items-center relative gap-8 ${isImageChanging && ' md:-translate-x-[calc(25%+32px)] -translate-x-[calc(37.4%+32px)] transition-all duration-1000'} `}>
       <img
         // height={2000} width={2000}
-        className={`w-1/4 md:w-1/6 h-auto rounded-lg ${isImageChanging ? ' blur-[1px]' : ' blur-[1px]'}`}
+        className={`w-1/4 md:w-1/6 h-auto rounded-lg blur-[1px] ${isImageChanging ? 'transition-all duration-400 opacity-0' : ' '}`}
         src={images[prevIndex]}
-        onClick={()=>setCurrentIndex(prevIndex)}
+        onClick={() => setCurrentIndex(prevIndex)}
         alt="Previous"
       />
 
       <img
         // height={2000} width={1000}
-        className={`w-1/2 md:w-1/3 h-auto rounded-2xl  ${isImageChanging ? 'main-image  scale-50 transition-all duration-1000 blur-[2px]' : ' opacity-100'} `}
+        className={`w-1/2 md:w-1/3 h-auto rounded-2xl  ${isImageChanging ? ' scale-50  transition-all duration-1000 blur-[2px]' : ' opacity-100'} `}
         src={images[currentIndex]}
         alt="Main"
       />
 
       <img
         // height={2000} width={2000}
-        className={`w-1/4 md:w-1/6 h-auto rounded-lg ${isImageChanging ? 'right-image scale-[2] transition-all duration-1000 ' : ' blur-[1px]'}`}
+        className={`w-1/4 md:w-1/6 h-auto rounded-lg  ${isImageChanging ? ' scale-[2]  transition-all duration-1000' : ' blur-[1px]'}`}
         src={images[nextIndex]}
-        onClick={()=>setCurrentIndex(nextIndex)}
+        onClick={() => setCurrentIndex(nextIndex)}
         alt="Next"
       />
-      <img
-        // height={2000} width={2000}
-        className={`right-image-placeHolder w-1/4 md:w-1/6 h-auto -z-10 absolute -right-8 rounded-lg  blur-[1px]`}
-        src={images[nextIndex2]}
-        onClick={()=>setCurrentIndex(nextIndex2)}
-        alt="Next"
-      />
-      </div>
+    </div>
   );
-  
+
 };
 
 export default ImageSlider;
+
