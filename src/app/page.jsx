@@ -1,77 +1,46 @@
-'use client'
-
 
 import '../styles/pages/index.css'
-import ProductsGrid from "../components/ProductsGrid"
-import ProductGSkeleton from "../components/loadings/ProductGSkeleton"
-import { Suspense } from 'react'
-import Header from '../components/main/Header'
-// import Header from '../components/shared/Header'
+
+import Header from '../components/home/Header'
+import Main from '../components/home/Main'
 import Footer from '../components/shared/Footer'
 import Cart from '../components/shared/Cart'
-import ImageSlider from '../components/main/ImageSlider'
+import ProductsSlider from '../components/home/ProductsSlider'
 import Image from 'next/image'
 
-import mainBg from '../../public/assets/oldlogo.jpg'
-import axios from 'axios'
-import { useQuery } from '@tanstack/react-query'
+import brownSide from '../../public/assets/brownSide.png'
+import blueSide from '../../public/assets/blueSide.png'
 
 
+function Home() {
 
-async function Home() {
-
-  async function fetchDesigns() {
-    try {
-      const res = await axios.get('/api/products/ledDesigns/images');
-      return res.data;
-    } catch (err) {
-      // console.log('*********************** Error *****************************')
-      console.log(err.message)
-    }
-  }
-
-  const { data: Designs, isLoading, isError, error: designErr } = useQuery({
-    queryKey: ['Designs images'],
-    queryFn: fetchDesigns
-  });
-
-  if (isLoading) return <div>Loading...</div>
-  if (isError) return <div>{designErr.message}</div>
-
-  let images = Designs.map(design => design.imageOn)
-
-  console.log('*********************** Images *****************************')
-  console.log(images)
 
   return (
-    <>
+    <div className='overflow-x-hidden'>
       <Header />
-      <main className='relative w-full h-auto py-5 overflow-hidden mb-2'>
-        <Image
-          src={mainBg} alt=''
-          width={2000} height={2000}
-          className='h-auto w-full opacity-40 absolute -top-10 right-0 -z-20'
-        />
+      <Main />
+      <section className='md:mt-8 mt-4 relative'>
         <h1
-          className='text-3xl font-bold text-center mb-4'
-        >
-          Drawlys
-          مرحبا بيك عندنا في
-
-        </h1>
-        <ImageSlider images={images} />
-      </main>
-      <section>
-        <h1
-          className='text-3xl font-bold text-center mb-4'
+          className='md:text-5xl text-4xl font-bold text-center mb-4'
         >
           اكتشف كل منتجاتنا
 
         </h1>
+        <Image
+          src={blueSide} alt=''
+          height={120} width={120}
+          className='absolute -top-16 -left-20'
+        />
+        <Image
+          src={brownSide} alt=''
+          height={120} width={120}
+          className='absolute -top-6 -right-16'
+        />
+        <ProductsSlider />
       </section>
       <Cart />
       <Footer />
-    </>
+    </div>
   )
 }
 
