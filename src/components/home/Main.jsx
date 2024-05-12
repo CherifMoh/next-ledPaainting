@@ -3,6 +3,7 @@
 
 import '../../styles/pages/index.css'
 import ImageSlider from '../../components/home/ImageSlider'
+import SliderSkeleton from '../../components/loadings/SliderSkeleton'
 import Image from 'next/image'
 
 import mainBg from '../../../public/assets/oldlogo.jpg'
@@ -28,7 +29,25 @@ async function HomeMain() {
         queryFn: fetchDesigns
     });
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) {
+        return (
+            <main className='relative w-full h-auto py-5 overflow-hidden mb-2'>
+                <Image
+                    src={mainBg} alt=''
+                    width={2000} height={2000}
+                    className='h-auto w-full opacity-40 absolute -top-10 right-0 -z-20'
+                />
+                <h1
+                    className='text-3xl font-bold text-center mb-4'
+                >
+                    Drawlys
+                    مرحبا بيك عندنا في
+
+                </h1>
+                <SliderSkeleton />
+            </main>
+        )
+    }
     if (isError) return <div>{designErr.message}</div>
 
     let images = Designs.map(design => design.imageOn)

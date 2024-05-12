@@ -42,12 +42,12 @@ async function ProductsSlider() {
 
                 </h1>
                 <ImageSlider images={product.gallery} />
-                <Link
+                <a
                     href={product.title === 'Led Painting' ? '/led-painting' : product._id}
-                    className='bg-[#4B3724] text-white text-lg px-4 py-2 rounded-full'
+                    className='bg-[#4B3724] text-white text-lg md:text-3xl px-6 py-2 rounded-full'
                 >
                     المزيد
-                </Link>
+                </a>
             </div>
         )
 
