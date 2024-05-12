@@ -13,7 +13,7 @@ import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import arrow from '../../../public/assets/arrow-down.svg'
 import logo from '../../../public/assets/logo.png'
 
-const fetchTags = async()=>{
+const fetchTags = async () => {
     const res = await axios.get('/api/products/tags');
     return res.data;
 }
@@ -23,40 +23,40 @@ async function fetchDesigns() {
     return res.data;
 }
 
-const fetchLedPainting= async()=>{
+const fetchLedPainting = async () => {
     const res = await axios.get(`/api/products/6614791ccb0b4173298b236b`);
     return res.data[0];
 }
 
 function ProductsGrid() {
-    
 
-    const { data: Tags, isLoading:tagsloading, isError:tagsError , error:tagErr} = useQuery({
-        queryKey:['tags'],
+
+    const { data: Tags, isLoading: tagsloading, isError: tagsError, error: tagErr } = useQuery({
+        queryKey: ['tags'],
         queryFn: fetchTags
     });
 
-    const { data: Designs, isLoading, isError, error:designErr } = useQuery({
-        queryKey:['Designs'],
+    const { data: Designs, isLoading, isError, error: designErr } = useQuery({
+        queryKey: ['Designs'],
         queryFn: fetchDesigns
     });
 
-    const { data: ledPainting, isLoading:ledLoading, isError:ledIsError , error:ledError} = useQuery({
-        queryKey:['products'],
+    const { data: ledPainting, isLoading: ledLoading, isError: ledIsError, error: ledError } = useQuery({
+        queryKey: ['products'],
         queryFn: fetchLedPainting
     });
 
-    const [selectedTag,setSelectedTag] = useState('all')
+    const [selectedTag, setSelectedTag] = useState('all')
 
-    const [search,setSearch] = useState('')
+    const [search, setSearch] = useState('')
 
-    const [isCustom ,setIsCustom] = useState(false)
+    const [isCustom, setIsCustom] = useState(false)
 
-    const [isMobileShown,setIsMobileShown] = useState(false)
-    
-    const [isRightShown,setIsRightShown] = useState(false)
+    const [isMobileShown, setIsMobileShown] = useState(false)
 
-    const [isLeftShown,setIsLeftShown] = useState(false)
+    const [isRightShown, setIsRightShown] = useState(false)
+
+    const [isLeftShown, setIsLeftShown] = useState(false)
 
     const [isVisible, setIsVisible] = useState(false);
 
@@ -64,35 +64,35 @@ function ProductsGrid() {
         // Set isVisible to true after a certain delay or any other condition
         setIsVisible(false)
         const timer = setTimeout(() => {
-        setIsVisible(true);
+            setIsVisible(true);
         }, 500); // Adjust the delay as needed
 
         return () => clearTimeout(timer);
     }, [isCustom]);
 
 
-    useEffect(()=>{
-        if(typeof document !== 'undefined' && isCustom)document.body.classList.add('overflow-hidden');
-        if(typeof document !== 'undefined' && !isCustom)document.body.classList.remove('overflow-hidden');
-    },[isCustom])
+    useEffect(() => {
+        if (typeof document !== 'undefined' && isCustom) document.body.classList.add('overflow-hidden');
+        if (typeof document !== 'undefined' && !isCustom) document.body.classList.remove('overflow-hidden');
+    }, [isCustom])
 
-    useEffect(()=>{
+    useEffect(() => {
 
         let tagesLimet
-        if(window.innerWidth > 1024 ){
+        if (window.innerWidth > 1024) {
             tagesLimet = 6
-        }else if(window.innerWidth > 640){
-            tagesLimet = 3 
-        }else{
-            tagesLimet = 2 
+        } else if (window.innerWidth > 640) {
+            tagesLimet = 3
+        } else {
+            tagesLimet = 2
 
         }
 
         Tags?.length >= tagesLimet
-        ?setIsRightShown(true)
-        :setIsRightShown(false)
-        
-    },[Tags])
+            ? setIsRightShown(true)
+            : setIsRightShown(false)
+
+    }, [Tags])
 
     if (isLoading) return <ProductGSkeleton />;
 
@@ -101,26 +101,26 @@ function ProductsGrid() {
     if (tagsloading) return <ProductGSkeleton />;
 
     if (tagsError) return <div>Error: {tagErr.message}</div>;
-    
+
     if (ledLoading) return <ProductGSkeleton />;
-    
+
     if (ledIsError) return <div>Error: {ledError.message}</div>;
 
-    if(!Designs)return
+    if (!Designs) return
 
     const firstEightProducts = [];
     const restOfTheProducts = [];
     let counter = 0;
 
-    const priceElement = ledPainting.options?.map((option,i)=>{
-        return(
-            <div 
-             className="price-after-sale "
-             key={i}
+    const priceElement = ledPainting.options?.map((option, i) => {
+        return (
+            <div
+                className="price-after-sale "
+                key={i}
             >
-                {option.price} 
-                {i !== ledPainting.options.length - 1 
-                 && <span className=' w-4 h-2 inline-block border-t-[2px] mx-2 border-black text-center'></span>
+                {option.price}
+                {i !== ledPainting.options.length - 1
+                    && <span className=' w-4 h-2 inline-block border-t-[2px] mx-2 border-black text-center'></span>
                 }
             </div>
         )
@@ -150,8 +150,8 @@ function ProductsGrid() {
 
             let counterLimite
 
-            if(window.innerWidth >= 990) counterLimite=16
-            if(window.innerWidth < 990) counterLimite=8
+            if (window.innerWidth >= 990) counterLimite = 16
+            if (window.innerWidth < 990) counterLimite = 8
             // Add to firstEightProducts array if counter is less than 8
             if (counter < counterLimite) {
                 firstEightProducts.push(productElement);
@@ -163,145 +163,145 @@ function ProductsGrid() {
         }
     });
 
-    
-    const filterElement = Tags.map (tag=>(
-        <div 
-         key={tag.name}
-         className={` 
-          ${selectedTag ===tag.name
-            ?'bg-[#68552a] text-[#dcccb3]'
-            : 'bg-[#4a3623] text-[#dcccb3] hover:bg-[#68552a]'}
+
+    const filterElement = Tags.map(tag => (
+        <div
+            key={tag.name}
+            className={` 
+          ${selectedTag === tag.name
+                    ? 'bg-[#68552a] text-[#dcccb3]'
+                    : 'bg-[#4a3623] text-[#dcccb3] hover:bg-[#68552a]'}
           cursor-pointer px-4 py-1 rounded-xl capitalize ml-4`}
-         onClick={()=>setSelectedTag(tag.name)}
+            onClick={() => setSelectedTag(tag.name)}
         >
             {tag.name
-        }</div>
+            }</div>
     ))
 
-    function togelMobileSearch(){
+    function togelMobileSearch() {
         console.log('s')
-        setIsMobileShown(pre=>!pre)
+        setIsMobileShown(pre => !pre)
     }
-    function togelCustomDesin(){
-        setIsCustom(pre=>!pre)
+    function togelCustomDesin() {
+        setIsCustom(pre => !pre)
     }
 
-    function handleRightArrow(){
+    function handleRightArrow() {
         setIsLeftShown(true)
         setIsRightShown(false)
     }
-    
-    function handleLeftArrow(){
+
+    function handleLeftArrow() {
         setIsLeftShown(false)
         setIsRightShown(true)
-        
+
     }
 
-    
+
     return (
         <div>
             <div className="flex items-center lg:flex-row lg:justify-between text-start relative">
-                {isRightShown && 
+                {isRightShown &&
                     <div className="flex absolute bg-[#DCCCB3] z-50 lg:left-[570px] sm:left-[370px] left-[270px]">
-                    <div
-                    className='bg-gradient-to-r rounded-e-xl from-gray-900 to-stone-300 z-50 w-8 h-8'
-                    >                       
-                    </div>
-                    <button
-                        className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 -rotate-90 "
-                        onClick={handleRightArrow} 
-                    >
-                        <Image 
-                        src={arrow} 
-                        width={20} height={20}
-                        alt="" 
-                        />
-                    </button>
-                </div>
-                }
-                {isLeftShown && 
-                    <div className="flex absolute left-0 z-50 bg-[#DCCCB3]">
-                        
-                        <button
-                         className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 rotate-90 "
-                         onClick={handleLeftArrow} 
+                        <div
+                            className='bg-gradient-to-r rounded-e-xl from-[#4a3623] to-[#DCCCB3] z-50 w-8 h-8'
                         >
-                            <Image 
-                            src={arrow}
-                            width={20} height={20} 
-                            alt="" 
+                        </div>
+                        <button
+                            className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 -rotate-90 "
+                            onClick={handleRightArrow}
+                        >
+                            <Image
+                                src={arrow}
+                                width={20} height={20}
+                                alt=""
+                            />
+                        </button>
+                    </div>
+                }
+                {isLeftShown &&
+                    <div className="flex absolute left-0 z-50 bg-[#DCCCB3]">
+
+                        <button
+                            className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 rotate-90 "
+                            onClick={handleLeftArrow}
+                        >
+                            <Image
+                                src={arrow}
+                                width={20} height={20}
+                                alt=""
                             />
                         </button>
 
                         <div
-                        className='bg-gradient-to-l rounded-s-xl from-gray-900 to-stone-300 z-50 w-8 h-8'
-                        >                       
+                            className='bg-gradient-to-l rounded-s-xl from-[#4a3623] to-[#DCCCB3] z-50 w-8 h-8'
+                        >
                         </div>
                     </div>
                 }
 
                 <div className="lg:max-w-[600px] sm:max-w-[400px] max-w-[300px]  overflow-hidden">
-                    <div 
-                     className={`flex my-8 relative transition-all
+                    <div
+                        className={`flex my-8 relative transition-all
                         ${isLeftShown
-                            ?'lg:translate-x-[-300px] sm:translate-x-[-200px] translate-x-[-150px]'
-                            :'translate-x-0'}`}
+                                ? 'lg:translate-x-[-300px] sm:translate-x-[-200px] translate-x-[-150px]'
+                                : 'translate-x-0'}`}
                     >
-                        <div 
+                        <div
                             className={` 
-                            ${selectedTag ==='all'
-                            ?'bg-[#68552a] text-[#dcccb3]'
-                            :'bg-[#4a3623] text-[#dcccb3] hover:bg-[#68552a]'}
+                            ${selectedTag === 'all'
+                                    ? 'bg-[#68552a] text-[#dcccb3]'
+                                    : 'bg-[#4a3623] text-[#dcccb3] hover:bg-[#68552a]'}
                             px-4 py-1 rounded-xl cursor-pointer`}
-                            onClick={()=>setSelectedTag('all')}
-                            >
-                                All
+                            onClick={() => setSelectedTag('all')}
+                        >
+                            All
                         </div>
                         {filterElement}
                     </div>
                 </div>
 
                 <div className="hidden lg:block">
-                    <FontAwesomeIcon 
-                     icon={faMagnifyingGlass}
-                     className={`pt-2 text-[#dcccb3] pointer-events-none z-10 absolute right-2 ${search?'hidden':'opacity-50'}`}
+                    <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        className={`pt-2 text-[#dcccb3] pointer-events-none z-10 absolute right-2 ${search ? 'hidden' : 'opacity-50'}`}
                     />
-                    <input 
-                     id="search"
-                     type='search' 
-                     placeholder={`Search`}
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#4a3623] no-focus-outline text-[#dcccb3] placeholder-[#dcccb3] bg-[#4a3623]' 
-                     onChange={(e)=>setSearch(e.target.value)}
+                    <input
+                        id="search"
+                        type='search'
+                        placeholder={`Search`}
+                        className='w-64 px-2 py-1 rounded-xl border-2 border-[#4a3623] no-focus-outline text-[#dcccb3] placeholder-[#dcccb3] bg-[#4a3623]'
+                        onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
 
-                <div 
-                 onClick={togelMobileSearch}
-                 className={`fixed right-0 top-0 w-screen z-[9999] h-screen bg-black ${isMobileShown?'opacity-50':'hidden'} `}
+                <div
+                    onClick={togelMobileSearch}
+                    className={`fixed right-0 top-0 w-screen z-[9999] h-screen bg-black ${isMobileShown ? 'opacity-50' : 'hidden'} `}
                 >
-                 
+
                 </div>
-                <div className={`fixed right-0 ${isMobileShown?'top-0':'-top-32'} z-[99999] w-full flex bg-[#DCCCB3] items-center justify-center h-20 `}>
-                    <input 
-                     id="search"
-                     type='search' 
-                     placeholder={`Search`}
-                     className='w-64 px-2 py-1 rounded-xl border-2 border-[#4a3623] no-focus-outline text-[#dcccb3] placeholder-[#dcccb3] bg-[#4a3623]' 
-                     onChange={(e)=>setSearch(e.target.value)}
+                <div className={`fixed right-0 ${isMobileShown ? 'top-0' : '-top-32'} z-[99999] w-full flex bg-[#DCCCB3] items-center justify-center h-20 `}>
+                    <input
+                        id="search"
+                        type='search'
+                        placeholder={`Search`}
+                        className='w-64 px-2 py-1 rounded-xl border-2 border-[#4a3623] no-focus-outline text-[#dcccb3] placeholder-[#dcccb3] bg-[#4a3623]'
+                        onChange={(e) => setSearch(e.target.value)}
                     />
                     <div
-                     onClick={togelMobileSearch}
-                     className="ml-6 cursor-pointer"
+                        onClick={togelMobileSearch}
+                        className="ml-6 cursor-pointer"
                     >X</div>
                 </div>
             </div>
 
-            <div 
-             onClick={togelMobileSearch}
-             className="lg:hidden cursor-pointer z-50 hover:bg-gray-400 px-2 py-1 rounded-full absolute right-14 top-20"
+            <div
+                onClick={togelMobileSearch}
+                className="lg:hidden cursor-pointer z-50 hover:bg-gray-400 px-2 py-1 rounded-full absolute right-14 top-20"
             >
-                <FontAwesomeIcon 
-                    icon={faMagnifyingGlass}                 
+                <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
                 />
             </div>
 
@@ -310,93 +310,93 @@ function ProductsGrid() {
             </div>
 
             {isCustom &&
-             <div 
-              onClick={togelCustomDesin}
-              className="bg-black opacity-30 h-screen w-screen fixed top-0 right-0"
-              >
-             </div>
-            } 
+                <div
+                    onClick={togelCustomDesin}
+                    className="bg-black opacity-30 h-screen w-screen fixed top-0 right-0"
+                >
+                </div>
+            }
 
             {isCustom &&
-            <div
-             className='fixed h-screen w-screen top-0 backdrop-filter backdrop-blur-sm right-0 z-[999]'
-            >
                 <div
-                 className='bg-white overflow-hidden w-96 h-[500px] relative mt-52 m-auto rounded-2xl shadow-sm shadow-slate-200'
+                    className='fixed h-screen w-screen top-0 backdrop-filter backdrop-blur-sm right-0 z-[999]'
                 >
                     <div
-                     className="p-4 bg-zinc-200 flex items-center rounded-t-2xl border-b-2 border-gray-300 justify-between"
-                    > 
-                        <FontAwesomeIcon 
-                         icon={faArrowLeft} 
-                         onClick={togelCustomDesin}
-                         className="hover:bg-gray-300 p-2 rounded-full"                    
-                        />
-                        <div>
-                            <Image 
-                            src={logo}
-                            width={30} height={24}
-                            className='h-11 w-auto rounded-full '
-                            alt=""
-                            />
-                            <div className="text-sm mr-2">Drawlys</div>
-                         </div>
-                        <div className='text-zinc-200'>!</div>
-                    </div>
-
-                    <div className={`ease-out mt-16 mb-2 pl-5 pr-2 py-2 rounded-r-2xl bg-zinc-200 w-max
-                                    ${isVisible 
-                                        ?'transition-all delay-0 translate-x-0'
-                                        :'-translate-x-24'
-                                    }
-                                   `}>
-                        السلام عليكم
-                    </div>
-                    <div className={`pl-5 pr-2 py-2 rounded-r-2xl bg-zinc-200 w-max
-                                    ${isVisible 
-                                        ?'transition-all delay-500 translate-x-0'
-                                        :'-translate-x-52'
-                                    }
-                                   `}>
-                        الرجاء التواصل معنا في <br />
-                        لطلب تصميم خاص
-                        Instgram
-                    </div>
-                    <a 
-                     className="h-10 cursor-pointer flex items-center justify-between px-4 w-80 rounded-lg border-2 border-zinc-200 bg-transparent absolute bottom-4 right-8 "
-                     href={`${window.innerWidth >1024 ?'https://www.instagram.com':"instagram:/"}/direct/t/17847607758008114`}
+                        className='bg-white overflow-hidden w-96 h-[500px] relative mt-52 m-auto rounded-2xl shadow-sm shadow-slate-200'
                     >
-                        <div>Message</div>
-                        <FontAwesomeIcon icon={faPaperPlane} />
-                    </a>
+                        <div
+                            className="p-4 bg-zinc-200 flex items-center rounded-t-2xl border-b-2 border-gray-300 justify-between"
+                        >
+                            <FontAwesomeIcon
+                                icon={faArrowLeft}
+                                onClick={togelCustomDesin}
+                                className="hover:bg-gray-300 p-2 rounded-full"
+                            />
+                            <div>
+                                <Image
+                                    src={logo}
+                                    width={30} height={24}
+                                    className='h-11 w-auto rounded-full '
+                                    alt=""
+                                />
+                                <div className="text-sm mr-2">Drawlys</div>
+                            </div>
+                            <div className='text-zinc-200'>!</div>
+                        </div>
 
+                        <div className={`ease-out mt-16 mb-2 pl-5 pr-2 py-2 rounded-r-2xl bg-zinc-200 w-max
+                                    ${isVisible
+                                ? 'transition-all delay-0 translate-x-0'
+                                : '-translate-x-24'
+                            }
+                                   `}>
+                            السلام عليكم
+                        </div>
+                        <div className={`pl-5 pr-2 py-2 rounded-r-2xl bg-zinc-200 w-max
+                                    ${isVisible
+                                ? 'transition-all delay-500 translate-x-0'
+                                : '-translate-x-52'
+                            }
+                                   `}>
+                            الرجاء التواصل معنا في <br />
+                            لطلب تصميم خاص
+                            Instgram
+                        </div>
+                        <a
+                            className="h-10 cursor-pointer flex items-center justify-between px-4 w-80 rounded-lg border-2 border-zinc-200 bg-transparent absolute bottom-4 right-8 "
+                            href={`${window.innerWidth > 1024 ? 'https://www.instagram.com' : "instagram:/"}/direct/t/17847607758008114`}
+                        >
+                            <div>Message</div>
+                            <FontAwesomeIcon icon={faPaperPlane} />
+                        </a>
+
+                    </div>
                 </div>
-            </div>
             }
 
             {restOfTheProducts &&
                 <div className="flex my-32 items-center">
-                
-                    <Image 
-                     src={ledPainting.imageOn} 
-                     alt="" 
-                     width={120} height={120} 
-                     className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40' 
+
+                    <Image
+                        src={ledPainting.imageOn}
+                        alt=""
+                        width={120} height={120}
+                        className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40'
                     />
 
-                    <div 
-                     key="layer" 
-                     onClick={togelCustomDesin}
-                     className="w-full flex cursor-pointer items-center justify-center shadow-lg mx-10 h-32 bg-[#4A3623] py-4 text-center text-[#DCCCB3] rounded-lg"
+                    <div
+                        key="layer"
+                        onClick={togelCustomDesin}
+                        className="w-full flex cursor-pointer items-center justify-center shadow-lg mx-10 h-32 bg-[#4A3623] py-4 text-center text-[#DCCCB3] rounded-lg"
                     >
                         Add a custom design
                     </div>
 
-                    <Image 
-                     src={ledPainting.imageOff} 
-                     alt="" 
-                     width={120} height={120} 
-                     className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40' 
+                    <Image
+                        src={ledPainting.imageOff}
+                        alt=""
+                        width={120} height={120}
+                        className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40'
                     />
 
                 </div>

@@ -28,13 +28,13 @@ function ProductPage({ mproduct }) {
 
     const [isSelectedOption, setIsSelectedOption] = useState(true)
 
-    const isCartShown = useSelector((state) =>state.isCartShown.isCartShown)
-    
+    const isCartShown = useSelector((state) => state.isCartShown.isCartShown)
+
     const cart = useSelector((state) => state.cart.cart)
 
     const dispatch = useDispatch();
-    
-    const handelCartToggle =()=>{
+
+    const handelCartToggle = () => {
         dispatch(showCartToggle());
     }
 
@@ -68,17 +68,17 @@ function ProductPage({ mproduct }) {
     }, [currentIndex, galleryImages]);
 
     useEffect(() => {
-       checkIfSale(qnt)
+        checkIfSale(qnt)
     }, [qnt]);
 
-    
-    const handleAddToCart = (productId, qnt, price, sales ) => {
-        console.log(sales)
-        if(!selectedOption && optionsElement.length>0) return setIsSelectedOption(false)
 
-        const newOptions = mproduct.options?.map(option=>{
-            if(option.title === selectedOption.title){
-                return {...option,selected:true}
+    const handleAddToCart = (productId, qnt, price, sales) => {
+        console.log(sales)
+        if (!selectedOption && optionsElement.length > 0) return setIsSelectedOption(false)
+
+        const newOptions = mproduct.options?.map(option => {
+            if (option.title === selectedOption.title) {
+                return { ...option, selected: true }
             }
             return option
         })
@@ -87,30 +87,30 @@ function ProductPage({ mproduct }) {
 
         dispatch(addProduct({
             _id: productId,
-            qnt:qnt,
-            price:price,
-            options:newOptions,
-            sales:sales,
+            qnt: qnt,
+            price: price,
+            options: newOptions,
+            sales: sales,
         }));
         console.log(cart)
     };
-        
+
     localStorage.setItem('cart', JSON.stringify(cart))
 
 
-    function checkIfSale(qnt){
-        
+    function checkIfSale(qnt) {
+
         let isSales = false;
 
 
-        if(qnt > mproduct?.sales?.length+1){
-            const sale = mproduct.sales[mproduct.sales.length-1];
+        if (qnt > mproduct?.sales?.length + 1) {
+            const sale = mproduct.sales[mproduct.sales.length - 1];
             setSales(sale?.percen)
             isSales = true;
-        }else{   
+        } else {
             for (let i = 0; i < mproduct?.sales?.length; i++) {
                 const sale = mproduct.sales[i];
-                
+
                 if (Number(sale.qnt) === qnt) {
                     isSales = true;
                     setSales(sale.percen)
@@ -119,70 +119,70 @@ function ProductPage({ mproduct }) {
             }
         }
 
-        if(!isSales){
+        if (!isSales) {
             setSales('')
         }
         return isSales;
-        
+
     }
 
-    const galleryElement = mproduct.gallery.map((image,i)=>{
+    const galleryElement = mproduct.gallery.map((image, i) => {
         return (
-            <Image 
-             key={image} 
-             alt=''
-             src={image} 
-             width={20} height={20} 
-             className="gallery-image cursor-pointer" 
-             onClick={()=>setMainImage(image)}
+            <Image
+                key={image}
+                alt=''
+                src={image}
+                width={20} height={20}
+                className="gallery-image cursor-pointer"
+                onClick={() => setMainImage(image)}
             />
         )
     })
 
     const Plines = mproduct.description.split('\n');
 
-    const PDescriptionElement = Plines.map((line,i)=>{
+    const PDescriptionElement = Plines.map((line, i) => {
         return (
-        <Fragment key={line+i} >
-            <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
-            <br />
-          </Fragment>
+            <Fragment key={line + i} >
+                <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
+                <br />
+            </Fragment>
         )
     })
 
 
-    const priceElement = mproduct.options?.map((option,i)=>{
-        return(
-            <div 
-             className="price-after-sale "
-             key={i}
+    const priceElement = mproduct.options?.map((option, i) => {
+        return (
+            <div
+                className="price-after-sale "
+                key={i}
             >
-                {option.price} 
-                {i !== mproduct.options.length - 1 
-                 && <span className=' w-4 h-2 inline-block border-t-[2px] ml-2 border-black text-center'></span>
+                {option.price}
+                {i !== mproduct.options.length - 1
+                    && <span className=' w-4 h-2 inline-block border-t-[2px] ml-2 border-black text-center'></span>
                 }
             </div>
         )
     })
 
-    const optionsElement = mproduct.options?.map(option=>{
+    const optionsElement = mproduct.options?.map(option => {
 
-        const buttonStyle={
+        const buttonStyle = {
             boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
         }
 
-        return(
-            <button 
-             className={`flex transition-all text-white justify-center items-center gap-4 px-4 py-2 rounded-full ${selectedOption?.title === option.title ?'bg-[#9f865d] ':'bg-[#bda780]'}` }
-             style={buttonStyle}
-             key={option.title} 
-             onClick={()=>{setSelectedOption(option);setIsSelectedOption(true)}}
+        return (
+            <button
+                className={`flex transition-all text-white justify-center items-center gap-4 px-4 py-2 rounded-full ${selectedOption?.title === option.title ? 'bg-[#9f865d] ' : 'bg-[#bda780]'}`}
+                style={buttonStyle}
+                key={option.title}
+                onClick={() => { setSelectedOption(option); setIsSelectedOption(true) }}
             >
                 <Image
-                 src={option.image}
-                 alt=''
-                 width={100} height={100}
-                 className='w-4'
+                    src={option.image}
+                    alt=''
+                    width={100} height={100}
+                    className='w-4'
                 />
                 <div className='flex flex-col justify-center text-white items-center'>
                     <span className='price-after-sale text-white text-sm'>{option.title}</span>
@@ -194,7 +194,7 @@ function ProductPage({ mproduct }) {
 
 
     return (
-        <section className="selected-prodect-container">
+        <section className="selected-prodect-container overflow-hidden">
             <section className="product-gallery">
                 <div className={`main-image-container transition-all duration-1000 ${isImageChanging ? ' opacity-50' : ' opacity-100'}`}>
                     <Image alt='' src={mainImage} width={20} height={20} className="main-image main-image-on" />
@@ -204,44 +204,44 @@ function ProductPage({ mproduct }) {
                 </div>
             </section>
             <section className="product-info">
-                <div className="product-title capitalize spawn-anime">{mproduct.title}</div>                           
+                <div className="product-title capitalize spawn-anime">{mproduct.title}</div>
                 <div className="price-container flex gap-1 spawn-anime">
                     {sales && priceElement &&
                         <>
                             <span className="price-befor-sale ">
-                            {priceElement.length>0
-                                ?selectedOption.price*qnt
-                                :mproduct.price*qnt
-                            } DA
+                                {priceElement.length > 0
+                                    ? selectedOption.price * qnt
+                                    : mproduct.price * qnt
+                                } DA
                             </span>
                             <span className="price-after-sale ">
-                                {(selectedOption.price-(selectedOption.price*sales)/100)*qnt} DA
+                                {(selectedOption.price - (selectedOption.price * sales) / 100) * qnt} DA
                             </span>
                         </>
                     }
 
                     {!sales
-                        ?priceElement
-                            ?selectedOption
-                            ?<span className='price-after-sale'>{selectedOption.price} DA</span>
-                            :<div className='flex'>{priceElement.length>0 ? priceElement : mproduct.price*qnt} DA</div>
-                            :<span className="price-after-sale ">{mproduct.price*qnt}  DA</span>                 
-                        :''
+                        ? priceElement
+                            ? selectedOption
+                                ? <span className='price-after-sale'>{selectedOption.price} DA</span>
+                                : <div className='flex'>{priceElement.length > 0 ? priceElement : mproduct.price * qnt} DA</div>
+                            : <span className="price-after-sale ">{mproduct.price * qnt}  DA</span>
+                        : ''
                     }
 
                     {sales && priceElement &&
-                        <span className="sale-mark">Sale {sales} %</span>     
+                        <span className="sale-mark">Sale {sales} %</span>
                     }
                 </div>
-                {optionsElement?.length > 0 && 
-                 <p className="spawn-anime mt-4 mb-4">
-                    Options
-                 </p>
-                 }
+                {optionsElement?.length > 0 &&
+                    <p className="spawn-anime mt-4 mb-4">
+                        Options
+                    </p>
+                }
 
-                {!isSelectedOption && 
+                {!isSelectedOption &&
                     <div className='text-red-500 text-lg text-end pr-4 font-semibold'>
-                        اختر احد الخيارات *                      
+                        اختر احد الخيارات *
                     </div>
                 }
 
@@ -252,14 +252,14 @@ function ProductPage({ mproduct }) {
                 <div className="quantity-container spawn-anime flex">
                     <button
                         className="minus-quantity-button flex items-start justify-center"
-                        onClick={() =>{
-                            if(optionsElement.length>0){
-                                if(!selectedOption){
-                                 return setIsSelectedOption(false)    
-                                }else if(qnt > 1){
+                        onClick={() => {
+                            if (optionsElement.length > 0) {
+                                if (!selectedOption) {
+                                    return setIsSelectedOption(false)
+                                } else if (qnt > 1) {
                                     setQnt(pre => pre - 1)
-                                }              
-                            }else if(qnt > 1){
+                                }
+                            } else if (qnt > 1) {
                                 setQnt(pre => pre - 1)
                             }
                         }}
@@ -271,14 +271,14 @@ function ProductPage({ mproduct }) {
                     >{qnt}</div>
                     <button
                         className="plus-quantity-button pb-1"
-                        onClick={() =>{
-                            if(optionsElement.length>0){
-                                if(!selectedOption){
-                                 return setIsSelectedOption(false)    
-                                }else{
+                        onClick={() => {
+                            if (optionsElement.length > 0) {
+                                if (!selectedOption) {
+                                    return setIsSelectedOption(false)
+                                } else {
                                     setQnt(pre => pre + 1)
-                                }              
-                            }else{
+                                }
+                            } else {
                                 setQnt(pre => pre + 1)
                             }
                         }}
@@ -294,59 +294,59 @@ function ProductPage({ mproduct }) {
                     Add to cart
                 </button>
                 <a href="/checkout">
-                    <button 
-                    className="Add-to-cart spawn-anime text-[#DCCCB3] bg-[#4a3623]" 
-                    data-product-id={mproduct._id}
-                    onClick={() => handleAddToCart(mproduct._id, qnt, mproduct.price, mproduct.sales)}
+                    <button
+                        className="Add-to-cart spawn-anime text-[#DCCCB3] bg-[#4a3623]"
+                        data-product-id={mproduct._id}
+                        onClick={() => handleAddToCart(mproduct._id, qnt, mproduct.price, mproduct.sales)}
                     >Buy now</button>
                 </a>
 
                 <div className="discription-container spawn-anime">
                     <div className="discription mt-4 mb-4 ">
-                      {PDescriptionElement}
+                        {PDescriptionElement}
                     </div>
                     <div className="drop-container">
                         <div className="drop-down">
-                            <div className="drop-header js-dimensions cursor-pointer" onClick={()=>setIsDimensions(pre=>!pre)}>
+                            <div className="drop-header js-dimensions cursor-pointer" onClick={() => setIsDimensions(pre => !pre)}>
                                 <Image className="drop-icon" src={ruler} width={5} height={5} alt="" />
                                 <h2 className="drop-title">Dimensions</h2>
-                                <Image 
-                                 src={arrowDown} width={5} height={5} alt="" 
-                                 className={`drop-arrow js-dimensions-arrow transition-all duration-100 ${isDimensions && 'rotate-180'}`}
+                                <Image
+                                    src={arrowDown} width={5} height={5} alt=""
+                                    className={`drop-arrow js-dimensions-arrow transition-all duration-100 ${isDimensions && 'rotate-180'}`}
                                 />
                             </div>
-                                <div className={`dimensions-body transition-all duration-500 ${!isDimensions && 'hidden'}`}>
-                                    <p 
-                                     className="drop-dimensions-title font-semibold text-lg"
-                                    >
-                                        (L x W)
-                                    </p>
-                                    <p className="dimensions">
-                                        21 cm x 29.7 cm
-                                    </p>
-                                </div>
+                            <div className={`dimensions-body transition-all duration-500 ${!isDimensions && 'hidden'}`}>
+                                <p
+                                    className="drop-dimensions-title font-semibold text-lg"
+                                >
+                                    (L x W)
+                                </p>
+                                <p className="dimensions">
+                                    21 cm x 29.7 cm
+                                </p>
+                            </div>
                         </div>
 
 
                         <div className="drop-down">
-                            <div className="drop-header js-material drop-header2 cursor-pointer" onClick={()=>setIsMaterial(pre=>!pre)}>
-                                <Image  
-                                 className="drop-icon" 
-                                 src={Material}
-                                 width={10}
-                                 height={10} 
-                                 alt="" 
+                            <div className="drop-header js-material drop-header2 cursor-pointer" onClick={() => setIsMaterial(pre => !pre)}>
+                                <Image
+                                    className="drop-icon"
+                                    src={Material}
+                                    width={10}
+                                    height={10}
+                                    alt=""
                                 />
                                 <h2 className="drop-title">Material</h2>
-                                <Image  
-                                 className={`drop-arrow js-material-arrow transition-all duration-100 ${isMaterial && 'rotate-180'}` }
-                                 src={arrowDown} alt=""
-                                 height={5} width={5} 
+                                <Image
+                                    className={`drop-arrow js-material-arrow transition-all duration-100 ${isMaterial && 'rotate-180'}`}
+                                    src={arrowDown} alt=""
+                                    height={5} width={5}
                                 />
                             </div>
-                                <div className={`material-body transition-all duration-500 ${!isMaterial && 'hidden'}`}>
-                                    <p className="material" >Frame: Exquisite wood grain frame</p>
-                                </div>      
+                            <div className={`material-body transition-all duration-500 ${!isMaterial && 'hidden'}`}>
+                                <p className="material" >Frame: Exquisite wood grain frame</p>
+                            </div>
                         </div>
                     </div>
                 </div>
