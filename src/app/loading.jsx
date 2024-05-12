@@ -1,16 +1,12 @@
 import Header from '../components/home/Header'
 import Footer from '../components/shared/Footer'
-import ImageSlider from '../components/home/ImageSlider'
+import SliderSkeleton from '../components/loadings/SliderSkeleton'
 import Image from 'next/image';
 import mainBg from '../../public/assets/oldlogo.jpg'
 
+
 function Loading() {
-  const images = [
-    "https://via.placeholder.com/400x200?text=Image1",
-    "https://via.placeholder.com/400x200?text=Image2",
-    "https://via.placeholder.com/400x200?text=Image3",
-    // Add more image URLs as needed
-  ];
+
   return (
     <>
       <Header />
@@ -27,7 +23,7 @@ function Loading() {
           مرحبا بيك عندنا في
 
         </h1>
-        <ImageSlider images={images} />
+        <SliderSkeleton />
       </main>
       <Footer />
     </>
