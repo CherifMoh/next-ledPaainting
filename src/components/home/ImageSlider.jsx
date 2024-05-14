@@ -10,16 +10,18 @@ const ImageSlider = ({ images }) => {
   const [isImageChangingLeft, setIsImageChangingLeft] = useState(false);
   const [isImageChangingRight, setIsImageChangingRight] = useState(false);
 
+  const [isHeld, setIsHeld] = useState(false);
+  const [start, setStart] = useState(0);
+
   const [intervalIdS, setIntervalIdS] = useState(false);
 
-  useEffect(() => {
-    const intervalId = setInterval(intervalFun, 4000);
-    setIntervalIdS(intervalId)
+  // useEffect(() => {
+  //   const intervalId = setInterval(intervalFun, 4000);
+  //   setIntervalIdS(intervalId)
 
-    return () => clearInterval(intervalId);
-  }, [images]);
+  //   return () => clearInterval(intervalId);
+  // }, [images]);
 
-  console.log(intervalIdS)
 
 
   const prevIndex2 = (currentIndex - 2 + images.length) % images.length;
@@ -35,7 +37,7 @@ const ImageSlider = ({ images }) => {
     }, 1000); // Wait for 300ms before changing the image
   }
 
-  function chnageImage(imageIndex, l) {
+  function changeImage(imageIndex, l) {
     clearInterval(intervalIdS);
     l === 'l' ? setIsImageChangingLeft(true) : setIsImageChangingRight(true)
     setTimeout(() => {
@@ -46,12 +48,44 @@ const ImageSlider = ({ images }) => {
     setIntervalIdS(intervalId)
   }
 
+  const handleMouseDown = (e) => {
+    setStart(e.pageX)
+    setIsHeld(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsHeld(false);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isHeld) return;
+    if (isImageChangingLeft) return;
+    if (isImageChangingRight) return;
+
+
+    const mouseX = e.pageX - start;
+
+
+    if (mouseX <= 200 && mouseX > 0) {
+      changeImage(prevIndex, 'l');
+
+    } else if (mouseX >= -200 && mouseX < 0) {
+
+      changeImage(nextIndex, 'r');
+    }
+  };
+
+
+
   return (
     <div
       className={`flex justify-center items-center relative gap-8
         ${isImageChangingRight && ' md:-translate-x-[calc(25%+32px)] -translate-x-[calc(37.5%+32px)]  transition-all duration-1000'} 
         ${isImageChangingLeft && ' md:translate-x-[calc(25%+32px)] translate-x-[calc(37.5%+32px)]  transition-all duration-1000'} 
       `}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
     >
       <img
         // height={2000} width={1000}
@@ -61,6 +95,7 @@ const ImageSlider = ({ images }) => {
         `}
         src={images[prevIndex2]}
         alt="Previous 2"
+        draggable="false"
       />
       <img
         // height={2000} width={2000}
@@ -69,8 +104,9 @@ const ImageSlider = ({ images }) => {
           ${isImageChangingLeft && 'scale-[2]  transition-all duration-1000 blur-0'}
         `}
         src={images[prevIndex]}
-        onClick={() => chnageImage(prevIndex, 'l')}
+        onClick={() => changeImage(prevIndex, 'l')}
         alt="Previous"
+        draggable="false"
       />
 
       <img
@@ -81,6 +117,7 @@ const ImageSlider = ({ images }) => {
         `}
         src={images[currentIndex]}
         alt="Main"
+        draggable="false"
       />
 
       <img
@@ -90,8 +127,9 @@ const ImageSlider = ({ images }) => {
           ${isImageChangingRight && 'scale-[2]  transition-all duration-1000 blur-0'}
         `}
         src={images[nextIndex]}
-        onClick={() => chnageImage(nextIndex, 'r')}
+        onClick={() => changeImage(nextIndex, 'r')}
         alt="Next"
+        draggable="false"
       />
 
       <img
@@ -102,6 +140,7 @@ const ImageSlider = ({ images }) => {
         `}
         src={images[nextIndex2]}
         alt="Next 2"
+        draggable="false"
       />
     </div>
   );
