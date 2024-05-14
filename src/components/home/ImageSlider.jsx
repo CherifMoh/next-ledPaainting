@@ -86,6 +86,9 @@ const ImageSlider = ({ images }) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
+      onTouchStart={handleMouseDown}
+      onTouchEnd={handleMouseUp}
+      onTouchMove={handleMouseMove}
     >
       <img
         // height={2000} width={1000}
