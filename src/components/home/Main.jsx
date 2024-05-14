@@ -57,8 +57,8 @@ async function HomeMain() {
         <main className='relative w-full h-auto py-5 overflow-hidden mb-2'>
             <Image
                 src={mainBg} alt=''
-                width={2000} height={2000}
-                className='h-auto w-full opacity-40 absolute -top-10 right-0 -z-20'
+                width={2500} height={2500}
+                className='h-auto w-full opacity-40 absolute lg:-top-64 md:-top-32 -top-10 right-0 -z-20'
             />
             <h1
                 className='text-3xl font-bold text-center mb-4'

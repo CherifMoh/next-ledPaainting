@@ -11,12 +11,12 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   return (
     <html lang="ar">
-      <body>    
+      <body>
         <ReduxProvider>
           <QueryProvider>
-              {children}  
-          </QueryProvider>  
-        </ReduxProvider>     
+            {children}
+          </QueryProvider>
+        </ReduxProvider>
       </body>
     </html>
   )
