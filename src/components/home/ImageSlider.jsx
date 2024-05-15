@@ -74,6 +74,13 @@ const ImageSlider = ({ images }) => {
       changeImage(nextIndex, 'r');
     }
   };
+
+  const handleTouchStart = (e) => {
+    setIsHeld(true);
+    handleTouchMove(e); // Call handleTouchMove immediately to update positions
+    e.preventDefault(); // Prevent scrolling when touch starts
+  };
+
   const handleTouchMove = (e) => {
     if (!isHeld) return;
     if (isImageChangingLeft) return;
@@ -103,7 +110,7 @@ const ImageSlider = ({ images }) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
-      onTouchStart={handleMouseDown}
+      onTouchStart={handleTouchStart}
       onTouchEnd={handleMouseUp}
       onTouchMove={handleTouchMove}
     >
