@@ -77,6 +77,7 @@ const ImageSlider = ({ images }) => {
 
   const handleTouchStart = (e) => {
     setIsHeld(true);
+    setStart(e.touches[0].pageX)
     handleTouchMove(e); // Call handleTouchMove immediately to update positions
     e.preventDefault(); // Prevent scrolling when touch starts
   };
