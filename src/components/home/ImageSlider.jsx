@@ -15,12 +15,12 @@ const ImageSlider = ({ images }) => {
 
   const [intervalIdS, setIntervalIdS] = useState(false);
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(intervalFun, 4000);
-  //   setIntervalIdS(intervalId)
+  useEffect(() => {
+    const intervalId = setInterval(intervalFun, 4000);
+    setIntervalIdS(intervalId)
 
-  //   return () => clearInterval(intervalId);
-  // }, [images]);
+    return () => clearInterval(intervalId);
+  }, [images]);
 
 
 
@@ -74,6 +74,23 @@ const ImageSlider = ({ images }) => {
       changeImage(nextIndex, 'r');
     }
   };
+  const handleTouchMove = (e) => {
+    if (!isHeld) return;
+    if (isImageChangingLeft) return;
+    if (isImageChangingRight) return;
+
+
+    const mouseX = e.touches[0].pageX - start;
+
+
+    if (mouseX <= 200 && mouseX > 0) {
+      changeImage(prevIndex, 'l');
+
+    } else if (mouseX >= -200 && mouseX < 0) {
+
+      changeImage(nextIndex, 'r');
+    }
+  };
 
 
 
@@ -88,7 +105,7 @@ const ImageSlider = ({ images }) => {
       onMouseMove={handleMouseMove}
       onTouchStart={handleMouseDown}
       onTouchEnd={handleMouseUp}
-      onTouchMove={handleMouseMove}
+      onTouchMove={handleTouchMove}
     >
       <img
         // height={2000} width={1000}
@@ -103,7 +120,7 @@ const ImageSlider = ({ images }) => {
       <img
         // height={2000} width={2000}
         className={`w-1/4 md:w-1/6 h-auto rounded-lg blur-[1px] 
-          ${isImageChangingRight && 'scale-50 transition-all duration-500 opacity-0'}
+          ${isImageChangingRight && 'scale-50 blur-0 transition-all duration-500 opacity-0'}
           ${isImageChangingLeft && 'scale-[2]  transition-all duration-1000 blur-0'}
         `}
         src={images[prevIndex]}
@@ -126,7 +143,7 @@ const ImageSlider = ({ images }) => {
       <img
         // height={2000} width={2000}
         className={`w-1/4 md:w-1/6 h-auto rounded-lg blur-[1px] 
-          ${isImageChangingLeft && 'scale-50 transition-all duration-500 opacity-0'}
+          ${isImageChangingLeft && 'scale-50 blur-0 transition-all duration-500 opacity-0'}
           ${isImageChangingRight && 'scale-[2]  transition-all duration-1000 blur-0'}
         `}
         src={images[nextIndex]}
