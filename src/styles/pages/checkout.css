@@ -1,35 +1,42 @@
-body{
+body {
     margin: 0;
 }
-header{
+
+header {
     border-bottom: 1px solid rgb(221, 221, 221);
     text-align: center;
     height: 82px;
 }
-.logo{
+
+.logo {
     height: 82px;
 }
-main{
+
+main {
     display: grid;
     grid-template-columns: 1fr 1fr;
     height: 0;
 }
-.form-section{
+
+.form-section {
     height: 100%;
     border-right: 1px solid rgb(221, 221, 221);
     display: flex;
     justify-content: end;
 }
-.form-container{
+
+.form-container {
     width: 610px;
     padding: 20px;
     text-align: center;
 }
+
 .form-container h1 {
     text-align: start;
 }
 
-input,select{
+input,
+select {
     font-size: 13.5px;
     padding: 13.5px 11px;
     border-radius: 4px;
@@ -38,12 +45,15 @@ input,select{
     border: 1px solid rgb(138, 138, 138);
     letter-spacing: normal;
 }
-.name-forms-container,.wilaya-forms-container{
+
+.name-forms-container,
+.wilaya-forms-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 15px;
 }
-.submit-button{
+
+.submit-button {
     width: 100%;
     padding: 14px;
     border: none;
@@ -56,17 +66,19 @@ input,select{
 }
 
 
-.order-details-section{
+.order-details-section {
     background-color: #f5f5f5;
 }
-.order-details-container{
+
+.order-details-container {
     width: 414px;
-    padding: 42px;
 }
-.product-image-container{
+
+.product-image-container {
     position: relative;
 }
-.product-quntity{
+
+.product-quntity {
     position: absolute;
     right: -4px;
     top: -7px;
@@ -80,58 +92,70 @@ input,select{
     color: #f5f5f5;
     background-color: #666666;
 }
-.product{
+
+.product {
     display: flex;
     align-items: center;
     font-size: 14px;
     margin-bottom: 10px;
 }
-.product-image{
+
+.product-image {
     height: 64px;
     object-fit: contain;
     border-radius: 4px;
 }
-.product-title{
+
+.product-title {
     letter-spacing: normal;
     padding-left: 14px;
     width: 215px;
 }
-.product-price,.products-price{
+
+.product-price,
+.products-price {
     letter-spacing: normal;
     text-align: end;
     padding-left: 14px;
     width: 215px;
 }
-.order-price-cintainer{
-    margin-top:50px;
+
+.order-price-cintainer {
+    margin-top: 50px;
 
 }
-.prcie-c{
+
+.prcie-c {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
-.nospasing{
+.nospasing {
     letter-spacing: normal;
 }
-.total-price,.total-text{
+
+.total-price,
+.total-text {
     letter-spacing: normal;
     font-size: 17px;
     color: #000000;
-    font-weight: 500; 
+    font-weight: 500;
 }
-.order-summary-title{
+
+.order-summary-title {
     padding: 10px;
     text-align: start;
 }
 
-@media(max-width:  1100px  ){
-    main{
+@media(max-width: 1100px) {
+    main {
         grid-template-columns: 1fr;
     }
-    .form-section,.order-details-section{
+
+    .form-section,
+    .order-details-section {
         display: flex;
         justify-content: center;
         align-items: center;
