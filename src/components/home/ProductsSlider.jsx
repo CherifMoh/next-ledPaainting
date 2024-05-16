@@ -1,6 +1,5 @@
 'use client'
 
-
 import '../../styles/pages/index.css'
 import ImageSlider from './ImageSlider'
 import Image from 'next/image'

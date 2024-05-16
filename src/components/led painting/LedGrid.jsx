@@ -364,7 +364,7 @@ function ProductsGrid() {
                         </div>
                         <a
                             className="h-10 cursor-pointer flex items-center justify-between px-4 w-80 rounded-lg border-2 border-zinc-200 bg-transparent absolute bottom-4 right-8 "
-                            href={`${window.innerWidth > 1024 ? 'https://www.instagram.com' : "instagram:/"}/direct/t/17847607758008114`}
+                            href={`https://www.instagram.com/direct/t/17847607758008114`}
                         >
                             <div>Message</div>
                             <FontAwesomeIcon icon={faPaperPlane} />
