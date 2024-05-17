@@ -3,7 +3,7 @@
 import axios from "axios";
 import Link from "next/link";
 import ProductGSkeleton from '../loadings/ProductGSkeleton'
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -12,14 +12,15 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import arrow from '../../../public/assets/arrow-down.svg'
 import logo from '../../../public/assets/logo.png'
+import { useInView } from "react-intersection-observer";
 
 const fetchTags = async () => {
     const res = await axios.get('/api/products/tags');
     return res.data;
 }
 
-async function fetchDesigns() {
-    const res = await axios.get('/api/products/ledDesigns');
+async function fetchDesigns({ pageParam = 1 }) {
+    const res = await axios.get(`/api/products/ledDesigns?page=${pageParam}`);
     return res.data;
 }
 
@@ -36,9 +37,13 @@ function ProductsGrid() {
         queryFn: fetchTags
     });
 
-    const { data: Designs, isLoading, isError, error: designErr } = useQuery({
-        queryKey: ['Designs'],
-        queryFn: fetchDesigns
+    const { ref, inView } = useInView();
+
+    const { data: DesignsPages, error: designsErr, fetchNextPage, hasNextPage, isFetchingNextPage, status, } = useInfiniteQuery({
+        queryKey: ['Designs infinite'],
+        queryFn: fetchDesigns,
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => lastPage.nextPage
     });
 
     const { data: ledPainting, isLoading: ledLoading, isError: ledIsError, error: ledError } = useQuery({
@@ -70,6 +75,11 @@ function ProductsGrid() {
         return () => clearTimeout(timer);
     }, [isCustom]);
 
+    useEffect(() => {
+        if (inView && hasNextPage) {
+            fetchNextPage()
+        }
+    }, [inView, hasNextPage])
 
     useEffect(() => {
         if (typeof document !== 'undefined' && isCustom) document.body.classList.add('overflow-hidden');
@@ -94,9 +104,9 @@ function ProductsGrid() {
 
     }, [Tags])
 
-    if (isLoading) return <ProductGSkeleton />;
+    if (status === 'pending') return <ProductGSkeleton />;
 
-    if (isError) return <div>Error: {designErr.message}</div>;
+    if (status === 'error') return <div>Error: {designsErr.message}</div>;
 
     if (tagsloading) return <ProductGSkeleton />;
 
@@ -106,11 +116,15 @@ function ProductsGrid() {
 
     if (ledIsError) return <div>Error: {ledError.message}</div>;
 
+    const Designs = DesignsPages?.pages
+
     if (!Designs) return
 
     const firstEightProducts = [];
     const restOfTheProducts = [];
     let counter = 0;
+
+
 
     const priceElement = ledPainting.options?.map((option, i) => {
         return (
@@ -126,41 +140,50 @@ function ProductsGrid() {
         )
     })
 
-    Designs.forEach((design, index) => {
-        if (
-            (design.tags.includes(selectedTag) || selectedTag === "all") &&
-            (design.title.toLowerCase().includes(search.toLowerCase()) || design.description.toLowerCase().includes(search.toLowerCase()) || search === "")
-        ) {
-            const productElement = (
-                <Link key={design._id} className="product-card" href={`/led-painting/${design._id}`}>
-                    <div className="product-img-container">
-                        <Image alt="" src={`${design.imageOn}`} width={20} height={20} className="product-img product-img-on" />
-                        <Image alt="" src={`${design.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
-                    </div>
-                    <div className="card-info">
-                        <span className="product-title">{design.title}</span>
-                        <span className="flex items-center">
-                            {priceElement} DA
-                        </span>
-                    </div>
-                </Link>
-            );
+    Designs?.forEach((designs) => {
+        designs?.data.forEach((design, index) => {
+            if (
 
-            counter++;
+                (design.tags.includes(selectedTag) || selectedTag === "all") &&
+                (design.title.toLowerCase().includes(search.toLowerCase()) || design.description.toLowerCase().includes(search.toLowerCase()) || search === "")
+            ) {
 
-            let counterLimite
+                const productElement = (
+                    <Link
+                        key={design._id}
+                        ref={designs.data.length - 12 === index + 1 ? ref : null}
+                        className="product-card"
+                        href={`/led-painting/${design._id}`}
+                    >
+                        <div className="product-img-container">
+                            <Image alt="" src={`${design.imageOn}`} width={20} height={20} className="product-img product-img-on" />
+                            <Image alt="" src={`${design.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
+                        </div>
+                        <div className="card-info">
+                            <span className="product-title">{design.title}</span>
+                            <span className="flex items-center">
+                                {priceElement} DA
+                            </span>
+                        </div>
+                    </Link>
+                );
 
-            if (window.innerWidth >= 990) counterLimite = 16
-            if (window.innerWidth < 990) counterLimite = 8
-            // Add to firstEightProducts array if counter is less than 8
-            if (counter < counterLimite) {
-                firstEightProducts.push(productElement);
-            } else {
-                restOfTheProducts.push(productElement);
+                counter++;
+
+                let counterLimite
+
+                if (window.innerWidth >= 990) counterLimite = 16
+                if (window.innerWidth < 990) counterLimite = 8
+                // Add to firstEightProducts array if counter is less than 8
+                if (counter < counterLimite) {
+                    firstEightProducts.push(productElement);
+                } else {
+                    restOfTheProducts.push(productElement);
+                }
+
+                counter++;
             }
-
-            counter++;
-        }
+        });
     });
 
 
@@ -401,9 +424,11 @@ function ProductsGrid() {
 
                 </div>
             }
+
             <div className="product-grid">
                 {restOfTheProducts}
             </div>
+            {isFetchingNextPage && <div>Loading...</div>}
         </div>
     );
 }
