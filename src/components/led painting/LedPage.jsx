@@ -205,7 +205,7 @@ function ProductPage({ mproduct }) {
                     src={option.image}
                     alt=''
                     width={100} height={100}
-                    className='w-4'
+                    className='w-12'
                 />
                 <div className='flex flex-col justify-center text-white items-center'>
                     <span className='price-after-sale text-white text-sm'>{option.title}</span>

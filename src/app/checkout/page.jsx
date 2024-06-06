@@ -214,7 +214,7 @@ function Checkout() {
 
             // Refresh and navigate to thank you page
             router.refresh();
-            router.push('/thankYou');
+            router.push('/thankyou');
         } catch (error) {
             // Handle error if necessary
             console.error('Error submitting form:', error);

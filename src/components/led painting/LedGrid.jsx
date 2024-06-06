@@ -4,7 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import ProductGSkeleton from '../loadings/ProductGSkeleton'
 import { useQueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
@@ -13,6 +13,7 @@ import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import arrow from '../../../public/assets/arrow-down.svg'
 import logo from '../../../public/assets/logo.png'
 import { useInView } from "react-intersection-observer";
+import debounce from 'lodash.debounce';
 
 const fetchTags = async () => {
     const res = await axios.get('/api/products/tags');
@@ -38,6 +39,9 @@ function ProductsGrid() {
     });
 
     const { ref, inView } = useInView();
+
+    const filterElementRef = useRef(null)
+    const filterContRef = useRef(null)
 
     const { data: DesignsPages, error: designsErr, fetchNextPage, hasNextPage, isFetchingNextPage, status, } = useInfiniteQuery({
         queryKey: ['Designs infinite'],
@@ -65,6 +69,44 @@ function ProductsGrid() {
 
     const [isVisible, setIsVisible] = useState(false);
 
+    const [windowWidth, setWindowWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 0
+    );
+
+    const [filterWidth, setFilterWidth] = useState(0);
+    const [filterContWidth, setFilterContWidth] = useState(0);
+
+    const [rightCounter, setRightCounter] = useState(0);
+
+
+    useEffect(() => {
+        if (filterElementRef.current) {
+            setFilterWidth(filterElementRef.current.offsetWidth);
+        }
+        if (filterContRef.current) {
+            setFilterContWidth(filterContRef.current.offsetWidth);
+        }
+    }, [Tags, DesignsPages, ledPainting]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            // Exit early if window is not defined (e.g., during server-side rendering)
+            return;
+        }
+
+        const handleResize = debounce(() => {
+            setWindowWidth(window.innerWidth);
+        }, 100);
+
+        window.addEventListener('resize', handleResize);
+
+        // Clean up the event listener on component unmount
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            handleResize.cancel();
+        };
+    }, []);
+
     useEffect(() => {
         // Set isVisible to true after a certain delay or any other condition
         setIsVisible(false)
@@ -87,22 +129,10 @@ function ProductsGrid() {
     }, [isCustom])
 
     useEffect(() => {
-
-        let tagesLimet
-        if (window.innerWidth > 1024) {
-            tagesLimet = 6
-        } else if (window.innerWidth > 640) {
-            tagesLimet = 3
-        } else {
-            tagesLimet = 2
-
-        }
-
-        Tags?.length >= tagesLimet
+        (filterWidth / (windowWidth - 50)) > 1
             ? setIsRightShown(true)
             : setIsRightShown(false)
-
-    }, [Tags])
+    }, [filterWidth, windowWidth])
 
     if (status === 'pending') return <ProductGSkeleton />;
 
@@ -210,22 +240,44 @@ function ProductsGrid() {
     }
 
     function handleRightArrow() {
+        setRightCounter(pre => pre + 1)
+        const eleEnCont = Math.floor(filterWidth / filterContWidth / 0.5 - 1)
+        if (rightCounter === eleEnCont) setIsRightShown(false)
         setIsLeftShown(true)
-        setIsRightShown(false)
+
     }
 
     function handleLeftArrow() {
-        setIsLeftShown(false)
-        setIsRightShown(true)
+        setRightCounter(pre => pre - 1)
+        if (rightCounter - 1 === 0) {
+            setIsLeftShown(false)
+            setIsRightShown(true)
+        }
 
     }
+
+    const filterElemStyle = {
+        transform: `translateX(-${(filterContWidth / 2 * rightCounter)}px)`
+    };
+
+    const filterContStyle = {
+        width: `${windowWidth < 1005 ? `calc(${windowWidth}px - 50px)` : '844px'}`
+    };
+
+    const RightBStyle = {
+        left: `calc(${windowWidth}px - 100px)`
+    };
+
 
 
     return (
         <div>
             <div className="flex items-center lg:flex-row lg:justify-between text-start relative">
                 {isRightShown &&
-                    <div className="flex absolute bg-[#DCCCB3] z-50 lg:left-[570px] sm:left-[370px] left-[270px]">
+                    <div
+                        style={RightBStyle}
+                        className="flex absolute bg-[#DCCCB3] z-50"
+                    >
                         <div
                             className='bg-gradient-to-r rounded-e-xl from-[#4a3623] to-[#DCCCB3] z-50 w-8 h-8'
                         >
@@ -263,12 +315,15 @@ function ProductsGrid() {
                     </div>
                 }
 
-                <div className="lg:max-w-[600px] sm:max-w-[400px] max-w-[300px]  overflow-hidden">
+                <div
+                    className={`overflow-hidden`}
+                    style={filterContStyle}
+                    ref={filterContRef}
+                >
                     <div
-                        className={`flex my-8 relative transition-all
-                        ${isLeftShown
-                                ? 'lg:translate-x-[-300px] sm:translate-x-[-200px] translate-x-[-150px]'
-                                : 'translate-x-0'}`}
+                        className={`flex my-8 relative transition-all w-min`}
+                        ref={filterElementRef}
+                        style={filterElemStyle}
                     >
                         <div
                             className={` 
@@ -321,7 +376,7 @@ function ProductsGrid() {
 
             <div
                 onClick={togelMobileSearch}
-                className="lg:hidden cursor-pointer z-50 hover:bg-gray-400 px-2 py-1 rounded-full absolute right-14 top-20"
+                className="lg:hidden cursor-pointer z-50 hover:bg-gray-400 px-2 py-1 rounded-full absolute md:right-14 right-0 top-20"
             >
                 <FontAwesomeIcon
                     icon={faMagnifyingGlass}
@@ -335,14 +390,14 @@ function ProductsGrid() {
             {isCustom &&
                 <div
                     onClick={togelCustomDesin}
-                    className="bg-black opacity-30 h-screen w-screen fixed top-0 right-0"
+                    className="bg-[#0000004f] z-[999] backdrop-filter backdrop-blur-sm h-screen w-screen fixed top-0 right-0"
                 >
                 </div>
             }
 
             {isCustom &&
                 <div
-                    className='fixed h-screen w-screen top-0 backdrop-filter backdrop-blur-sm right-0 z-[999]'
+                    className='fixed top-0 right-1/2 translate-x-1/2 z-[9999]'
                 >
                     <div
                         className='bg-white overflow-hidden w-96 h-[500px] relative mt-52 m-auto rounded-2xl shadow-sm shadow-slate-200'
@@ -387,7 +442,10 @@ function ProductsGrid() {
                         </div>
                         <a
                             className="h-10 cursor-pointer flex items-center justify-between px-4 w-80 rounded-lg border-2 border-zinc-200 bg-transparent absolute bottom-4 right-8 "
-                            href={`https://www.instagram.com/direct/t/17847607758008114`}
+                            href={window.innerWidth <= 768
+                                ? 'instagram://user?username=drawlys_deco'
+                                : `https://www.instagram.com/direct/t/17847607758008114`
+                            }
                         >
                             <div>Message</div>
                             <FontAwesomeIcon icon={faPaperPlane} />
@@ -398,19 +456,19 @@ function ProductsGrid() {
             }
 
             {restOfTheProducts &&
-                <div className="flex my-32 items-center">
+                <div className="flex md:my-32 md:p-0 py-6 px-2 sm:my-28 mb-14 mt-24 items-center md:border-0 md:bg-transparent border-y bg-[#d7c9b2] border-gray-200 ">
 
                     <Image
                         src={ledPainting.imageOn}
                         alt=""
                         width={120} height={120}
-                        className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40'
+                        className='rounded-full shadow-2xl lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40 w-24 h-24'
                     />
 
                     <div
                         key="layer"
                         onClick={togelCustomDesin}
-                        className="w-full flex cursor-pointer items-center justify-center shadow-lg mx-10 h-32 bg-[#4A3623] py-4 text-center text-[#DCCCB3] rounded-lg"
+                        className="w-full flex cursor-pointer items-center justify-center shadow-lg md:mx-10 mx-2 md:h-32 sm:h-24 text-sm md:text-base bg-[#DCCCB3] border-2 border-[#4A3623] py-4 mb-20 md:mb-0 text-center text-[#4A3623] rounded-full"
                     >
                         Add a custom design
                     </div>
@@ -419,7 +477,7 @@ function ProductsGrid() {
                         src={ledPainting.imageOff}
                         alt=""
                         width={120} height={120}
-                        className='rounded-full lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40'
+                        className='rounded-full shadow-2xl lg:w-64 lg:h-64 md:w-56 md:h-56 sm:w-40 sm:h-40 w-24 h-24'
                     />
 
                 </div>

@@ -9,10 +9,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faPen } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteOrder } from '../../actions/order'
 import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from 'uuid'
 
 import Spinner from '../../../components/loadings/Spinner'
 
@@ -23,7 +24,7 @@ async function fetchOrders() {
 }
 
 async function fetchDesigns() {
-    const res = await axios.get('/api/products/ledDesigns');
+    const res = await axios.get('/api/products/ledDesigns/images');
     return res.data;
 }
 async function fetchProducts() {
@@ -66,6 +67,11 @@ function Orders() {
     const [isdesigns, setIsdesigns] = useState({ _id: '', state: false })
     const [isproducts, setIsproducts] = useState({ _id: '', state: false })
 
+    const [isProductDeleted, setIsProductDeleted] = useState([])
+
+    const [isAddingProduct, setIsAddingProduct] = useState([])
+
+
     const [newOrders, setNewOrders] = useState({})
 
     const [scheduleQnt, setScheduleQnt] = useState()
@@ -106,7 +112,6 @@ function Orders() {
 
 
 
-
     if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error fetching Orders: {error.message}</div>;
 
@@ -135,6 +140,24 @@ function Orders() {
             ...prev,
             [name]: value
         }));
+    }
+    function handleProductChange(newOrder, id) {
+
+        setEditedOrder(prev => {
+            const newOrders = prev.orders.map(order => {
+                if (order._id === id) {
+                    newOrder = {
+                        _id: id,
+                        qnt: order.qnt,
+                        imageOn: newOrder.imageOn,
+                        options: newOrder.options,
+                    }
+                    return newOrder
+                }
+                return order
+            })
+            return { ...prev, orders: newOrders }
+        });
     }
 
     function handleQntChange(e, i) {
@@ -212,8 +235,9 @@ function Orders() {
         setEditedOrder(pre => ({ ...pre, orders: newOrders }))
         setSaving(pre => ([...pre, id]))
         const res = await axios.put(`/api/orders/${editedOrderId}`, editedOrder)
-        console.log(res)
+        // console.log(res.data)
         queryClient.invalidateQueries('orders');
+        setIsProductDeleted([])
         setSelectedDate(null)
         setSaving(pre => {
             const nweSaving = pre.filter(SId => SId !== id)
@@ -223,21 +247,34 @@ function Orders() {
     }
 
     function isWithinPastWeek(dateString) {
-        // Convert the date string to a Date object
-        const date = new Date(dateString);
+        // Parse the input date
+        const inputDate = new Date(dateString);
 
-        // Get the current date
+        // Get the current date and time
         const currentDate = new Date();
 
-        // Calculate the difference in milliseconds between the current date and the provided date
-        const difference = currentDate - date;
+        // Calculate the date one week ago from today
+        const oneWeekAgoDate = new Date();
+        oneWeekAgoDate.setDate(currentDate.getDate() - 8);
 
-        // Calculate the number of milliseconds in a week
-        const millisecondsInWeek = 7 * 24 * 60 * 60 * 1000;
-
-        // Check if the difference is less than the number of milliseconds in a week
-        return difference <= millisecondsInWeek;
+        // Check if the input date is within the past week
+        return inputDate >= oneWeekAgoDate && inputDate <= currentDate;
     }
+    function isDateInPastMonth(dateStr) {
+        // Parse the input date
+        const inputDate = new Date(dateStr);
+
+        // Get the current date and time
+        const currentDate = new Date();
+
+        // Calculate the date one month ago from today
+        const oneMonthAgoDate = new Date();
+        oneMonthAgoDate.setMonth(currentDate.getMonth() - 1);
+
+        // Check if the input date is within the past month
+        return inputDate >= oneMonthAgoDate && inputDate <= currentDate;
+    }
+
 
     function handleDateFilterChange(e) {
         const value = e.target.value
@@ -251,29 +288,69 @@ function Orders() {
         if (value === 'maximum') setDateFilter('')
         if (value === 'today') setDateFilter(currentDate)
         if (value === 'yesterday') setDateFilter(yesterdayDate)
+        if (value === 'this Week') setDateFilter('this Week')
+        if (value === 'this Month') setDateFilter('this Month')
+    }
+
+    function filterOrders(order, currentDate) {
+        const createdDate = order.createdAt.slice(0, 10).toLowerCase();
+        const searchLower = search.toLowerCase();
+
+        const isMatchingSearch = !isSchedule && (
+            order.name.toLowerCase().includes(searchLower) ||
+            order.wilaya.toLowerCase().includes(searchLower) ||
+            order.phoneNumber.includes(searchLower) ||
+            order.adresse.toLowerCase().includes(searchLower)
+        );
+
+        const isMatchingDateFilter = (
+            dateFilter === 'this Week' && isWithinPastWeek(createdDate) ||
+            dateFilter === 'this Month' && isDateInPastMonth(createdDate) ||
+            createdDate === dateFilter || !dateFilter
+        );
+
+        return isMatchingDateFilter && (isMatchingSearch || (isSchedule && order.schedule === currentDate));
+    }
+
+    async function deleteOrderProduct(id) {
+        setNewOrders(prev => {
+            const newesOrders = prev.filter(order => order._id !== id)
+            setEditedOrder(pre => {
+                return { ...pre, orders: newesOrders }
+            })
+            return newesOrders
+
+        })
+        setIsProductDeleted(pre => [...pre, id])
+    }
+
+    function toggleIsAding(id) {
+        setIsAddingProduct(pre => {
+            if (pre.includes(id)) {
+                return pre.filter(productId => productId !== id)
+            }
+            return [...pre, id]
+        })
     }
 
 
-    const ordersElement = Orders.map((order, i) => {
+    const ordersElement = Orders.map((order, index) => {
+
         const currentDate = format(new Date(), 'yyyy-MM-dd');
-        if (order.createdAt.slice(0, 10) === dateFilter || !dateFilter) if (
-            search === '' && !isSchedule ||
-            search !== '' && !isSchedule && order.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
-            search !== '' && !isSchedule && order.wilaya.toLowerCase().includes(search.toLocaleLowerCase()) ||
-            search !== '' && !isSchedule && order.phoneNumber.includes(search.toLocaleLowerCase()) ||
-            search !== '' && !isSchedule && order.adresse.toLowerCase().includes(search.toLocaleLowerCase()) ||
-            isSchedule && order.schedule === currentDate
 
-
-        ) {
+        if (filterOrders(order, currentDate)) {
             let cartItemsElemnt
             if (order.orders) {
+
                 cartItemsElemnt = order.orders.map((product, i) => {
+
+                    if (isProductDeleted.includes(product._id)) return
+
                     const optionElement = product.options?.map(option => {
                         return (
                             <option
                                 value={option.title}
-                                key={option.title}
+                                key={uuidv4()}
                                 className="p-2"
                             >
                                 {option.title}
@@ -313,13 +390,13 @@ function Orders() {
                     })
 
                     const productsOptionsElent = Products.map(products => {
-                        isproducts
                         if (products.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
                             return (
                                 <div
                                     key={products._id}
                                     className='flex p-4 z-50 border-gray-500 border-b-2 w-full items-center justify-between bg-white'
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        handleProductChange(products, product._id)
                                         if (products.title === 'Led Painting') {
                                             setIsdesigns({
                                                 _id: product._id,
@@ -348,10 +425,11 @@ function Orders() {
                         }
 
                     })
+
                     return (
                         <td
                             key={i}
-                            className="border-black relative border-2 font-medium p-3 text-center h-8"
+                            className="border-black relative border-2 font-medium p-2 pr-4 text-center h-8"
                         >
 
                             {order._id === editedOrderId
@@ -372,8 +450,17 @@ function Orders() {
                                 </div>
                             }
 
+                            {order._id === editedOrderId &&
+                                <div
+                                    className='absolute top-0 right-0 px-1 rounded-full bg-gray-200 cursor-pointer'
+                                    onClick={() => deleteOrderProduct(product._id)}
+                                >
+                                    X
+                                </div>
+                            }
+
                             <Image
-                                className='min-w-16 w-16'
+                                className='min-w-16 m-auto w-16'
                                 src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
                                 width={24} height={24} alt=""
                                 key={product._id}
@@ -436,6 +523,7 @@ function Orders() {
                         </td>
                     )
                 })
+
             }
             if (editedOrderId === order._id) {
                 return (
@@ -581,13 +669,24 @@ function Orders() {
                             </select>
                         </td>
                         {cartItemsElemnt}
+                        <td
+                            onClick={() => toggleIsAding(order._id)}
+                        >
+                            <FontAwesomeIcon
+                                icon={faPlus}
+                                className='cursor-pointer'
+                            />
+                            {isAddingProduct.includes(order._id) &&
+                                <div>add</div>
+                            }
+                        </td>
                     </tr>
                 )
             } else {
                 return (
                     <tr
                         key={order._id}
-                        className={`h-5 ${saving.includes(order._id) || deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
+                        className={`h-5 ${saving.includes(order._id) && 'opacity-40'} ${deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
                     >
                         <td>
                             {saving.includes(order._id)
@@ -610,7 +709,7 @@ function Orders() {
                                             setEditedOrder(order)
                                         }}
                                         disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)}
-                                        className={`disabled:bg-green-100 ml-2 text-white 
+                                        className={`ml-2 text-white 
                                          ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'}
                                          ${deleting.some(item => item.id === order._id) && 'hidden'}
                                          rounded-lg px-3 py-2
@@ -642,7 +741,7 @@ function Orders() {
     })
 
     const dateFilterArray = [
-        'maximum', 'today', 'yesterday'
+        'maximum', 'today', 'yesterday', 'this Week', 'this Month'
     ]
     const dateFilterElements = dateFilterArray.map((value, i) => (
         <option
@@ -713,20 +812,20 @@ function Orders() {
             <table border='1' className='font-normal w-full ml-auto'>
                 <thead>
                     <tr>
-                        <th>Edit</th>
-                        <th>Name</th>
-                        <th>Phone Number</th>
-                        <th>Wilaya</th>
-                        <th>Address</th>
-                        <th>Shipping Method</th>
-                        <th>Total Price</th>
-                        <th>Shipping Price</th>
-                        <th>Notes</th>
-                        <th>State</th>
-                        <th>Schedule</th>
-                        <th>In Delivery</th>
-                        <th>tracking</th>
-                        <th colSpan={longesOrder.length}>Orders</th>
+                        <th>تعديل</th>
+                        <th>الأسم</th>
+                        <th>الرقم</th>
+                        <th>الولاية</th>
+                        <th>البلدية</th>
+                        <th>نوع التوصيل</th>
+                        <th>سعر كلي </th>
+                        <th>سعر توصيل</th>
+                        <th>ملاحضة </th>
+                        <th>الحالة </th>
+                        <th>التأجيل</th>
+                        <th>في التوصيل</th>
+                        <th>التتبع</th>
+                        <th colSpan={longesOrder.length}>الطلبيات</th>
                     </tr>
                 </thead>
                 <tbody>

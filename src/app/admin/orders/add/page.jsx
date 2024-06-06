@@ -11,6 +11,8 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
+import Spinner from '../../../../components/loadings/Spinner';
 
 async function fetchDesigns() {
     const res = await axios.get('/api/products/ledDesigns');
@@ -30,6 +32,8 @@ function Page() {
     const [isWilayaSelected, setIsWilayaSelected] = useState(true);
     const [isPhoneCorrect, setIsPhoneCorrect] = useState(true);
 
+
+    const [isSubmiting, setIsSubmiting] = useState(false);
 
     const [isdesigns, setIsdesigns] = useState(false);
     const [isproducts, setIsproducts] = useState(false);
@@ -134,6 +138,8 @@ function Page() {
 
         if (!formData.shippingMethod) return setIsShippingSelected(false)
 
+        setIsSubmiting(true)
+
         const res = await axios.post(`/api/orders`, formData)
 
         console.log(res)
@@ -202,7 +208,6 @@ function Page() {
         }
 
     })
-    console.log(selectedProduct)
 
     function checkFileSize(file) {
         if (file) {
@@ -239,19 +244,30 @@ function Page() {
         setSelectedProduct(pre => ({ ...pre, image: base64 }));
     }
 
+    console.log(orders)
+
     function addToOrders() {
         setOrders(pre => ([
             ...pre,
             {
                 imageOn: selectedProduct.image,
                 qnt: selectqnt,
-                options: selectedProduct.options
+                options: selectedProduct.options,
+                _id: uuidv4()
             }
         ]))
         setSelectedProduct({})
         setSelectqnt('')
     }
-    localStorage.setItem('adminOrder', JSON.stringify(orders))
+
+    function removeOrder(id) {
+        setOrders(prevOrders => {
+            const newOrders = prevOrders.filter(order => order._id !== id)
+            return newOrders
+        })
+    }
+
+    // localStorage.setItem('adminOrder', JSON.stringify(orders))
 
     function handelOptChange(e) {
         const value = e.target.value
@@ -284,9 +300,15 @@ function Page() {
         return (
             <div key={order.imageOn} className='flex items-center relative'>
                 <div
-                    className='bg-red-500 text-sm text-white font-thin px-1 rounded-full absolute -top-2 -right-1'
+                    className='bg-red-500 text-sm text-white px-1 rounded-full absolute -top-2 -right-1'
                 >
                     {order.qnt}
+                </div>
+                <div
+                    className='px-1 cursor-pointer bg-gray-200 text-sm rounded-full absolute -top-2 -left-1'
+                    onClick={() => removeOrder(order._id)}
+                >
+                    X
                 </div>
                 <Image
                     width={64}
@@ -384,7 +406,13 @@ function Page() {
                     type="number"
                 />
 
-                <button type="submit" className="submit-button">أطلب الان</button>
+                <button type="submit" className={`submit-button ${isSubmiting && 'h-16'} flex justify-center items-start`}>
+                    {isSubmiting
+                        ? <Spinner color={'border-gray-500'} size={'h-10 w-10 '} />
+                        :
+                        ' أطلب الان'
+                    }
+                </button>
             </form>
             <div>
                 <h1
@@ -414,12 +442,12 @@ function Page() {
                                     }}
                                     className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
                                 >
-                                    <p>Select Image</p>
+                                    <p>Select a Product</p>
                                 </div>
 
                                 {isproducts &&
                                     <div
-                                        className='max-w-96 border-2 border-gray-500 z-50 absolute mt-2'
+                                        className='max-w-96 bg-white border-2 border-gray-500 z-50 absolute mt-2'
                                     >
                                         <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
                                             <FontAwesomeIcon
@@ -438,6 +466,24 @@ function Page() {
                                             ? <div
                                                 className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
                                             >
+                                                <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
+                                                    <div className='border-2 border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
+                                                        <span
+                                                            className='absolute top-1/3'
+                                                        >
+                                                            Add a custom
+                                                        </span>
+                                                        <input
+                                                            type='file'
+                                                            onChange={(e) => {
+                                                                handleFileUpload(e)
+                                                                setIsproducts(false)
+                                                                setIsdesigns(false)
+                                                            }}
+                                                            className='size-full opacity-0 m-0'
+                                                        />
+                                                    </div>
+                                                </div>
                                                 {designOptionsElent}
                                             </div>
                                             : <div
@@ -449,19 +495,7 @@ function Page() {
                                     </div>
                                 }
                             </div>
-                            <div>Or</div>
-                            <div className='border-2 w-36 border-dashed h-14 border-slate-800 relative text-center flex justify-center'>
-                                <span
-                                    className='absolute top-4'
-                                >
-                                    Add a custom
-                                </span>
-                                <input
-                                    type='file'
-                                    onChange={handleFileUpload}
-                                    className='w-full h-full opacity-0 m-0'
-                                />
-                            </div>
+
                         </div>
                     }
                     <input
@@ -472,13 +506,18 @@ function Page() {
                         min={1}
                         onChange={(e) => setSelectqnt(e.target.value)}
                     />
-                    <select
-                        name="options"
-                        onChange={handelOptChange}
-                        className='m-0'
-                    >
-                        {productOptsElement}
-                    </select>
+                    {productOptsElement?.length > 0 &&
+                        <select
+                            name="options"
+                            onChange={handelOptChange}
+                            className='m-0'
+                        >
+                            <option hidden>
+                                اختر الخيار
+                            </option>
+                            {productOptsElement}
+                        </select>
+                    }
 
                     <button
                         className='bg-green-300 px-3 py-2 rounded-lg'

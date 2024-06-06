@@ -6,21 +6,28 @@ import { NextResponse } from "next/server"
 
 export async function GET(req) {
   const pageNum = req.nextUrl.searchParams.get('page')
-  const page = parseInt(pageNum) || 1;
+  const page = parseInt(pageNum);
   const limit = 12;
   const skip = (page - 1) * limit;
 
   try {
     await dbConnect()
 
-    const posts = await Design.find().skip(skip).limit(limit);
-    const total = await Design.countDocuments();
-    const hasNextPage = skip + posts.length < total;
+    if (page) {
 
-    return Response.json({
-      data: posts,
-      nextPage: hasNextPage ? page + 1 : null,
-    })
+      const posts = await Design.find().skip(skip).limit(limit);
+      const total = await Design.countDocuments();
+      const hasNextPage = skip + posts.length < total;
+
+      return Response.json({
+        data: posts,
+        nextPage: hasNextPage ? page + 1 : null,
+      })
+    }
+
+    const allDesigns = await Design.find().sort({ _id: -1 })
+    return Response.json(allDesigns)
+
 
 
   } catch (err) {

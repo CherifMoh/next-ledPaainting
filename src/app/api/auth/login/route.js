@@ -18,6 +18,7 @@ export async function POST(req){
         return NextResponse.json({message:'auth failed'},{status:409})
     }else{
         try {
+
             const match = await bcrypt.compare(body.password, user.password);
             if(match) {
                 const token = await new SignJWT({

@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query'
 
 
 
-async function HomeMain() {
+function HomeMain() {
 
     async function fetchDesigns() {
         try {

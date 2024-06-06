@@ -23,6 +23,7 @@ function UserForm() {
         setErrorMessage('')
         try {
             const res = await axios.post('/api/auth/login', formData)
+            console.log(res.data.message)
             router.refresh()
             router.push('/admin')
         } catch (err) {

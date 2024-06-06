@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 
-.utility-bar{
+.utility-bar {
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #11151C;
 }
 
-.utility-bar--container{
+.utility-bar--container {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -16,42 +16,41 @@
     padding: 0 50px;
 }
 
-.utility-bar--icons-container{
+.utility-bar--icons-container {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    width: 76px;
+    /* width: 76px; */
 }
 
-.utility-bar--icons{
+.utility-bar--icons {
     width: 15px;
     height: 15px;
 }
 
-.utility-bar--container h5{
+.utility-bar--container h5 {
     color: white;
-    font-size: 17px;
     margin: 0;
     padding: 10px 0;
     font-weight: 700;
     letter-spacing: 0.1rem;
 }
 
-header{
+header {
     padding-top: 16px;
     padding-bottom: 12px;
     text-align: center;
     position: relative;
 }
 
-.header--logo{
+.header--logo {
     text-align: center;
     border-radius: 50px;
     height: 80px;
     margin-bottom: 15px;
 }
 
-.burger-button{
+.burger-button {
     cursor: pointer;
     display: none;
     height: 20px;
@@ -61,31 +60,31 @@ header{
     top: 40px;
 }
 
-nav a{
+nav a {
     text-decoration: none;
     color: #11151CBF;
     padding: 1.2rem;
     letter-spacing: 1px;
 }
 
-nav a:hover{
+nav a:hover {
     text-decoration: underline;
 }
 
-.stopescrol{
+.stopescrol {
     overflow: hidden;
 }
 
-.display{
-    display: block!important;
+.display {
+    display: block !important;
 }
 
-.trasform{
+.trasform {
     translate: 0px 0px !important;
 }
 
-.side-menu-shadow{
-    background-color:#00000081 ;
+.side-menu-shadow {
+    background-color: #00000081;
     position: fixed;
     top: 145px;
     left: 0;
@@ -94,24 +93,22 @@ nav a:hover{
     /* transition: translate 0.2s ease ; */
 }
 
-.side-menu{
-    translate:-400px 0px;
+.side-menu {
+    translate: -400px 0px;
     position: fixed;
-    top: 145px;
     left: 0;
     width: 400px;
     height: 100%;
-    background-color: #DCCCB3;
     z-index: 1000;
     text-align: start;
-    transition: translate 0.2s ease ;
+    transition: translate 0.2s ease;
 }
 
-.side-menu--top{
+.side-menu--top {
     padding: 30px 0;
 }
 
-.side-menu--top a{
+.side-menu--top a {
     text-decoration: none;
     display: block;
     padding: 11px 30px;
@@ -119,32 +116,39 @@ nav a:hover{
     font-size: 18px;
 }
 
-.side-menu--low{
+.side-menu--low {
     position: fixed;
     bottom: 0;
     background-color: #d8d8d2;
     padding: 2rem 3rem;
     width: 400px;
 }
+
 @media (max-width: 990px) {
-    nav{
+    nav {
         display: none;
     }
-    .burger-button,.side-menu{
-        display: block!important;
+
+    .burger-button,
+    .side-menu {
+        display: block !important;
     }
-    .burger-button{
+
+    .burger-button {
         left: 50px;
     }
-    .main-section{
+
+    .main-section {
         margin: 0;
     }
 }
+
 @media (max-width: 750px) {
-    .side-menu{
-        translate:-4000px 0px;
+    .side-menu {
+        translate: -4000px 0px;
     }
-    .utility-bar--container{
-        padding: 0 20px;
+
+    .utility-bar--container {
+        padding: 0 10px;
     }
 }

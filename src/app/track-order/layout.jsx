@@ -1,16 +1,16 @@
 import Header from "../../components/shared/Header"
 import Footer from "../../components/shared/Footer"
-import BottomBar from '../../components/shared/BottomBar'
 import dynamic from 'next/dynamic'
+import BottomBar from '../../components/shared/BottomBar'
 
 const Cart = dynamic(() => import('../../components/shared/Cart'), {
   ssr: false,
-  loading: () => <p>Loading...</p>
+  // loading: () => <p>Loading...</p>
 })
 
 
 export const metadata = {
-  title: 'Led Painting',
+  title: 'Order Tracking',
 }
 
 export default function Layout({ children }) {
@@ -19,8 +19,8 @@ export default function Layout({ children }) {
       <Header />
       {children}
       <Cart />
-      <BottomBar />
       <Footer />
+      <BottomBar />
     </>
 
   )

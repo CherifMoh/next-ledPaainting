@@ -1,13 +1,13 @@
-
+'use client'
 import '../styles/pages/index.css'
 
 import Header from '../components/home/Header'
 import Main from '../components/home/Main'
 import Footer from '../components/shared/Footer'
 import Cart from '../components/shared/Cart'
+import BottomBar from '../components/shared/BottomBar'
 import ProductsSlider from '../components/home/ProductsSlider'
 import Image from 'next/image'
-
 import brownSide from '../../public/assets/brownSide.png'
 import blueSide from '../../public/assets/blueSide.png'
 
@@ -40,6 +40,7 @@ function Home() {
       </section>
       <Cart />
       <Footer />
+      <BottomBar />
     </div>
   )
 }

@@ -1,34 +1,35 @@
 
 import Order from "../../models/orders"
-import {dbConnect} from "../../lib/dbConnect"
+import { dbConnect } from "../../lib/dbConnect"
 import { NextResponse } from "next/server"
 
 
 export async function GET() {
-  try{
+  try {
+
     await dbConnect()
-    return Order.find().sort({_id: -1})
-        .then(result=> Response.json(result))
-        .catch(err=>Response.json({message:err.message}))
-  }catch(err){
+    const result = await Order.find().sort({ _id: -1 })
+    return Response.json(result)
+
+  } catch (err) {
     return new NextResponse("Error :" + err)
   }
-  
+
 }
 export async function POST(req) {
-  try{
+  try {
     await dbConnect()
-    
+
     const order = await req.json()
 
     Order.create(order)
 
     return new NextResponse("Order created ")
 
-  }catch(err){
+  } catch (err) {
     return new NextResponse("Error :" + err)
   }
-  
+
 }
 
 

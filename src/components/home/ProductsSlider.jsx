@@ -12,7 +12,7 @@ import SliderSkeleton from '../loadings/SliderSkeleton'
 
 
 
-async function ProductsSlider() {
+function ProductsSlider() {
 
     async function fetchProducts() {
         try {
