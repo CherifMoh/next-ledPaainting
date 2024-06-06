@@ -31,6 +31,18 @@ function PieChartC() {
     { name: 'Retour %', value: retourPercent, color: '#FF6666' },
   ];
 
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+        {`${data[index].value}%`}
+      </text>
+    );
+  };
 
   return (
     <div className='flex justify-center items-center'>
@@ -42,7 +54,8 @@ function PieChartC() {
           cx="50%"
           cy="50%"
           outerRadius={100}
-        // label={(entry) => entry.name}
+          label={renderCustomLabel}
+          labelLine={false}
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />
