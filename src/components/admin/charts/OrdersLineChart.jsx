@@ -39,18 +39,15 @@ const OrdersLineChart = () => {
     Orders: orders.length // Count the number of orders for each date
   }));
 
-  console.log(chartData);
-
-
-  const data = [
-    { day: 'june 1', Orders: 70 },
-    { day: 'june 2', Orders: 75 },
-    { day: 'june 3', Orders: 80 },
-    { day: 'june 4', Orders: 78 },
-    { day: 'june 5', Orders: 85 },
-    { day: 'june 6', Orders: 88 },
-    { day: 'june 7', Orders: 82 },
-  ];
+  // const data = [
+  //   { day: 'june 1', Orders: 70 },
+  //   { day: 'june 2', Orders: 75 },
+  //   { day: 'june 3', Orders: 80 },
+  //   { day: 'june 4', Orders: 78 },
+  //   { day: 'june 5', Orders: 85 },
+  //   { day: 'june 6', Orders: 88 },
+  //   { day: 'june 7', Orders: 82 },
+  // ];
 
   return (
     <LineChart width={600} height={300} data={chartData}>

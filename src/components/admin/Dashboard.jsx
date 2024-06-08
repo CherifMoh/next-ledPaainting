@@ -10,7 +10,8 @@ function Dashboard() {
     { name: 'Orders', href: '/admin/orders' },
     { name: 'Products', href: '/admin/products' },
     { name: 'Users', href: '/admin/users' },
-    { name: 'Category', href: '/admin/categoreis' },
+    { name: 'Storage', href: '/admin/storage' },
+    // { name: 'Category', href: '/admin/categoreis' },
   ]
 
   typeof document !== 'undefined' && document.body.classList.add('bg-white')

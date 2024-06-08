@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faPen, faPlus, faX, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteOrder } from '../../actions/order'
 import { useRouter } from "next/navigation";
@@ -69,10 +69,15 @@ function Orders() {
 
     const [isProductDeleted, setIsProductDeleted] = useState([])
 
-    const [isAddingProduct, setIsAddingProduct] = useState([])
-
-
     const [newOrders, setNewOrders] = useState({})
+
+
+    const [isAddingProduct, setIsAddingProduct] = useState([])
+    const [addedOrder, setAddedOrder] = useState({})
+    const [isAddedProducts, setIsAddedProducts] = useState([])
+    const [isAddedDesigns, setIsAddedDesigns] = useState([])
+    const [selectqnt, setSelectqnt] = useState(1)
+
 
     const [scheduleQnt, setScheduleQnt] = useState()
 
@@ -232,7 +237,8 @@ function Orders() {
     })
 
     async function handleUpdatingOrder(id) {
-        setEditedOrder(pre => ({ ...pre, orders: newOrders }))
+        // setEditedOrder(pre => ({ ...pre, orders: newOrders }))
+        console.log(editedOrder)
         setSaving(pre => ([...pre, id]))
         const res = await axios.put(`/api/orders/${editedOrderId}`, editedOrder)
         // console.log(res.data)
@@ -333,6 +339,342 @@ function Orders() {
         })
     }
 
+    function checkFileSize(file) {
+        if (file) {
+            const fileSize = file.size; // in bytes
+            const maxSize = 1000000; // 500KB
+            if (fileSize > maxSize) {
+                alert('File size exceeds the limit. Please select a smaller file.');
+                return false;
+            }
+            return true;
+        }
+    }
+
+    async function convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            };
+            fileReader.onerror = (err) => {
+                reject(err);
+            };
+        });
+    }
+
+    async function handleFileUpload(e) {
+        const file = e.target.files[0];
+        if (!file) {
+            e.target.files[0] = []
+        }
+        if (!checkFileSize(file)) return
+        const base64 = await convertToBase64(file);
+        setAddedOrder(pre => ({ ...pre, image: base64 }));
+    }
+
+    const designOptionsElent = Designs.map(design => {
+        if (design.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
+            return (
+                <div
+                    key={design._id}
+                    className='border-gray-500 z-50 border-b-2 p-4 bg-white'
+                >
+                    <Image
+                        src={design.imageOn}
+                        alt=''
+                        width={128} height={128}
+                        onClick={() => {
+                            setSelectedImage({
+                                _id: product._id,
+                                image: design.imageOn
+                            })
+                            setIsproducts({ _id: '', state: false })
+                            setIsdesigns({ _id: '', state: false })
+                        }}
+                    />
+                </div>
+            )
+        }
+
+    })
+
+    const productsOptionsElent = Products.map(products => {
+        if (products.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
+            return (
+                <div
+                    key={products._id}
+                    className='flex p-4 z-50 border-gray-500 border-b-2 w-full items-center justify-between bg-white'
+                    onClick={(e) => {
+                        handleProductChange(products, product._id)
+                        if (products.title === 'Led Painting') {
+                            setIsdesigns({
+                                _id: product._id,
+                                state: true
+                            })
+                        } else {
+                            setSelectedImage({
+                                _id: product._id,
+                                image: products.imageOn
+                            })
+                            setIsproducts({ _id: '', state: false })
+                            setIsdesigns({ _id: '', state: false })
+                        }
+                    }}
+                >
+                    <Image
+                        src={products.imageOn}
+                        alt=''
+                        width={128} height={128}
+                    />
+                    <h1>
+                        {products.title}
+                    </h1>
+                </div>
+            )
+        }
+
+    })
+
+    function addDesignOptionsElent(id) {
+        return Designs.map(design => {
+            if (design.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
+                return (
+                    <div
+                        key={design._id}
+                        className='border-gray-500 z-50 border-b-2 p-4 bg-white'
+                    >
+                        <Image
+                            src={design.imageOn}
+                            alt=''
+                            width={128} height={128}
+                            className='size-32'
+                            onClick={() => {
+                                // setSelectedImage({
+                                //     _id: product._id,
+                                //     image: design.imageOn
+                                // })
+                                setAddedOrder(pre => ({ ...pre, image: design.imageOn }))
+                                setIsAddedDesigns(pre => pre.filter(item => item !== id))
+                                setIsAddedProducts(pre => pre.filter(item => item !== id))
+                            }}
+                        />
+                    </div>
+                )
+            }
+
+        })
+    }
+
+    function addProductsOptionsElent(id) {
+        return Products.map(product => {
+            if (product.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
+                return (
+                    <div
+                        key={product._id}
+                        className='flex p-4 z-50 border-gray-500 border-b-2 w-full items-center justify-between bg-white'
+                        onClick={(e) => {
+                            setAddedOrder(pre => {
+                                return product.title === 'Led Painting'
+                                    ? { ...product, }
+                                    : { ...product, image: product.imageOn }
+                            })
+                            setIsAddedDesigns(pre => {
+                                if (product.title === 'Led Painting') pre = [...pre, id]
+                                return pre
+                            })
+                            if (product.title !== 'Led Painting') {
+                                setIsAddedProducts(pre => {
+                                    return pre.filter(item => item !== id)
+                                })
+                            }
+                        }}
+                    >
+                        <Image
+                            src={product.imageOn}
+                            alt=''
+                            width={128} height={128}
+                        />
+                        <h1>
+                            {product.title}
+                        </h1>
+                    </div>
+                )
+            }
+
+        })
+    }
+
+    function addToOrders() {
+        setNewOrders(pre => {
+            pre = [
+                ...pre,
+                {
+                    imageOn: addedOrder.image,
+                    qnt: selectqnt,
+                    options: addedOrder.options,
+                    _id: uuidv4()
+                }
+            ]
+
+            // console.log(pre)
+            setEditedOrder(prev => {
+                return { ...prev, orders: pre }
+            })
+            return pre
+        })
+        setAddedOrder({})
+        setSelectqnt(1)
+        // handleUpdatingOrder(id)
+    }
+    // console.log(editedOrder)
+
+    const productOptsElement = addedOrder.options?.map(option => {
+        return (
+            <option
+                key={option.title}
+                value={option.title}
+            >
+                {option.title}
+            </option>
+        )
+    })
+
+    function handelOptChange(e) {
+        const value = e.target.value
+        let options = addedOrder.options
+        const newOptions = options.map((option, i) => {
+            if (option.title === value) {
+                return { ...option, selected: true }
+            }
+            if (option.selected) {
+                return { ...option, selected: false }
+            }
+            return option
+        })
+        setAddedOrder(pre => ({ ...pre, options: newOptions }))
+    }
+
+    const ordersElementFun = (product, i, order) => {
+
+        if (isProductDeleted.includes(product._id)) return
+
+        const optionElement = product.options?.map(option => {
+            return (
+                <option
+                    value={option.title}
+                    key={uuidv4()}
+                    className="p-2"
+                >
+                    {option.title}
+                </option>
+            )
+        })
+        let slectedOption
+        product.options?.forEach(option => {
+            if (option.selected) {
+                slectedOption = option.title
+            }
+        })
+
+        return (
+            <td
+                key={i}
+                className="border-black relative border-2 font-medium p-2 pr-4 text-center h-8"
+            >
+
+                {order._id === editedOrderId
+                    ?
+                    <select
+                        onChange={(e) => handleOptChange(e, i)}
+                        name="option"
+                        defaultValue={slectedOption}
+                        className='min-w-10 border-2 border-black pl-1 dynamic-width'
+                    >
+                        {optionElement}
+                    </select>
+                    :
+                    <div
+                        className="mb-1 "
+                    >
+                        {slectedOption}
+                    </div>
+                }
+
+                {order._id === editedOrderId &&
+                    <div
+                        className='absolute top-0 right-0 px-1 rounded-full bg-gray-200 cursor-pointer'
+                        onClick={() => deleteOrderProduct(product._id)}
+                    >
+                        X
+                    </div>
+                }
+
+                <Image
+                    className='min-w-16 m-auto w-16'
+                    src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
+                    width={24} height={24} alt=""
+                    key={product._id}
+                    onClick={() => {
+                        if (order._id === editedOrderId) {
+                            setIsproducts(pre => ({
+                                _id: product._id,
+                                state: !pre.state
+                            }))
+                        }
+                    }}
+                />
+
+                {isproducts.state && isproducts._id === product._id &&
+                    <div className='max-w-96 border-2 border-gray-500 absolute mt-2 bg-white z-50'>
+                        <div className='flex justify-center mt-2 border-b-2 border-gray-500 z-50'>
+                            <FontAwesomeIcon
+                                icon={faMagnifyingGlass}
+                                className={`pointer-events-none absolute left-60 top-6 ${search ? 'hidden' : 'opacity-50'}`}
+                            />
+                            <input
+                                id="search"
+                                type='search'
+                                className='w-64 px-2 py-1 m-2 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
+                                placeholder={`Search`}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+                        {isdesigns.state && isdesigns._id === product._id
+                            ? <div
+                                className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
+                            >
+                                {designOptionsElent}
+                            </div>
+                            : <div
+                                className='max-h-[484px] w-80 z-50 overflow-y-auto'
+                            >
+                                {productsOptionsElent}
+                            </div>
+                        }
+                    </div>
+                }
+
+
+                {order._id === editedOrderId
+                    ? <input
+                        type="number"
+                        onChange={(e) => handleQntChange(e, i)}
+                        name="qnt"
+                        defaultValue={product.qnt}
+                        min={1}
+                        className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
+                    />
+                    : <span
+                        className="bg-red-500 absolute left-16 bottom-16 rounded-lg px-1 text-sm text-white text-center"
+                    >
+                        {product.qnt}
+                    </span>
+                }
+            </td>
+        )
+    }
 
     const ordersElement = Orders.map((order, index) => {
 
@@ -341,189 +683,11 @@ function Orders() {
         if (filterOrders(order, currentDate)) {
             let cartItemsElemnt
             if (order.orders) {
+                cartItemsElemnt = order.orders.map((product, i) => ordersElementFun(product, i, order))
 
-                cartItemsElemnt = order.orders.map((product, i) => {
-
-                    if (isProductDeleted.includes(product._id)) return
-
-                    const optionElement = product.options?.map(option => {
-                        return (
-                            <option
-                                value={option.title}
-                                key={uuidv4()}
-                                className="p-2"
-                            >
-                                {option.title}
-                            </option>
-                        )
-                    })
-                    let slectedOption
-                    product.options?.forEach(option => {
-                        if (option.selected) {
-                            slectedOption = option.title
-                        }
-                    })
-                    const designOptionsElent = Designs.map(design => {
-                        if (design.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
-                            return (
-                                <div
-                                    key={design._id}
-                                    className='border-gray-500 z-50 border-b-2 p-4 bg-white'
-                                >
-                                    <Image
-                                        src={design.imageOn}
-                                        alt=''
-                                        width={128} height={128}
-                                        onClick={() => {
-                                            setSelectedImage({
-                                                _id: product._id,
-                                                image: design.imageOn
-                                            })
-                                            setIsproducts({ _id: '', state: false })
-                                            setIsdesigns({ _id: '', state: false })
-                                        }}
-                                    />
-                                </div>
-                            )
-                        }
-
-                    })
-
-                    const productsOptionsElent = Products.map(products => {
-                        if (products.title.toLowerCase().includes(search.toLocaleLowerCase()) || search === '') {
-                            return (
-                                <div
-                                    key={products._id}
-                                    className='flex p-4 z-50 border-gray-500 border-b-2 w-full items-center justify-between bg-white'
-                                    onClick={(e) => {
-                                        handleProductChange(products, product._id)
-                                        if (products.title === 'Led Painting') {
-                                            setIsdesigns({
-                                                _id: product._id,
-                                                state: true
-                                            })
-                                        } else {
-                                            setSelectedImage({
-                                                _id: product._id,
-                                                image: products.imageOn
-                                            })
-                                            setIsproducts({ _id: '', state: false })
-                                            setIsdesigns({ _id: '', state: false })
-                                        }
-                                    }}
-                                >
-                                    <Image
-                                        src={products.imageOn}
-                                        alt=''
-                                        width={128} height={128}
-                                    />
-                                    <h1>
-                                        {products.title}
-                                    </h1>
-                                </div>
-                            )
-                        }
-
-                    })
-
-                    return (
-                        <td
-                            key={i}
-                            className="border-black relative border-2 font-medium p-2 pr-4 text-center h-8"
-                        >
-
-                            {order._id === editedOrderId
-                                ?
-                                <select
-                                    onChange={(e) => handleOptChange(e, i)}
-                                    name="option"
-                                    defaultValue={slectedOption}
-                                    className='min-w-10 border-2 border-black pl-1 dynamic-width'
-                                >
-                                    {optionElement}
-                                </select>
-                                :
-                                <div
-                                    className="mb-1 "
-                                >
-                                    {slectedOption}
-                                </div>
-                            }
-
-                            {order._id === editedOrderId &&
-                                <div
-                                    className='absolute top-0 right-0 px-1 rounded-full bg-gray-200 cursor-pointer'
-                                    onClick={() => deleteOrderProduct(product._id)}
-                                >
-                                    X
-                                </div>
-                            }
-
-                            <Image
-                                className='min-w-16 m-auto w-16'
-                                src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
-                                width={24} height={24} alt=""
-                                key={product._id}
-                                onClick={() => {
-                                    if (order._id === editedOrderId) {
-                                        setIsproducts(pre => ({
-                                            _id: product._id,
-                                            state: !pre.state
-                                        }))
-                                    }
-                                }}
-                            />
-
-                            {isproducts.state && isproducts._id === product._id &&
-                                <div className='max-w-96 border-2 border-gray-500 absolute mt-2 bg-white z-50'>
-                                    <div className='flex justify-center mt-2 border-b-2 border-gray-500 z-50'>
-                                        <FontAwesomeIcon
-                                            icon={faMagnifyingGlass}
-                                            className={`pointer-events-none absolute left-60 top-6 ${search ? 'hidden' : 'opacity-50'}`}
-                                        />
-                                        <input
-                                            id="search"
-                                            type='search'
-                                            className='w-64 px-2 py-1 m-2 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
-                                            placeholder={`Search`}
-                                            onChange={(e) => setSearch(e.target.value)}
-                                        />
-                                    </div>
-                                    {isdesigns.state && isdesigns._id === product._id
-                                        ? <div
-                                            className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
-                                        >
-                                            {designOptionsElent}
-                                        </div>
-                                        : <div
-                                            className='max-h-[484px] w-80 z-50 overflow-y-auto'
-                                        >
-                                            {productsOptionsElent}
-                                        </div>
-                                    }
-                                </div>
-                            }
-
-
-                            {order._id === editedOrderId
-                                ? <input
-                                    type="number"
-                                    onChange={(e) => handleQntChange(e, i)}
-                                    name="qnt"
-                                    defaultValue={product.qnt}
-                                    min={1}
-                                    className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
-                                />
-                                : <span
-                                    className="bg-red-500 absolute left-16 bottom-16 rounded-lg px-1 text-sm text-white text-center"
-                                >
-                                    {product.qnt}
-                                </span>
-                            }
-                        </td>
-                    )
-                })
-
+                if (editedOrderId === order._id && Array.isArray(newOrders)) {
+                    cartItemsElemnt = newOrders.map((product, i) => ordersElementFun(product, i, order))
+                }
             }
             if (editedOrderId === order._id) {
                 return (
@@ -663,21 +827,140 @@ function Orders() {
                                 className="border-2 border-black pl-1 max-w-32"
                                 name="tracking"
                             >
+                                <option hidden>Tracking</option>
                                 <option value="delivered">delivered</option>
                                 <option value="scheduled">scheduled</option>
                                 <option value="returned">returned</option>
                             </select>
                         </td>
                         {cartItemsElemnt}
-                        <td
-                            onClick={() => toggleIsAding(order._id)}
-                        >
+                        <td>
                             <FontAwesomeIcon
                                 icon={faPlus}
                                 className='cursor-pointer'
+                                onClick={() => toggleIsAding(order._id)}
                             />
                             {isAddingProduct.includes(order._id) &&
-                                <div>add</div>
+                                <div className='flex items-center justify-center gap-8'>
+                                    {addedOrder.image
+                                        ?
+                                        <Image
+                                            src={addedOrder.image}
+                                            alt=''
+                                            width={64} height={64}
+                                            onClick={() => {
+                                                setIsAddedProducts(pre => {
+                                                    if (pre.includes(order._id)) {
+                                                        return pre.filter(item => item !== order._id)
+                                                    }
+                                                    pre = [...pre, order._id]
+                                                    return pre
+                                                })
+                                                setAddedOrder({})
+                                            }}
+                                        />
+                                        :
+                                        <div className='flex items-center gap-16'>
+                                            <div>
+                                                <div
+                                                    onClick={() => {
+                                                        setIsAddedProducts(pre => {
+                                                            if (pre.includes(order._id)) {
+                                                                return pre.filter(item => item !== order._id)
+                                                            }
+                                                            pre = [...pre, order._id]
+                                                            return pre
+                                                        })
+                                                        setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
+                                                    }}
+                                                    className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
+                                                >
+                                                    <p>Select a Product</p>
+                                                </div>
+
+                                                {isAddedProducts?.includes(order._id) &&
+                                                    <div
+                                                        className='max-w-96 bg-white border-2 border-gray-500 z-50 absolute mt-2'
+                                                    >
+                                                        <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
+                                                            <FontAwesomeIcon
+                                                                icon={faMagnifyingGlass}
+                                                                className={`pt-2 pointer-events-none z-10 absolute left-64 ${search ? 'hidden' : 'opacity-50'}`}
+                                                            />
+                                                            <input
+                                                                id="search"
+                                                                type='search'
+                                                                className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
+                                                                placeholder={`Search`}
+                                                                onChange={(e) => setSearch(e.target.value)}
+                                                            />
+                                                        </div>
+                                                        {isAddedDesigns?.includes(order._id)
+                                                            ? <div
+                                                                className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
+                                                            >
+                                                                <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
+                                                                    <div className='border-2 border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
+                                                                        <span
+                                                                            className='absolute top-1/3'
+                                                                        >
+                                                                            Add a custom
+                                                                        </span>
+                                                                        <input
+                                                                            type='file'
+                                                                            onChange={(e) => {
+                                                                                handleFileUpload(e)
+                                                                                setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
+                                                                                setIsAddedProducts(pre => pre.filter(item => item !== order._id))
+                                                                            }}
+                                                                            className='size-full opacity-0 m-0'
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                {addDesignOptionsElent(order._id)}
+                                                            </div>
+                                                            : <div
+                                                                className='max-h-[484px] w-80 z-50 overflow-y-auto'
+                                                            >
+                                                                {addProductsOptionsElent(order._id)}
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+
+                                        </div>
+                                    }
+                                    <input
+                                        type="number"
+                                        placeholder='Qntity'
+                                        value={selectqnt}
+                                        className='w-10 h-14 rounded-md border border-gray-600 pl-1 dynamic-width'
+                                        min={1}
+                                        onChange={(e) => setSelectqnt(e.target.value)}
+                                    />
+
+                                    {productOptsElement?.length > 0 &&
+                                        <select
+                                            name="options"
+                                            onChange={handelOptChange}
+                                            className='m-0 p-2 h-14 rounded-md border border-gray-600'
+                                        >
+                                            <option hidden>
+                                                اختر الخيار
+                                            </option>
+                                            {productOptsElement}
+                                        </select>
+                                    }
+
+                                    <button
+                                        className='bg-green-300 px-3 py-2 rounded-lg'
+                                        onClick={addToOrders}
+                                    >
+                                        Add
+                                    </button>
+
+                                </div>
                             }
                         </td>
                     </tr>
@@ -730,7 +1013,12 @@ function Orders() {
                         <td>{order.note}</td>
                         <td>{order.state}</td>
                         <td>{order.schedule}</td>
-                        <td className="text-center">{order.inDelivery ? 'true' : 'false'}</td>
+                        <td className="text-center">
+                            {order.inDelivery
+                                ? <FontAwesomeIcon icon={faCheck} className={`text-green-500`} />
+                                : <FontAwesomeIcon icon={faX} className={`text-red-500`} />
+                            }
+                        </td>
                         <td>{order.tracking}</td>
                         {cartItemsElemnt}
                     </tr>

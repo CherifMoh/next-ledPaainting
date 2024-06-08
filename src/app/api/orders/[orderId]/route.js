@@ -10,8 +10,6 @@ export async function PUT(req, { params }) {
     const NewOrder = await req.json()
     const id = params.orderId
 
-    console.log(NewOrder)
-
     const newDocument = await Order.findByIdAndUpdate(id, NewOrder, { new: true })
 
     revalidatePath('/admin/orders')
