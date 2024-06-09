@@ -15,6 +15,11 @@ import { deleteOrder } from '../../actions/order'
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
 
+import orangeBg from '../../../../public/assets/orange bg.png';
+import redBg from '../../../../public/assets/red bg.png';
+import greenBg from '../../../../public/assets/green bg.png';
+import transparent from '../../../../public/assets/transparent.png';
+
 import Spinner from '../../../components/loadings/Spinner'
 
 
@@ -676,6 +681,19 @@ function Orders() {
         )
     }
 
+    function trackingBg(track){
+        if(track === 'delivered'){
+            return greenBg
+        }
+        if(track === 'returned'){
+            return redBg
+        }
+        if(track === 'scheduled'){
+            return orangeBg
+        }
+        return transparent
+    }
+
     const ordersElement = Orders.map((order, index) => {
 
         const currentDate = format(new Date(), 'yyyy-MM-dd');
@@ -700,7 +718,7 @@ function Orders() {
                                     className=' p-2 rounded-md'
                                     onClick={() => handleDelete(order._id)}
                                 >
-                                    <FontAwesomeIcon icon={faTrashCan} />
+                                    <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                 </button>
                             }
 
@@ -983,7 +1001,7 @@ function Orders() {
                                             className=' p-2 rounded-md'
                                             onClick={() => handleDelete(order._id)}
                                         >
-                                            <FontAwesomeIcon icon={faTrashCan} />
+                                            <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                         </button>
                                     }
                                     <button
@@ -998,7 +1016,7 @@ function Orders() {
                                          rounded-lg px-3 py-2
                                       `}
                                     >
-                                        <FontAwesomeIcon icon={faPen} className='text-black' />
+                                        <FontAwesomeIcon icon={faPen} className='text-green-600' />
                                     </button>
                                 </div>
                             }
@@ -1016,10 +1034,23 @@ function Orders() {
                         <td className="text-center">
                             {order.inDelivery
                                 ? <FontAwesomeIcon icon={faCheck} className={`text-green-500`} />
-                                : <FontAwesomeIcon icon={faX} className={`text-red-500`} />
+                                : <FontAwesomeIcon icon={faX} className={`text-orange-500`} />
                             }
                         </td>
-                        <td>{order.tracking}</td>
+                        <td className='relative'>
+                            <div className="opacity-0">
+                                {order.tracking}
+                            </div>
+                            <div className='z-10 absolute top-1/2 right-3 -translate-y-1/2'>
+                                {order.tracking}
+                            </div>
+                            <Image 
+                                src={trackingBg(order.tracking)} 
+                                alt='' 
+                                width={64} height={64} 
+                                className='absolute top-1/2 right-3 -translate-y-1/2'
+                            />
+                        </td>
                         {cartItemsElemnt}
                     </tr>
                 )
