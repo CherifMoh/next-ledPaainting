@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react";
 
 import RewMatesComp from '../../../components/admin/storage/RewMates'
+import PartsComp from '../../../components/admin/storage/Parts'
 
  
 
@@ -52,13 +53,8 @@ function Storage() {
                     </button>
                 </div>
 
-                <div> 
-                    <button
-                        className="px-8 py-3 rounded-md border border-black"
-                        >
-                        ورشة
-                    </button>
-                </div>
+               
+                <PartsComp />
                 <RewMatesComp />
             </div>
         </main>

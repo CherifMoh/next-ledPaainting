@@ -9,12 +9,23 @@ import Image from "next/image";
 import Spinner from "../../../../components/loadings/Spinner";
 
 
+const fetchRewMates = async () => {
+    const res = await axios.get(`/api/storage/rewMates`);
+    if(!res.data) return []
+    return res.data;
+}
+
 const fetchProduct = async(id)=>{
     const res = await axios.get(`/api/products/${id}`);
     return res.data[0];
 }
 
 function ProductUpdate({params}) {
+
+    const { data: RewMates, isLoading: rewLoading, isError: rewIsError, error: rewError } = useQuery({
+        queryKey: ['Rew Mates'],
+        queryFn: fetchRewMates
+    });
 
     const { data: SelectedDesign, isLoading, isError , error} = useQuery({
             queryKey:['product For Update'],
@@ -26,6 +37,8 @@ function ProductUpdate({params}) {
     const [isImages,setIsImages] = useState(false);
 
     const [isSubmiting,setIsSubmitting] = useState(false)
+
+    const [isRewMates,setIsRewMates] = useState([])
     
     const textareaRef = useRef(null);
    
@@ -99,6 +112,9 @@ function ProductUpdate({params}) {
 
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>{error.message}</div>
+    
+    if(rewLoading) return <div>Loading...</div>
+    if(rewIsError) return <div>{rewError.message}</div>
 
     if(!newProduct) return 
 
@@ -369,6 +385,207 @@ function ProductUpdate({params}) {
             </div>
         )
     })
+
+    function handelPartChange(e,i){
+        const value = e.target.value
+        const name = e.target.name
+
+        setNewProduct(prevState => {
+            if(prevState?.parts){
+
+                const updatedParts = [...prevState.parts]; // Create a copy of sales array
+                updatedParts[i] = { ...updatedParts[i], [name]: value }; // Update the specific sale at index i
+                
+                return {
+                    ...prevState,
+                    parts: updatedParts // Set the updated sales array
+                };
+            }else{
+                return{
+                    ...prevState,
+                    parts:[{[name]:value}]
+                }
+            }
+        });
+    }
+
+    function handelPartMatesChange(value,i){
+        setNewProduct(prevState => {
+            if(prevState?.parts){
+
+                const updatedParts = [...prevState.parts]; // Create a copy of sales array
+                if(updatedParts[i]?.mates){
+                    updatedParts[i] = { ...updatedParts[i], mates: [...updatedParts[i].mates,value] }; // Update the specific sale at index i
+                    return {
+                        ...prevState,
+                        parts: updatedParts // Set the updated sales array
+                    };
+                }else{
+                    updatedParts[i] = { ...updatedParts[i], mates: [value] };
+                    return{
+                        ...prevState,
+                        parts:updatedParts
+                    }
+                }
+                
+            }else{
+                return{
+                    ...prevState,
+                    parts:[{mates:[value]}]
+                }
+            }
+        });
+    }
+
+    function handleRemovePart(index){
+
+        if(Array.isArray(newProduct.parts)){
+
+            setNewProduct(prevState => {
+                const updatedParts = [...prevState.parts]; // Create a copy of options array
+                updatedParts.splice(index, 1); // Remove the option at the specified index
+                return {
+                    ...prevState,
+                    parts: updatedParts // Set the updated options array
+                };
+            });
+        }
+
+        setPartsArray(prevParts => {
+            const updatedParts = prevParts.filter((_, i) => i !== index); // Remove the option at the specified index
+            return updatedParts;
+        });
+    }
+
+    function handleAddPart(){
+        setPartsArray(pre=>{
+            const newNum = pre.length+2
+            return [...pre,newNum]
+        })
+    }
+
+    function togelIsRewMates(id){
+        setIsRewMates(prev => {
+            if (prev.includes(id)) {
+                return prev.filter(item => item !== id); // Remove the id if it's found
+            } else {
+                return [...prev, id]; // Add the id if it's not found
+            }
+        });
+        
+    }
+    function rewMatesShowElement(i,num){
+
+    return RewMates.map(mate =>{
+        if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates
+            && newProduct?.parts[i]?.mates.includes(mate.name) 
+        ) return null
+        return(
+        <div 
+            key={mate._id}
+            className="bg-gray-500 cursor-pointer py-1 px-3 rounded-full"
+            onClick={()=>{
+                handelPartMatesChange(mate.name,i)
+                togelIsRewMates(num)
+            }}
+        >
+            {mate.name}
+        </div>
+    )
+    });
+    }
+
+    function removeMate(i,mate){
+        setNewProduct(pre => {
+            if (Array.isArray(pre.parts)) {
+                // Create a new array of parts
+                const newParts = pre.parts.map((part, index) => {
+                    if (index === i) {
+                        // For the specific part, create a new mates array by filtering out the mate
+                        return {
+                            ...part,
+                            mates: part.mates.filter(item => item !== mate)
+                        };
+                    }
+                    return part;
+                });
+                // Return the new state object
+                const newState = {
+                    ...pre,
+                    parts: newParts
+                };
+                return newState;
+            }
+            return pre;
+        })
+    }
+
+    function rewMatesElement(i){
+        if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates){
+            return newProduct?.parts[i]?.mates.map((mate,index)=>{
+                return (
+                    <div 
+                        key={index}
+                        className="bg-gray-500 relative cursor-pointer py-1 px-3 rounded-full"
+                    >
+                        {mate}
+                        <span 
+                           className='absolute -top-1 -right-1 bg-red-500 px-1 text-xs rounded-full'
+                           onClick={()=>removeMate(i,mate)}
+                        >X</span>
+                    </div>
+                )
+            })
+        }
+    }
+
+    const partsElemnt = newProduct.parts?.map((part,i,num)=>{
+        return(
+            <div className="flex gap-2 flex-col z-10 mt-6 shadow-md relative" key={part._id}>
+                <div
+                    className="size-full absolute top-0 right-0"
+                    onClick={()=>setIsRewMates([])}
+                ></div>
+                <div className="flex gap-2">
+                    <button 
+                    className="bg-gray-400 z-20 rounded-full px-2 absolute -top-2 -right-2"
+                    onClick={()=>handleRemovePart(i)}
+                    >
+                        X                   
+                    </button>
+
+                    <input 
+                    type="text" 
+                    placeholder="Part Name"
+                    defaultValue={part.name}
+                    name="name"
+                    onChange={(e)=>handelPartChange(e,i)}
+                    className="border-2 h-16 z-10 border-gray-400 rounded-md p-4" 
+                    />
+
+                    <div
+                        className="flex flex-col flex-grow z-10"
+                    >
+                        <input 
+                        type="text" 
+                        placeholder="rew mates"
+                        name="mates"
+                        onClick={(e)=>togelIsRewMates(num)}
+                        className="border-2 h-16 w-full border-gray-400 rounded-md p-4" 
+                        />
+                        {isRewMates.includes(num) &&
+                            <div 
+                            className="w-[578px] mt-2 p-4 rounded-md flex gap-6 text-white bg-gray-900"
+                            >{rewMatesShowElement(i,num)}</div>
+                        }
+                    </div>
+                </div>
+                <div className="flex p-3 gap-2 z-10 text-white">
+                    {rewMatesElement(i,num)}
+                </div>
+            </div>
+        )
+    })
     
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -499,6 +716,24 @@ function ProductUpdate({params}) {
                     >
                         Add sale                        
                     </div>
+                </div>
+                <div className="text-center relative">
+                    <div
+                        className="size-full absolute top-0 right-0"
+                        onClick={()=>setIsRewMates([])}
+                    ></div>
+
+                    <h1 className="font-semibold text-xl"> Parts </h1>
+
+                    {partsElemnt}
+
+                    <div 
+                     className="mt-6 bg-stone-500 px-4 z-20 relative py-3 cursor-pointer text-white rounded-3xl max-w-40 m-auto"
+                     onClick={handleAddPart}
+                    >
+                        Add a part                        
+                    </div>
+
                 </div>
                 <button 
                  type="submit" 
