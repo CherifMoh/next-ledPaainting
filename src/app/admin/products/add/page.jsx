@@ -7,9 +7,23 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Spinner from "../../../../components/loadings/Spinner";
+import { useQuery } from "@tanstack/react-query";
 
+
+const fetchRewMates = async () => {
+    const res = await axios.get(`/api/storage/rewMates`);
+    if(!res.data) return []
+    return res.data;
+}
 
 function Admin() {
+
+
+    const { data: RewMates, isLoading: IsLoading, isError: IsError, error: Error } = useQuery({
+        queryKey: ['Rew Mates'],
+        queryFn: fetchRewMates
+    });
+    
     
     const [newProduct,setNewProduct] = useState({});
 
@@ -20,7 +34,16 @@ function Admin() {
     const [optionsArray,setOptionsArray] = useState([1])
 
     const [salesArray,setSalesArray] = useState([1])
+    
+    const [partsArray,setPartsArray] = useState([1])
 
+    const [isRewMates,setIsRewMates] = useState([])
+    
+    const router = useRouter()
+
+    if (IsLoading) return <div>Loading...</div>;
+
+    if (IsError) return <div>Error: {Error.message}</div>;
 
     async function convertToBase64(file) {
         return new Promise((resolve, reject) => {
@@ -35,7 +58,6 @@ function Admin() {
         });
     }
 
-    const router = useRouter()
 
     async function handleSubmit(e) {
 
@@ -64,11 +86,11 @@ function Admin() {
     }
 
 
+
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
     
     async function handleFileUpload(e,state) {
         if(state=='On'){
-            console.log(state)
             const file = e.target.files[0];
             if(!file){
                 e.target.files[0]=[]
@@ -83,7 +105,6 @@ function Admin() {
                  :[base64]
             }))
         }else{
-            console.log(state)
             const file = e.target.files[0];
             if(!file){
                 
@@ -221,7 +242,7 @@ function Admin() {
                     X                   
                 </button>
                     
-                {newProduct.options?.length >= i+1 && 'image' in newProduct.options[i]
+                {newProduct?.options?.length >= i+1 && 'image' in newProduct.options[i]
                 ?
                     <div className='relative'>
                         <Image 
@@ -340,6 +361,206 @@ function Admin() {
                  onChange={(e)=>handelSaleChange(e,i)}
                  className="border-2 border-gray-400 rounded-md p-4 w-full" 
                 />
+            </div>
+        )
+    })
+    
+    function handelPartChange(e,i){
+        const value = e.target.value
+        const name = e.target.name
+
+        setNewProduct(prevState => {
+            if(prevState?.parts){
+
+                const updatedParts = [...prevState.parts]; // Create a copy of sales array
+                updatedParts[i] = { ...updatedParts[i], [name]: value }; // Update the specific sale at index i
+                
+                return {
+                    ...prevState,
+                    parts: updatedParts // Set the updated sales array
+                };
+            }else{
+                return{
+                    ...prevState,
+                    parts:[{[name]:value}]
+                }
+            }
+        });
+    }
+
+    function handelPartMatesChange(value,i){
+        setNewProduct(prevState => {
+            if(prevState?.parts){
+
+                const updatedParts = [...prevState.parts]; // Create a copy of sales array
+                if(updatedParts[i]?.mates){
+                    updatedParts[i] = { ...updatedParts[i], mates: [...updatedParts[i].mates,value] }; // Update the specific sale at index i
+                    return {
+                        ...prevState,
+                        parts: updatedParts // Set the updated sales array
+                    };
+                }else{
+                    updatedParts[i] = { ...updatedParts[i], mates: [value] };
+                    return{
+                        ...prevState,
+                        parts:updatedParts
+                    }
+                }
+                
+            }else{
+                return{
+                    ...prevState,
+                    parts:[{mates:[value]}]
+                }
+            }
+        });
+    }
+
+    function handleRemovePart(index){
+
+        if(Array.isArray(newProduct.parts)){
+
+            setNewProduct(prevState => {
+                const updatedParts = [...prevState.parts]; // Create a copy of options array
+                updatedParts.splice(index, 1); // Remove the option at the specified index
+                return {
+                    ...prevState,
+                    parts: updatedParts // Set the updated options array
+                };
+            });
+        }
+
+        setPartsArray(prevParts => {
+            const updatedParts = prevParts.filter((_, i) => i !== index); // Remove the option at the specified index
+            return updatedParts;
+        });
+    }
+
+    function handleAddPart(){
+        setPartsArray(pre=>{
+            const newNum = pre.length+2
+            return [...pre,newNum]
+        })
+    }
+
+    function togelIsRewMates(id){
+        setIsRewMates(prev => {
+            if (prev.includes(id)) {
+                return prev.filter(item => item !== id); // Remove the id if it's found
+            } else {
+                return [...prev, id]; // Add the id if it's not found
+            }
+        });
+        
+    }
+    function rewMatesShowElement(i,num){
+
+    return RewMates.map(mate =>{
+        if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates
+            && newProduct?.parts[i]?.mates.includes(mate.name) 
+        ) return null
+        return(
+        <div 
+            key={mate._id}
+            className="bg-gray-500 cursor-pointer py-1 px-3 rounded-full"
+            onClick={()=>{
+                handelPartMatesChange(mate.name,i)
+                togelIsRewMates(num)
+            }}
+        >
+            {mate.name}
+        </div>
+    )
+    });
+    }
+
+    function removeMate(i,mate){
+        setNewProduct(pre => {
+            if (Array.isArray(pre.parts)) {
+                // Create a new array of parts
+                const newParts = pre.parts.map((part, index) => {
+                    if (index === i) {
+                        // For the specific part, create a new mates array by filtering out the mate
+                        return {
+                            ...part,
+                            mates: part.mates.filter(item => item !== mate)
+                        };
+                    }
+                    return part;
+                });
+                // Return the new state object
+                const newState = {
+                    ...pre,
+                    parts: newParts
+                };
+                return newState;
+            }
+            return pre;
+        })
+    }
+
+    function rewMatesElement(i){
+        if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates){
+            return newProduct?.parts[i]?.mates.map((mate,index)=>{
+                return (
+                    <div 
+                        key={index}
+                        className="bg-gray-500 relative cursor-pointer py-1 px-3 rounded-full"
+                    >
+                        {mate}
+                        <span 
+                           className='absolute -top-1 -right-1 bg-red-500 px-1 text-xs rounded-full'
+                           onClick={()=>removeMate(i,mate)}
+                        >X</span>
+                    </div>
+                )
+            })
+        }
+    }
+
+    const partsElemnt = partsArray.map((num,i)=>{
+        return(
+            <div className="flex gap-2 flex-col z-10 mt-6 shadow-md relative" key={num}>
+                <div
+                    className="size-full absolute top-0 right-0"
+                    onClick={()=>setIsRewMates([])}
+                ></div>
+                <div className="flex gap-2">
+                    <button 
+                    className="bg-gray-400 z-20 rounded-full px-2 absolute -top-2 -right-2"
+                    onClick={()=>handleRemovePart(i)}
+                    >
+                        X                   
+                    </button>
+
+                    <input 
+                    type="text" 
+                    placeholder="Part Name"
+                    name="name"
+                    onChange={(e)=>handelPartChange(e,i)}
+                    className="border-2 h-16 z-10 border-gray-400 rounded-md p-4" 
+                    />
+
+                    <div
+                        className="flex flex-col flex-grow z-10"
+                    >
+                        <input 
+                        type="text" 
+                        placeholder="rew mates"
+                        name="mates"
+                        onClick={(e)=>togelIsRewMates(num)}
+                        className="border-2 h-16 w-full border-gray-400 rounded-md p-4" 
+                        />
+                        {isRewMates.includes(num) &&
+                            <div 
+                            className="w-[578px] mt-2 p-4 rounded-md flex gap-6 text-white bg-gray-900"
+                            >{rewMatesShowElement(i,num)}</div>
+                        }
+                    </div>
+                </div>
+                <div className="flex p-3 gap-2 z-10 text-white">
+                    {rewMatesElement(i,num)}
+                </div>
             </div>
         )
     })
@@ -489,6 +710,24 @@ function Admin() {
                     >
                         Add sale                        
                     </div>
+                </div>
+                <div className="text-center relative">
+                    <div
+                        className="size-full absolute top-0 right-0"
+                        onClick={()=>setIsRewMates([])}
+                    ></div>
+
+                    <h1 className="font-semibold text-xl"> Parts </h1>
+
+                    {partsElemnt}
+
+                    <div 
+                     className="mt-6 bg-stone-500 px-4 z-20 relative py-3 cursor-pointer text-white rounded-3xl max-w-40 m-auto"
+                     onClick={handleAddPart}
+                    >
+                        Add a part                        
+                    </div>
+
                 </div>
                 <button 
                  type="submit" 

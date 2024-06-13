@@ -29,6 +29,10 @@ const productSchem = new mongoose.Schema({
         type: Array,
         required: true
     },
+    parts: {
+        type: Array,
+        required: true
+    },
     gallery: {
         type: Array,
         required: true

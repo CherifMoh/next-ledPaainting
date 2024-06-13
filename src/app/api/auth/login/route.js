@@ -34,10 +34,10 @@ export async function POST(req){
                     
                 cookies().set("access-token", token, {
                     path: "/",
-                    domain: "drawlys.com",
+                    domain: "localhost",
                     maxAge: thirtyDaysFromNow,
-                    httpOnly: true,
-                    secure: true,
+                    httpOnly: false,
+                    secure: false,
                 });
                 return Response.json({message: 'Logged in'}, {status: 201});
             } else {

@@ -34,10 +34,12 @@ const OrdersLineChart = () => {
   }, {});
 
   // Transform the grouped data into the format required for the chart
-  const chartData = Object.entries(ordersByDate).map(([date, orders]) => ({
+  let chartData = Object.entries(ordersByDate).map(([date, orders]) => ({
     day: date,
     Orders: orders.length // Count the number of orders for each date
   }));
+
+  chartData = chartData.slice().reverse();
 
   // const data = [
   //   { day: 'june 1', Orders: 70 },
