@@ -415,13 +415,13 @@ function ProductUpdate({params}) {
 
                 const updatedParts = [...prevState.parts]; // Create a copy of sales array
                 if(updatedParts[i]?.mates){
-                    updatedParts[i] = { ...updatedParts[i], mates: [...updatedParts[i].mates,value] }; // Update the specific sale at index i
+                    updatedParts[i] = { ...updatedParts[i], mates: [...updatedParts[i].mates,{name:value,qnt:1}] }; // Update the specific sale at index i
                     return {
                         ...prevState,
                         parts: updatedParts // Set the updated sales array
                     };
                 }else{
-                    updatedParts[i] = { ...updatedParts[i], mates: [value] };
+                    updatedParts[i] = { ...updatedParts[i], mates: [{name:value,qnt:1}] };
                     return{
                         ...prevState,
                         parts:updatedParts
@@ -431,9 +431,42 @@ function ProductUpdate({params}) {
             }else{
                 return{
                     ...prevState,
-                    parts:[{mates:[value]}]
+                    parts:[{mates:[{name:value,qnt:1}]}]
                 }
             }
+        });
+    }
+
+
+    console.log(newProduct)
+    function handelPartMatesQntChange(newQnt,MateName,i){
+        setNewProduct(prevState => {
+            newQnt = Number(newQnt); // Ensure newQnt is a number
+    
+            // Initialize parts array if not present in prevState
+            const parts = prevState?.parts ? [...prevState.parts] : [];
+    
+            // Initialize the part at index i if not present
+            if (!parts[i]) {
+                parts[i] = { mates: [] };
+            } else {
+                parts[i] = { ...parts[i] }; // Create a shallow copy of the part
+            }
+    
+            // Initialize mates array if not present in the part
+            parts[i].mates = parts[i].mates ? [...parts[i].mates] : [];
+    
+            // Update or add the mate
+            const mateIndex = parts[i].mates.findIndex(mate => mate.name === MateName);
+            if (mateIndex > -1) {
+                // Mate already exists, update quantity
+                parts[i].mates[mateIndex] = { ...parts[i].mates[mateIndex], qnt: newQnt };
+            } else {
+                // Mate doesn't exist, add new mate
+                parts[i].mates.push({ name: MateName, qnt: newQnt });
+            }
+    
+            return { ...prevState, parts };
         });
     }
 
@@ -478,7 +511,7 @@ function ProductUpdate({params}) {
 
     return RewMates.map(mate =>{
         if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates
-            && newProduct?.parts[i]?.mates.includes(mate.name) 
+            && newProduct?.parts[i]?.mates.some(obj => obj.name === mate.name)
         ) return null
         return(
         <div 
@@ -526,11 +559,20 @@ function ProductUpdate({params}) {
                 return (
                     <div 
                         key={index}
-                        className="bg-gray-500 relative cursor-pointer py-1 px-3 rounded-full"
+                        className="bg-gray-500 relative flex gap-1 py-1 px-3 rounded-full"
                     >
-                        {mate}
+                        <input 
+                            type="number" 
+                            min={1}
+                            defaultValue={mate.qnt}
+                            className='bg-transparent w-4 no-focus-outline no-spin'
+                            onChange={(e)=>handelPartMatesQntChange(e.target.value,mate.name,i)}
+                        />
+                        <div>
+                            {mate.name}
+                        </div>
                         <span 
-                           className='absolute -top-1 -right-1 bg-red-500 px-1 text-xs rounded-full'
+                           className='absolute -top-1 -right-1 cursor-pointer bg-red-500 px-1 text-xs rounded-full'
                            onClick={()=>removeMate(i,mate)}
                         >X</span>
                     </div>

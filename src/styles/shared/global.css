@@ -48,3 +48,24 @@ tr {
     padding: 12px;
     font-weight: 500;
 }
+
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.line-before::before {
+    content: '';
+    position: absolute;
+    right:-16px;
+    top: 50%;
+    width: 16px;
+    height: 3px;
+    transform: translateY(-50%);
+    background-color: currentColor;
+}
+
+.no-spin {
+    -moz-appearance: textfield;
+}

@@ -2,15 +2,33 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
+import { faTag, faBoxesStacked, faWarehouse, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 function Dashboard() {
 
   const AdminLinks = [
-    { name: 'Orders', href: '/admin/orders' },
-    { name: 'Products', href: '/admin/products' },
-    { name: 'Users', href: '/admin/users' },
-    { name: 'Storage', href: '/admin/storage' },
+    { 
+      name: 'Orders', 
+      icon:faBoxesStacked,
+      href: '/admin/orders' 
+    },
+    { 
+      name: 'Products', 
+      icon:faTag, 
+      href: '/admin/products' 
+    },
+    { 
+      name: 'Users', 
+      icon:faUsers,
+      href: '/admin/users' 
+    },
+    { 
+      name: 'Storage', 
+      icon:faWarehouse,
+      href: '/admin/storage' 
+    },
     // { name: 'Category', href: '/admin/categoreis' },
   ]
 
@@ -22,10 +40,13 @@ function Dashboard() {
     return (
       <Link
         href={link.href}
-        className={`h-10 flex items-center hover:bg-gray-300 p-4 ${isActive && 'bg-gray-400'}`}
+        className={`h-10 flex items-center gap-4 hover:bg-gray-300 p-4 ${isActive && 'bg-gray-300'}`}
         key={link.name}
       >
-        <span className=''>{link.name}</span>
+        <span>
+          <FontAwesomeIcon icon={link.icon}/>
+        </span>
+        <span>{link.name}</span>
       </Link>)
   })
 
@@ -36,7 +57,7 @@ function Dashboard() {
         className='text-3xl font-extrabold text-center block mb-10'
       >
         Dashboard
-      </Link>
+      </Link>   
 
       {AdminLinksElemnts}
 

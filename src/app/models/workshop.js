@@ -1,6 +1,6 @@
 import mongoose,{Schema} from "mongoose";
 
-const RewMatesSchema = new Schema({
+const WorkshopSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -11,6 +11,6 @@ const RewMatesSchema = new Schema({
     },
 },{timestamps:true})
 
-const RewMates = mongoose.models.RewMates || mongoose.model('RewMates', RewMatesSchema)
+const Workshop = mongoose.models.Workshop || mongoose.model('Workshop', WorkshopSchema)
 
-export default RewMates
+export default Workshop

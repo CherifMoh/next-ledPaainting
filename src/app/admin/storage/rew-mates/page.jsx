@@ -28,7 +28,13 @@ function RawMaterials() {
 
   const [isAdding, setIsAdding] = useState(false)
 
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({
+    name:'',
+    qnts:[{
+      price:null,
+      qnt:null
+    }]
+  })
 
   const [deleting, setDeleting] = useState([])
 
@@ -37,7 +43,7 @@ function RawMaterials() {
   if (IsError) return <div>Error: {Error.message}</div>;
 
 
-  function handleChange(e) {
+  function handleNameChange(e) {
     e.preventDefault()
 
     const name = e.target.name
@@ -47,11 +53,30 @@ function RawMaterials() {
       [name]: value
     }))
   }
+  function handleQntPriceChange(e) {
+    e.preventDefault()
+
+    const name = e.target.name
+    const value = e.target.value
+    setFormData(preState => ({
+      ...preState,
+      qnts:[{
+        ...preState?.qnts[0],
+        [name]:value
+      }]
+    }))
+  }
+  console.log(formData)
 
   async function handleSubmit(e) {
     e.preventDefault();
     await addRewMates(formData);
-    setFormData({ name: '', qnt: '' });
+    setFormData({
+      name:'',
+      qnts:[{
+        price:0,
+        qnt:0
+      }]});
     setIsAdding(false);
     queryClient.invalidateQueries(['Rew Mates']);
   }
@@ -64,7 +89,14 @@ function RawMaterials() {
   }
 
   const materials = RewMates.map(mate => <td key={mate._id}>{mate.name}</td>);
-  const quantities = RewMates.map(mate => <td key={mate._id}>{mate.qnt}</td>);
+  const quantities = RewMates.map(mate => {
+    let totalQnt = 0
+    console.log(mate.qnts)
+    mate?.qnts.forEach(qnt=>totalQnt=totalQnt+Number(qnt.qnt))
+    return(
+      <td key={mate._id}>{totalQnt}</td>
+    )
+  });
   const actions = RewMates.map(mate =>(
     <td key={mate._id}>
        {deleting.includes(mate._id)
@@ -94,7 +126,7 @@ function RawMaterials() {
             <input 
               type="text"
               name="name"
-              onChange={handleChange}
+              onChange={handleNameChange}
               value={formData.name}
               required 
               className="border border-black mr-1 p-4 rounded-md"
@@ -103,12 +135,22 @@ function RawMaterials() {
             <input 
               type='number'
               name="qnt"
-              onChange={handleChange}
-              value={formData.qnt}
+              onChange={handleQntPriceChange}
+              value={formData?.qnts[0]?.qnt}
               required 
               className="border w-28 border-black p-4 rounded-md"
               min={1}
               placeholder="Quantity"
+            />
+            <input 
+              type='number'
+              name="price"
+              onChange={handleQntPriceChange}
+              value={formData?.qnts[0]?.price}
+              required 
+              className="border w-28 border-black p-4 rounded-md"
+              min={1}
+              placeholder="Price"
             />
           </div>
           <button className="bg-gray-900 rounded-lg text-white px-4 py-2">
