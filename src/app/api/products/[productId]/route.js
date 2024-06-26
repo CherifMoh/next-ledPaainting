@@ -7,7 +7,12 @@ import { NextResponse } from "next/server"
 export async function GET(req,{params}) {
   try{
     await dbConnect()
-    let result = await Product.find({ _id: params.productId });
+    let result
+    if(params.productId !=='LedPainting'){
+      result= await Product.find({ _id: params.productId });
+    }else{
+      result= await Product.find({ name: 'Led Painting' });
+    }
     
     if (result.length === 0) {
       result = await Design.find({ _id: params.productId });

@@ -18,7 +18,7 @@ import axios from "axios";
 
 
 const fetchLedPainting = async () => {
-    const res = await axios.get(`/api/products/6614791ccb0b4173298b236b`);
+    const res = await axios.get(`/api/products/LedPainting`);
     return res.data[0];
 }
 
