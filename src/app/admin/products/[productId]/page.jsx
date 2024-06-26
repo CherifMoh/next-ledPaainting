@@ -86,7 +86,6 @@ function ProductUpdate({params}) {
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
     
     async function handleFileUpload(e,state) {
-        console.log(state)
         const file = e.target.files[0];
         if(state=='On'){
             if(!file){
@@ -141,7 +140,6 @@ function ProductUpdate({params}) {
         });
     }
 
-    console.log(newProduct)
 
     function checkFileSize(file,input) {
         if(file){
@@ -183,6 +181,7 @@ function ProductUpdate({params}) {
     };
 
     const galleryElemnt = newProduct.gallery?.map((image,i)=>{
+    
         return(
             <div key={image} className='relative'>
                 <div 
@@ -437,8 +436,6 @@ function ProductUpdate({params}) {
         });
     }
 
-
-    console.log(newProduct)
     function handelPartMatesQntChange(newQnt,MateName,i){
         setNewProduct(prevState => {
             newQnt = Number(newQnt); // Ensure newQnt is a number
@@ -491,13 +488,14 @@ function ProductUpdate({params}) {
     }
 
     function handleAddPart(){
-        setPartsArray(pre=>{
-            const newNum = pre.length+2
-            return [...pre,newNum]
-        })
+        setNewProduct(pre=>({
+            ...pre,
+            parts:[...pre?.parts,{}]
+        }))
     }
 
     function togelIsRewMates(id){
+
         setIsRewMates(prev => {
             if (prev.includes(id)) {
                 return prev.filter(item => item !== id); // Remove the id if it's found
@@ -508,11 +506,12 @@ function ProductUpdate({params}) {
         
     }
     function rewMatesShowElement(i,num){
-
+      
     return RewMates.map(mate =>{
         if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates
             && newProduct?.parts[i]?.mates.some(obj => obj.name === mate.name)
         ) return null
+
         return(
         <div 
             key={mate._id}
@@ -556,6 +555,7 @@ function ProductUpdate({params}) {
     function rewMatesElement(i){
         if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates){
             return newProduct?.parts[i]?.mates.map((mate,index)=>{
+
                 return (
                     <div 
                         key={index}
@@ -581,9 +581,10 @@ function ProductUpdate({params}) {
         }
     }
 
-    const partsElemnt = newProduct.parts?.map((part,i,num)=>{
+    const partsElemnt = newProduct.parts?.map((part,i)=>{
+
         return(
-            <div className="flex gap-2 flex-col z-10 mt-6 shadow-md relative" key={part._id}>
+            <div className="flex gap-2 flex-col z-10 mt-6 shadow-md relative" key={part.name}>
                 <div
                     className="size-full absolute top-0 right-0"
                     onClick={()=>setIsRewMates([])}
@@ -605,6 +606,15 @@ function ProductUpdate({params}) {
                     className="border-2 h-16 z-10 border-gray-400 rounded-md p-4" 
                     />
 
+                    <input 
+                        type="number" 
+                        placeholder="Part Qntity"
+                        name="qnt"
+                        defaultValue={part.qnt}
+                        onChange={(e)=>handelPartChange(e,i)}
+                        className="border-2 h-16 z-10 border-gray-400 rounded-md p-4" 
+                    />
+
                     <div
                         className="flex flex-col flex-grow z-10"
                     >
@@ -612,23 +622,24 @@ function ProductUpdate({params}) {
                         type="text" 
                         placeholder="rew mates"
                         name="mates"
-                        onClick={(e)=>togelIsRewMates(num)}
+                        onClick={(e)=>togelIsRewMates(part.name)}
                         className="border-2 h-16 w-full border-gray-400 rounded-md p-4" 
                         />
-                        {isRewMates.includes(num) &&
+                        {isRewMates.includes(part.name) &&
                             <div 
-                            className="w-[578px] mt-2 p-4 rounded-md flex gap-6 text-white bg-gray-900"
-                            >{rewMatesShowElement(i,num)}</div>
+                            className="w-[578px] flex-wrap mt-2 p-4 rounded-md flex gap-6 text-white bg-gray-900"
+                            >{rewMatesShowElement(i,part.name)}</div>
                         }
                     </div>
                 </div>
                 <div className="flex p-3 gap-2 z-10 text-white">
-                    {rewMatesElement(i,num)}
+                    {rewMatesElement(i,part.name)}
                 </div>
             </div>
         )
     })
     
+
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             e.preventDefault(); // Prevents the default behavior of creating a new line

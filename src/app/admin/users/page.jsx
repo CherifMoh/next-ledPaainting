@@ -104,7 +104,7 @@ function User() {
           className={`py-2 px-6 font-semibold text-base cursor-pointer ${nav === 'users' && 'opacity-30'}`}
           onClick={() => setNav('custom')}
         >
-          Custom Roles
+          Manage Roles
         </div>
         <div
           className={`bg-gray-400 inline-block transition-all duration-1000 w-36 h-1 absolute -bottom-1 

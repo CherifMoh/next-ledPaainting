@@ -416,8 +416,6 @@ function Admin() {
         });
     }
 
-
-    console.log(newProduct)
     function handelPartMatesQntChange(newQnt,MateName,i){
         setNewProduct(prevState => {
             newQnt = Number(newQnt); // Ensure newQnt is a number
@@ -487,24 +485,23 @@ function Admin() {
         
     }
     function rewMatesShowElement(i,num){
-
-    return RewMates.map(mate =>{
-        if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates
-            && newProduct?.parts[i]?.mates.some(obj => obj.name === mate.name) 
-        ) return null
-        return(
-        <div 
-            key={mate._id}
-            className="bg-gray-500 cursor-pointer py-1 px-3 rounded-full"
-            onClick={()=>{
-                handelPartMatesChange(mate.name,i)
-                togelIsRewMates(num)
-            }}
-        >
-            {mate.name}
-        </div>
-    )
-    });
+        return RewMates.map(mate =>{
+            if(Array.isArray(newProduct?.parts) && newProduct?.parts[i]?.mates
+                && newProduct?.parts[i]?.mates.some(obj => obj.name === mate.name) 
+            ) return null
+            return(
+            <div 
+                key={mate._id}
+                className="bg-gray-500 cursor-pointer py-1 px-3 rounded-full"
+                onClick={()=>{
+                    handelPartMatesChange(mate.name,i)
+                    togelIsRewMates(num)
+                }}
+            >
+                {mate.name}
+            </div>
+        )
+        });
     }
 
     function removeMate(i,mate){
@@ -583,6 +580,14 @@ function Admin() {
                     className="border-2 h-16 z-10 border-gray-400 rounded-md p-4" 
                     />
 
+                    <input 
+                    type="number" 
+                    placeholder="Part Qntity"
+                    name="qnt"
+                    onChange={(e)=>handelPartChange(e,i)}
+                    className="border-2 h-16 z-10 border-gray-400 rounded-md p-4" 
+                    />
+
                     <div
                         className="flex flex-col flex-grow z-10"
                     >
@@ -595,7 +600,7 @@ function Admin() {
                         />
                         {isRewMates.includes(num) &&
                             <div 
-                            className="w-[578px] mt-2 p-4 rounded-md flex gap-6 text-white bg-gray-900"
+                            className="w-[335px] mt-2 p-4 rounded-md flex flex-wrap gap-6 text-white bg-gray-900"
                             >{rewMatesShowElement(i,num)}</div>
                         }
                     </div>

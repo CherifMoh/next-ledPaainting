@@ -66,6 +66,18 @@ tr {
     background-color: currentColor;
 }
 
+
+.line-top::before {
+    content: '';
+    position: absolute;
+    right: 50%;;
+    top: -25px;
+    width: 3px;
+    height: 25px;
+    transform: translateX(-50%);
+    background-color: currentColor;
+}
+
 .no-spin {
     -moz-appearance: textfield;
 }

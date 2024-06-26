@@ -1,6 +1,6 @@
 'use client'
 
-import { faPlus, faFloppyDisk, faMinus, faX } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faSearch, faMinus, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -42,6 +42,10 @@ function RewMatesComp() {
     const [qnt, setQnt] = useState();
     const [price, setPrice] = useState();
 
+    const [search, setSearch] = useState();
+
+    const [note,setNote] = useState('');
+    
     useEffect(()=>{
         setNewRewMates(RewMates)
     },[RewMates])
@@ -62,42 +66,49 @@ function RewMatesComp() {
         }))
     }
 
-    function submitAddRewMatesQnts(id) {
+    function submitAddRewMatesQnts(id,name) {
 
         if(price) setNoPrice(false)
         if(qnt) setNoQnt(false)
         if(!price) return setNoPrice(true)
         if(!qnt) return setNoQnt(true)
-        editAddRewMateQnt(id,newQnts)
+        editAddRewMateQnt(id,newQnts,name)
         setIsPlus(pre=>pre.filter(id=>id !== id))
         setQnt()
         setPrice()
     }
 
-    function submitMinusRewMatesQnts(id) {    
+    function submitMinusRewMatesQnts(id,name) {    
         if(minusQnt) setNoQnt(false)
         if(!minusQnt) return setNoQnt(true)
 
-        editMinusRewMateQnt(id,minusQnt)
+        editMinusRewMateQnt(id,minusQnt,name,note)
         setIsMinus(pre=>pre.filter(id=>id !== id))
         setMinusQnt()
     }
+
     const RewMatesElement = RewMates.map(rewMate=>{
+        if(search && !rewMate.name.toLowerCase().includes(search.toLowerCase())) return
+
         return (
             <div 
-                className="px-2 w-min py-1 flex items-center justify-center flex-col gap-2 rounded-md border border-black"
+                className="px-2  w-full py-1 border-gray-700 border-b last:border-b-0 flex items-center justify-between"
                 key={rewMate._id}
             >
-                    {rewMate.name}
-                    <div 
-                        className="flex items-center justify-center gap-2"
+                    <button 
+                        onClick={()=>setIsPlus(pre=>[...pre,rewMate._id])}
+                        className="h-5"
                     >
-                        <button onClick={()=>setIsPlus(pre=>[...pre,rewMate._id])}>
-                            <FontAwesomeIcon icon={faPlus} className='text-green-600' />
-                        </button>
-                        <button onClick={()=>setIsMinus(pre=>[...pre,rewMate._id])}>
-                            <FontAwesomeIcon icon={faMinus} className='text-red-600' />
-                        </button>
+                        <FontAwesomeIcon icon={faPlus} className='text-green-500' />
+                    </button>
+                    {rewMate.name}
+                    <button 
+                        onClick={()=>setIsMinus(pre=>[...pre,rewMate._id])}
+                        className="h-5"
+                    >
+                        <FontAwesomeIcon icon={faMinus} className='text-red-500' />
+                    </button>
+
                         {isPlus.includes(rewMate._id) && 
                             <div className="bg-[#0000004f] md:p-48 p-72 z-[999] backdrop-filter backdrop-blur-sm h-screen w-screen fixed top-0 right-0">
                                <div className=" m-auto bg-[#f5f5f5] rounded-xl w-max p-4">
@@ -147,7 +158,7 @@ function RewMatesComp() {
                                 <div className="flex items-center justify-center mt-4">
                                     <button 
                                         className='bg-gray-900 w-48 rounded-lg pb-1 text-white'
-                                        onClick={()=>submitAddRewMatesQnts(rewMate._id)}
+                                        onClick={()=>submitAddRewMatesQnts(rewMate._id,rewMate.name)}
                                     >
                                         Save
                                     </button>
@@ -190,6 +201,7 @@ function RewMatesComp() {
                                                 type="text" 
                                                 className="no-focus-outline bg-transparent w-full h-full"
                                                 placeholder="ملاحظة"
+                                                onChange={(e)=>setNote(e.target.value)}
                                             />
 
                                         </td>
@@ -198,7 +210,7 @@ function RewMatesComp() {
                                 <div className="flex items-center justify-center mt-4">
                                 <button 
                                         className='bg-gray-900 w-48 rounded-lg pb-1 text-white'
-                                        onClick={()=>submitMinusRewMatesQnts(rewMate._id)}
+                                        onClick={()=>submitMinusRewMatesQnts(rewMate._id,rewMate.name)}
                                     >
                                         Save
                                     </button>
@@ -216,7 +228,7 @@ function RewMatesComp() {
                                 </div>
                             </div>
                         }
-                    </div>
+                    
             </div>
         )
     })
@@ -224,7 +236,7 @@ function RewMatesComp() {
 
 
   return (
-    <div>
+    <div className="flex flex-col">
         <button
             className="px-8 py-3 rounded-md border border-black"
             onClick={()=>setIsRewMates(pre=>!pre)}
@@ -233,7 +245,16 @@ function RewMatesComp() {
         </button>
 
         {isRewMates &&
-        <div className="flex flex-col justify-center items-center mt-4 gap-1">
+        <div className="flex relative flex-col border border-gray-700 divide-y rounded-md justify-center w-[200px] items-end mt-4 gap-1">
+            <div>
+            <FontAwesomeIcon icon={faSearch} className="absolute text-gray-600 size-4 top-2 cursor-pointer right-1" />
+            <input   
+                type="text" 
+                className="no-focus-outline bg-transparent px-3 pt-1  w-full h-full" 
+                placeholder="Search"
+                onChange={(e)=>setSearch(e.target.value)}
+                />
+            </div>
             {RewMatesElement}
         </div>
         }

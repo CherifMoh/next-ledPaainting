@@ -271,3 +271,10 @@ export const wilayat = [
     }
 ]
 
+export const accessibility ={
+    orders:[],
+    products:[],
+    users:[],
+    storage:[]
+}
+

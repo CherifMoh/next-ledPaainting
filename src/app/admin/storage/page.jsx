@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 
 import RewMatesComp from '../../../components/admin/storage/RewMates'
 import PartsComp from '../../../components/admin/storage/Parts'
+import ProductsComp from '../../../components/admin/storage/Products'
 
  
 
@@ -45,15 +46,7 @@ function Storage() {
             <div 
                 className="m-auto text-xl w-[800px] flex justify-between items-start mt-10 "
             >
-                <div>
-                    <button
-                        className="px-8 py-3 rounded-md border border-black"
-                        >
-                        منتج نهائي
-                    </button>
-                </div>
-
-               
+                <ProductsComp/>
                 <PartsComp />
                 <RewMatesComp />
             </div>
