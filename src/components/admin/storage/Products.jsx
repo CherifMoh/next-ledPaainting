@@ -258,7 +258,7 @@ function Products() {
     };
 
     const plusTabelElement = [
-        <table className='m-auto'>
+        <table className='m-auto'  key={'asdasdsd'}>
                 <thead>
                     <tr>
                     <th>كمية</th>
@@ -295,7 +295,7 @@ function Products() {
     ]
 
     const minusTabelElement = [
-        <table className='m-auto'>
+        <table className='m-auto'  key={'yuiyuiyui'}>
                 <thead>
                     <tr>
                     <th>كمية</th>

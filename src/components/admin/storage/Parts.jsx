@@ -309,10 +309,12 @@ function Parts() {
             )
         })
         return (
-            <div className="flex flex-col items-center justify-center">
+            <div 
+                className="flex flex-col items-center justify-center"
+                key={product._id}
+            >
                 <div 
                     className="px-2 w-max py-1 flex items-center justify-center flex-col gap-2 rounded-md border border-black"
-                    key={product._id}
                 >
                         <div 
                             className="flex justify-center items-center gap-1 cursor-pointer"
@@ -421,7 +423,7 @@ function Parts() {
     }
 
     const plusTabelElement = [
-        <table className='m-auto'>
+        <table className='m-auto' key={'asdasdsd'}>
                 <thead>
                     <tr>
                     <th>كمية</th>
@@ -457,7 +459,7 @@ function Parts() {
     ]
 
     const minusTabelElement = [
-        <table className='m-auto'>
+        <table className='m-auto'  key={'cvbncvn'}>
                 <thead>
                     <tr>
                     <th>كمية</th>
@@ -496,7 +498,7 @@ function Parts() {
     ]
 
     const readyTabelElement = [
-        <table className='m-auto'>
+        <table className='m-auto'  key={'tyutyio'}>
                 <thead>
                     <tr>
                     <th>كمية</th>
