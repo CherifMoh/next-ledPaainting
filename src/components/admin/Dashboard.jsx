@@ -1,12 +1,41 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { faTag, faBoxesStacked, faWarehouse, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Cookies from 'js-cookie';
+import { jwtVerify } from 'jose'
+
+
+
+
 
 
 function Dashboard() {
+
+  const [cookieValue, setCookieValue] = useState('');
+
+
+  useEffect(() => {
+    const getCookieValue = async () => {
+      const token = Cookies.get('access-token');
+      if (token) {
+        try {
+          const decoded = await decodeToken(token);
+          setCookieValue(JSON.stringify(decoded));
+        } catch (error) {
+          setCookieValue('Invalid token');
+        }
+      } else {
+        setCookieValue('Cookie not found');
+      }
+    };
+
+    getCookieValue();
+  }, []);
+
+  
 
   const AdminLinks = [
     { 

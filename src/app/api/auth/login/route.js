@@ -23,7 +23,6 @@ export async function POST(req){
             if(match) {
                 const token = await new SignJWT({
                     name:user.name,
-                    pfp:user.pfp,
                     email:user.email,
                     role:user.role
                 })
@@ -40,6 +39,7 @@ export async function POST(req){
                     httpOnly: false,
                     secure: false,
                 });
+
                 return Response.json({message: 'Logged in'}, {status: 201});
             } else {
                 return NextResponse.json({message: 'Authentication failed'}, {status: 409});

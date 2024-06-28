@@ -17,12 +17,12 @@ export default async function middleware(request) {
 
     const accessCookie = request.cookies.get('access-token')
 
-    // let decodedToken
+    let decodedToken
 
-    // if (accessCookie) decodedToken = decodeJwt(accessCookie.value);
+    if (accessCookie) decodedToken = decodeJwt(accessCookie.value);
 
     // Print the decoded token
-    // console.log(decodedToken);
+    console.log(decodedToken);
 
     if (parts.length === 2) {
         return NextResponse.redirect(new URL('/admin/dashboard', request.url))

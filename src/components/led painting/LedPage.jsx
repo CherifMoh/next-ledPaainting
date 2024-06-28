@@ -218,7 +218,7 @@ function ProductPage({ mproduct }) {
 
     const dropDownsElement = ledPainting.dropDowns?.map((dropdown, i) => {
         return (
-            <div className="drop-down ">
+            <div className="drop-down" key={dropdown.title}>
                 <div 
                     className={`drop-header ${i+1 === ledPainting.dropDowns.length && ledPainting.dropDowns.length>1 && 'drop-header2'} flex justify-between items-center gap-2} cursor-pointer`} 
                     onClick={() => setIsDropdowns(pre =>{

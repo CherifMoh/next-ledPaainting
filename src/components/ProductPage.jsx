@@ -192,7 +192,7 @@ function ProductPage({ mproduct }) {
 
     const dropDownsElement = mproduct.dropDowns?.map((dropdown, i) => {
         return (
-            <div className="drop-down ">
+            <div className="drop-down" key={dropdown.title}>
                 <div 
                     className={`drop-header ${i+1 === mproduct.dropDowns.length && mproduct.dropDowns.length>1 && 'drop-header2'} flex justify-between items-center gap-2} cursor-pointer`} 
                     onClick={() => setIsDropdowns(pre =>{
