@@ -52,6 +52,7 @@ function Dashboard() {
 
   const queryClient = useQueryClient();
   const router = useRouter();
+  const pathName = usePathname()
 
   if(isLoading) return <div>Loading...</div>
   if(isError) return <div>{error.message}</div>
@@ -83,7 +84,7 @@ function Dashboard() {
 
   typeof document !== 'undefined' && document.body.classList.add('bg-white')
 
-  const pathName = usePathname()
+
   const AdminLinksElemnts = AdminLinks.map(link => {
     const isActive = pathName.startsWith(link.href)
     return (
