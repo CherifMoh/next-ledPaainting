@@ -21,14 +21,12 @@ import axios from "axios";
 function ProductPage({ mproduct }) {
 
     const [qnt, setQnt] = useState(1)
-    const [isDimensions, setIsDimensions] = useState(false)
-    const [isMaterial, setIsMaterial] = useState(false)
+    
+    const [isDropdowns, setIsDropdowns] = useState([])
 
     const [selectedOption, setSelectedOption] = useState()
 
     const [isSelectedOption, setIsSelectedOption] = useState(true)
-
-    const isCartShown = useSelector((state) => state.isCartShown.isCartShown)
 
     const cart = useSelector((state) => state.cart.cart)
 
@@ -192,6 +190,51 @@ function ProductPage({ mproduct }) {
         )
     })
 
+    const dropDownsElement = mproduct.dropDowns?.map((dropdown, i) => {
+        return (
+            <div className="drop-down ">
+                <div 
+                    className={`drop-header ${i+1 === mproduct.dropDowns.length && mproduct.dropDowns.length>1 && 'drop-header2'} flex justify-between items-center gap-2} cursor-pointer`} 
+                    onClick={() => setIsDropdowns(pre =>{
+                        if(pre.includes(dropdown.title)){
+                            return pre.filter(item => item !== dropdown.title)
+                        }
+                        return [...pre, dropdown.title]
+                    })}
+                >
+                    {/* <Image 
+                        className="drop-icon" 
+                        src={ruler} alt="" 
+                        width={5} height={5}
+                    /> */}
+                    <h2 className="drop-title pl-6">
+                        {dropdown.title}
+                    </h2>
+                    <Image
+                        src={arrowDown} width={5} height={5} alt=""
+                        className={`drop-arrow transition-all duration-100 
+                                    ${isDropdowns.includes(dropdown.title) && 'rotate-180'}
+                                  `}
+                    />
+                </div>
+                <div 
+                    className={`dimensions-body transition-all duration-500 
+                                ${!isDropdowns.includes(dropdown.title) && 'hidden'}
+                              `}
+                >
+                    <p
+                        className="drop-dimensions-title font-semibold text-lg"
+                    >
+                        {dropdown.header}
+                    </p>
+                    <p className="dimensions">
+                        {dropdown.body}
+                    </p>
+                </div>
+            </div>
+        )
+    })
+
 
     return (
         <section className="selected-prodect-container overflow-hidden">
@@ -306,7 +349,9 @@ function ProductPage({ mproduct }) {
                         {PDescriptionElement}
                     </div>
                     <div className="drop-container">
-                        <div className="drop-down">
+
+                        {dropDownsElement}
+                        {/* <div className="drop-down">
                             <div className="drop-header js-dimensions cursor-pointer" onClick={() => setIsDimensions(pre => !pre)}>
                                 <Image className="drop-icon" src={ruler} width={5} height={5} alt="" />
                                 <h2 className="drop-title">Dimensions</h2>
@@ -347,7 +392,7 @@ function ProductPage({ mproduct }) {
                             <div className={`material-body transition-all duration-500 ${!isMaterial && 'hidden'}`}>
                                 <p className="material" >Frame: Exquisite wood grain frame</p>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </section>

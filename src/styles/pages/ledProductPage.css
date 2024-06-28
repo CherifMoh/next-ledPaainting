@@ -210,7 +210,7 @@
 }
 
 .drop-header2 {
-    border-top: none;
+    border-top: none!important;
 }
 
 .drop-title {

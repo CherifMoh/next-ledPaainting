@@ -8,6 +8,7 @@ import { faPen } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteUser } from '../../actions/users'
 import Spinner from '../../../components/loadings/Spinner';
+import Image from 'next/image';
 
 async function fetchUsers() {
   const res = await axios.get('/api/users');
@@ -29,6 +30,7 @@ function User() {
 
   const headsArray = [
     'User Name',
+    'Profile picture',
     'E-mail',
     'Role',
     'Actions',
@@ -52,8 +54,6 @@ function User() {
     )
   })
 
-  console.log(users)
-
   const usersElements = users?.map(user => {
     return (
       <tr
@@ -63,6 +63,13 @@ function User() {
         key={user._id}
       >
         <td className='border-0'>{user.name}</td>
+        <td className='border-0'>
+          <Image 
+            src={user.pfp} alt='pfp'
+            width={40} height={40}
+            className='w-10 h-10 rounded-full'
+          />
+        </td>
         <td className='border-0'>{user.email}</td>
         <td className='border-0'>{user.role}</td>
         <td className='border-0 relative'>

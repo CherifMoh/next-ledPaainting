@@ -37,6 +37,10 @@ const productSchem = new mongoose.Schema({
         type: Array,
         required: true
     },
+    dropDowns: {
+        type: Array,
+        required: true
+    },
 },{timestamps: true})
 
 const Product = mongoose.models.Product ||mongoose.model('Product', productSchem)

@@ -23,6 +23,7 @@ export async function POST(req){
             if(match) {
                 const token = await new SignJWT({
                     name:user.name,
+                    pfp:user.pfp,
                     email:user.email,
                     role:user.role
                 })
@@ -31,7 +32,7 @@ export async function POST(req){
                 .setIssuedAt()
                 .setExpirationTime(thirtyDaysFromNow)
                 .sign(new TextEncoder().encode(process.env.JWT_KEY))
-                    
+
                 cookies().set("access-token", token, {
                     path: "/",
                     domain: "localhost",
