@@ -34,10 +34,10 @@ export async function POST(req){
 
                 cookies().set("user-email", user.email, {
                     path: "/",
-                    domain: "localhost",
+                    domain: "drawlys.com",
                     maxAge: thirtyDaysFromNow,
-                    httpOnly: false,
-                    secure: false,
+                    httpOnly: true,
+                    secure: true,
                 });
 
 
