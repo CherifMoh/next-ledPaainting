@@ -1,42 +1,62 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { faTag, faBoxesStacked, faWarehouse, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Cookies from 'js-cookie';
-import { jwtVerify } from 'jose'
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import Image from 'next/image';
+import defultPfp from '../../../public/assets/pfp defult.png'
+import { editeUserPfp } from '../../app/actions/users'
 
 
-
+const fetchUserEmail = async (email) => {
+  const res = await axios.get(`/api/users/email/test`);
+   if(res.data){
+    return res.data
+   }
+   return []
+}
 
 
 
 function Dashboard() {
 
-  const [cookieValue, setCookieValue] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
+  const [selectedImage, setSelectedImage] = useState('');
+
+  const [User, setUser] = useState('');
+  
+  const [filebig, setFilebig] = useState(false);
+
+  const { data: User1, isLoading, isError, error } = useQuery({
+    queryKey: ['user by email', userEmail],
+    queryFn: ({ queryKey }) => fetchUserEmail(queryKey[1]),
+    enabled: !!userEmail,
+  });
 
   useEffect(() => {
-    const getCookieValue = async () => {
-      const token = Cookies.get('access-token');
-      if (token) {
-        try {
-          const decoded = await decodeToken(token);
-          setCookieValue(JSON.stringify(decoded));
-        } catch (error) {
-          setCookieValue('Invalid token');
-        }
-      } else {
-        setCookieValue('Cookie not found');
-      }
-    };
+    const email = Cookies.get('user-email');
+    setUserEmail(email);
 
-    getCookieValue();
   }, []);
 
-  
+  useEffect(() => {
+    if(User1){
+      setUser(User1)
+    } 
+  }, [User1]);
 
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  if(isLoading) return <div>Loading...</div>
+  if(isError) return <div>{error.message}</div>
+
+ 
   const AdminLinks = [
     { 
       name: 'Orders', 
@@ -79,6 +99,60 @@ function Dashboard() {
       </Link>)
   })
 
+  function checkFileSize(file, input) {
+    if (file) {
+        const fileSize = file.size; // in bytes
+        const maxSize = 12 * 1024 * 1024; // 12MB in bytes
+        if (fileSize > maxSize) {
+            alert('File size exceeds the limit. Please select a smaller file.');
+            input.value = ''
+            return false;
+        }
+        return true;
+    }
+  }
+
+  async function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(file);
+        fileReader.onload = () => {
+            resolve(fileReader.result);
+        };
+        fileReader.onerror = (err) => {
+            reject(err);
+        };
+    });
+}
+
+
+  async function changePfp(e) {
+    const file = e.target.files[0];
+    if (!file) {
+      setSelectedImage('')
+      return e.target.value = ''
+    }
+    
+    if (!checkFileSize(file, e.target)){
+      setSelectedImage('' )
+      setFilebig(true)
+      return 
+    }
+
+    const base64 = await convertToBase64(file);
+    try{
+      setSelectedImage(base64)
+      editeUserPfp(userEmail, base64)
+      queryClient.invalidateQueries(['user by email', userEmail])
+      router.refresh()
+
+    }catch(error){
+      console.log(error)
+    }
+    
+  }
+
+  
   return (
     <div className='w-48 md:w-72 h-screen bg-gray-100 pt-5 mr-5 z-[9999999] fixed left-0 overflow-y-auto'>
       <Link
@@ -87,6 +161,27 @@ function Dashboard() {
       >
         Dashboard
       </Link>   
+
+      <div className='flex flex-col justify-center items-center mb-16'>
+        <div className='relative'>
+          <input
+            type="file"
+            className='opacity-0 size-full absolute'
+            id="pfp"
+            onChange={changePfp}
+          />
+          <Image 
+            src={selectedImage ||User?.pfp || defultPfp} alt='pfp'
+            width={150} height={150}
+          />
+        </div>
+        <div
+          className='text-blue-600 font-semibold'
+        >
+          {User?.role}
+        </div>
+        <div className='capitalize'>{User?.name}</div>
+      </div>
 
       {AdminLinksElemnts}
 

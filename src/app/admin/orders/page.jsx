@@ -139,11 +139,14 @@ function Orders() {
         }
     }
 
+
     function handleChange(e) {
         const input = e.target
 
         const name = input.name;
         const value = input.value;
+
+        
 
         if (name !== 'schedule') input.style.width = `${(input.value.length + 2) * 9}px`;
         setEditedOrder(prev => ({
@@ -617,7 +620,7 @@ function Orders() {
                 }
 
                 <Image
-                    className='min-w-16 m-auto w-16'
+                    className=' w-auto m-auto h-16'
                     src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
                     width={24} height={24} alt=""
                     key={product._id}

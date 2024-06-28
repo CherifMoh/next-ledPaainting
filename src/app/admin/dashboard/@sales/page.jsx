@@ -39,9 +39,10 @@ function Sales() {
   let totalQnt= 0 
   Orders.forEach(order => {
     order.orders.forEach(item => {
-      totalQnt+=item.qnt
+      totalQnt+=Number(item.qnt)
     });
-  }); 
+  });
+  console.log(totalQnt) 
 
   return (
     <DashboardCard

@@ -32,14 +32,22 @@ export async function POST(req){
                 .setExpirationTime(thirtyDaysFromNow)
                 .sign(new TextEncoder().encode(process.env.JWT_KEY))
 
-                cookies().set("access-token", token, {
+                cookies().set("user-email", user.email, {
                     path: "/",
-                    domain: "drawlys.com",
+                    domain: "localhost",
                     maxAge: thirtyDaysFromNow,
-                    httpOnly: true,
-                    secure: true,
+                    httpOnly: false,
+                    secure: false,
                 });
 
+
+                cookies().set("access-token", token, {
+                    path: "/",
+                    domain: "localhost",
+                    maxAge: thirtyDaysFromNow,
+                    httpOnly: false,
+                    secure: false,
+                });
                 return Response.json({message: 'Logged in'}, {status: 201});
             } else {
                 return NextResponse.json({message: 'Authentication failed'}, {status: 409});
