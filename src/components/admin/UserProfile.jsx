@@ -42,6 +42,8 @@ function UserProfile({userEmail}) {
     const queryClient = useQueryClient();
     const router = useRouter();
     const pathName = usePathname()
+
+    typeof document !== 'undefined' && document.body.classList.add('bg-white')
   
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>{error.message}</div>
