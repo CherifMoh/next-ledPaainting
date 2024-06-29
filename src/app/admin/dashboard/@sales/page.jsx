@@ -42,7 +42,6 @@ function Sales() {
       totalQnt+=Number(item.qnt)
     });
   });
-  console.log(totalQnt) 
 
   return (
     <DashboardCard
