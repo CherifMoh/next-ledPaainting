@@ -11,7 +11,7 @@ function page() {
                     Add a Role
                 </h1>
                 <h4 className='text-sm'>
-                    creat a new role and it's accessibility                   
+                    creat a new role and it&apos;s accessibility                   
                 </h4>
             </div>
             <div>
