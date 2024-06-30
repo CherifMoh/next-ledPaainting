@@ -6,8 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import Image from 'next/image';
-import defultPfp from '../../../public/assets/pfp defult.png'
-import { editeUserPfp } from '../../app/actions/users'
+import defultPfp from '../../../../public/assets/pfp defult.png'
+import { editeUserPfp } from '../../../app/actions/users'
 import Link from 'next/link';
 
 const fetchUserEmail = async (email) => {
@@ -78,13 +78,16 @@ function UserProfile({userEmail}) {
         return (
           <Link
             href={link.href}
-            className={`h-10 flex items-center gap-4 hover:bg-gray-300 p-4 ${isActive && 'bg-gray-300'}`}
+            className={`h-10 flex items-center relative gap-4 hover:bg-gray-300 p-4 ${isActive && 'bg-gray-300'}`}
             key={link.name}
           >
             <span>
               <FontAwesomeIcon icon={link.icon}/>
             </span>
             <span>{link.name}</span>
+            {isActive && 
+              <span className='w-2 h-full bg-black absolute left-0 top-0'></span>
+            }
           </Link>)
       })
 
@@ -164,6 +167,7 @@ function UserProfile({userEmail}) {
             <div className='capitalize'>{User?.name}</div>
         </div>
         {AdminLinksElemnts}
+       
     </>
   )
 }

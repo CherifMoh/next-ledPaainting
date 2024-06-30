@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPen } from '@fortawesome/free-solid-svg-icons'
+import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteUser } from '../../actions/users'
 import Spinner from '../../../components/loadings/Spinner';
+import Roles from '../../../components/admin/roles/Roles';
 import Image from 'next/image';
 
 async function fetchUsers() {
@@ -128,7 +129,7 @@ function User() {
               className='bg-gray-400 rounded-lg text-white text-sm px-2 py-1'
               href={'/admin/users/creatUser'}
             >
-              <span className='mr-2 font-bold text-base'>+</span>
+              <FontAwesomeIcon icon={faPlus} className='mr-2'/>
               Add New Admin User
             </Link>
           </div>
@@ -143,7 +144,8 @@ function User() {
             </tbody>
           </table>
         </>
-        : ''}
+        :
+        <Roles />}
     </section>
   )
 

@@ -127,6 +127,7 @@ function Checkout() {
                             {
                                 _id: uuidv4(),
                                 qnt: cartItem.qnt,
+                                title: product.title,
                                 imageOn: product.imageOn,
                                 options: cart[i].options
                             }

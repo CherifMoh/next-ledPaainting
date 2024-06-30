@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faPen, faPlus, faX, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteOrder } from '../../actions/order'
+import { editMinusProduct } from '../../actions/storage'
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
 
@@ -244,10 +245,25 @@ function Orders() {
 
     })
 
+    let ordersQnts =[]
+    editedOrder?.orders?.forEach(order => {
+        const i = ordersQnts.findIndex(item=>item.title === order.title)
+        if(i > -1){
+            ordersQnts[i].qnt = Number(ordersQnts[i].qnt) + Number(order.qnt)
+        }else{
+            ordersQnts.push({title: order.title, qnt: order.qnt})
+        }
+    })
+
     async function handleUpdatingOrder(id) {
         // setEditedOrder(pre => ({ ...pre, orders: newOrders }))
-        console.log(editedOrder)
         setSaving(pre => ([...pre, id]))
+        const oldOrder = Orders.find(order => order._id === id)
+        if(oldOrder.tracking !== 'delivered' && editedOrder.tracking === 'delivered'){
+            ordersQnts.forEach(order=>{
+                editMinusProduct(order.title,order.qnt)
+            })
+        }
         const res = await axios.put(`/api/orders/${editedOrderId}`, editedOrder)
         // console.log(res.data)
         queryClient.invalidateQueries('orders');
@@ -521,6 +537,7 @@ function Orders() {
                 {
                     imageOn: addedOrder.image,
                     qnt: selectqnt,
+                    title: addedOrder.title,
                     options: addedOrder.options,
                     _id: uuidv4()
                 }
@@ -698,7 +715,7 @@ function Orders() {
     }
 
     const ordersElement = Orders.map((order, index) => {
-
+        
         const currentDate = format(new Date(), 'yyyy-MM-dd');
 
         if (filterOrders(order, currentDate)) {

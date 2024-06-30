@@ -115,9 +115,6 @@ function Page() {
     if (productsIsErr) return <div>Error: {productsErr.message}</div>;
     if (designsIsErr) return <div>Error: {designsErr.message}</div>;
 
-    // console.log(formData)
-
-
 
     const handleChange = (e) => {
         const value = e.target.value
@@ -244,7 +241,6 @@ function Page() {
         setSelectedProduct(pre => ({ ...pre, image: base64 }));
     }
 
-    console.log(orders)
 
     function addToOrders() {
         setOrders(pre => ([
@@ -252,6 +248,7 @@ function Page() {
             {
                 imageOn: selectedProduct.image,
                 qnt: selectqnt,
+                title: selectedProduct.title,
                 options: selectedProduct.options,
                 _id: uuidv4()
             }
@@ -267,7 +264,6 @@ function Page() {
         })
     }
 
-    // localStorage.setItem('adminOrder', JSON.stringify(orders))
 
     function handelOptChange(e) {
         const value = e.target.value
@@ -297,8 +293,11 @@ function Page() {
 
 
     const ordersElement = orders.map(order => {
+
+        const selectedOption = order.options.find(item => item.selected)
+
         return (
-            <div key={order.imageOn} className='flex items-center relative'>
+            <div key={order.imageOn} className='flex items-center flex-col relative'>
                 <div
                     className='bg-red-500 text-sm text-white px-1 rounded-full absolute -top-2 -right-1'
                 >
@@ -316,6 +315,9 @@ function Page() {
                     src={order.imageOn}
                     alt=''
                 />
+                <div className='text-sm'>
+                    {selectedOption.title}
+                </div>
             </div>
         )
     })
