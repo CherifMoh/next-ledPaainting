@@ -21,8 +21,6 @@ export default async function middleware(request) {
 
     if (accessCookie) decodedToken = decodeJwt(accessCookie.value);
 
-    // Print the decoded token
-    // console.log(decodedToken);
 
     if (parts.length === 2) {
         return NextResponse.redirect(new URL('/admin/dashboard', request.url))

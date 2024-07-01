@@ -5,7 +5,11 @@ const RoleSchema = new Schema({
         type: String,
         required: true
     },
-    accessibility: {
+    description: {
+        type: String,
+        required: true
+    },
+    accessibilities: {
         type: Array,
         required: true
     },

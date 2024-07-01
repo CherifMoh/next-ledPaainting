@@ -1,7 +1,9 @@
 'use server'
 
 import User from "../models/users"
+import Role from "../models/roles"
 import { dbConnect } from "../lib/dbConnect"
+import { cookies } from "next/headers"
 
 // export async function addUser(formData) {
 //     await dbConnect()
@@ -19,8 +21,6 @@ export async function editeUserPfp(email, pfp) {
     if (!pfp) return;
 
     try {
-        console.log(pfp);
-
         const updatedUser = await User.findOneAndUpdate(
             { email: email },
             { $set: { pfp: pfp } },
@@ -34,23 +34,51 @@ export async function editeUserPfp(email, pfp) {
     }
 }
 
-// export async function editeUserPfp(email, pfp) {
-//     await dbConnect();
+export async function createRole(newRole) {
 
-//     if (!pfp) return;
+    await dbConnect();
 
-//     try {
-//         console.log(pfp);
+    try {
+        await Role.create(newRole);
+        
+        return 'created';
+    } catch (error) {
+        console.error("Error creating role:", error);
+        throw error;
+    }
+}
 
-//         const updatedUser = await User.findOneAndUpdate(
-//             { email: email },
-//             { $set: { pfp: pfp } },
-//             { new: true }
-//         );
+export async function deleteRole(id) {
+    
 
-//         return updatedUser;
-//     } catch (error) {
-//         console.error("Error updating user profile picture:", error);
-//         throw error;
-//     }
-// }
+    try {
+        await dbConnect();
+
+        await Role.findByIdAndDelete(id);
+
+        return 'deleted';
+    } catch (error) {
+        console.error("Error creating role:", error);
+        throw error;
+    }
+}
+
+export async function updateRole(id,newRole) {
+    
+
+    try {
+        await dbConnect();
+
+        await Role.findByIdAndUpdate(id,newRole,{new:true});
+
+        return 'updated';
+    } catch (error) {
+        console.error("Error creating role:", error);
+        throw error;
+    }
+}
+
+export async function dleleteCookies() {
+    cookies().delete('access-token')
+    cookies().delete('user-email')
+}
