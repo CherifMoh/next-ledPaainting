@@ -22,6 +22,9 @@ import greenBg from '../../../../public/assets/green bg.png';
 import transparent from '../../../../public/assets/transparent.png';
 import '../../../styles/pages/orders.css'
 
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
 import Spinner from '../../../components/loadings/Spinner'
 import { useSelector } from "react-redux";
 
@@ -92,8 +95,13 @@ function Orders() {
     const [isSchedule, setIsSchedule] = useState(false)
 
     const [saving, setSaving] = useState([])
-
+    
     const [dateFilter, setDateFilter] = useState('')
+
+    const [craftingOrders, setCraftingOrders] = useState([])
+    const [isCrafting, setIsCrafting] = useState(false)
+
+
 
     const router = useRouter()
 
@@ -727,6 +735,17 @@ function Orders() {
         return transparent
     }
 
+    function handleSelectCrafting(order) {
+        setCraftingOrders(pre=>{
+            if(pre.some(item => item._id === order._id)){
+                return pre.filter(item => item._id !== order._id)
+            }
+            return [...pre, order]
+        })
+    }
+
+
+
     const ordersElement = Orders.map((order, index) => {
         
         const currentDate = format(new Date(), 'yyyy-MM-dd');
@@ -1047,7 +1066,17 @@ function Orders() {
                                 ?
                                 <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
                                 :
-                                <div>
+                                <div className=" whitespace-nowrap flex items-center justify-center">
+                                    {isCrafting &&
+                                        <div className="p-2 flex items-center">
+                                            <input 
+                                                type="checkbox" 
+                                                className="size-4 m-0"
+                                                checked={craftingOrders.some(item => item._id === order._id)}
+                                                onChange={(e) => handleSelectCrafting(order)} 
+                                            />
+                                        </div>
+                                    }
                                     {deleting.some(item => item.id === order._id && item.state)
                                         ? <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
                                         : <button
@@ -1063,7 +1092,7 @@ function Orders() {
                                             setEditedOrder(order)
                                         }}
                                         disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)}
-                                        className={`ml-2 text-white 
+                                        className={` text-white 
                                          ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'}
                                          ${deleting.some(item => item.id === order._id) && 'hidden'}
                                          rounded-lg px-3 py-2
@@ -1136,19 +1165,65 @@ function Orders() {
         boxShadow: isSchedule && 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
     }
 
+    const generatePDF = (data) => {
+        const doc = new jsPDF();
+    
+        const colors = ['#e3f2fd', '#f5f5f5']; // Light blue and light gray colors
+        let colorIndex = 0; // Index to alternate colors
+    
+        let ordersPerPage = 5; // Number of orders per page
+        let orderIndex = 0; // Current order index on the page
+    
+        data.forEach((order, index) => {
+            if (orderIndex === ordersPerPage) {
+                doc.addPage(); // Add a new page when the current page has 5 orders
+                orderIndex = 0; // Reset order index for the new page
+            }
+    
+            // Calculate vertical position for the current order
+            const yPos = 10 + orderIndex * 60;
+    
+            // Set background color for each order
+            const bgColor = colors[colorIndex % colors.length];
+            doc.setFillColor(bgColor);
+            doc.rect(10, yPos, 190, 50, 'F'); // Adjust rectangle dimensions based on your layout
+    
+            // Add customer information for each order
+            doc.setTextColor('#000000');
+            const customerInfo = `${order.name}, ${order.adresse}`;
+            doc.text(customerInfo, 15, yPos + 10);
+    
+            order.orders.forEach((item, i) => {
+                // Add quantity and image (resized to 16x16 pixels)
+                doc.text(`${item.qnt}`, 15 + i * 30, yPos + 20);
+                doc.addImage(item.imageOn, 'JPEG', 15 + i * 30, yPos + 23, 16, 16);
+    
+                // Add selected option, if available
+                const selectedOption = item.options.find(opt => opt.selected);
+                if (selectedOption) {
+                    doc.text(selectedOption.title, 15 + i * 30, yPos + 45);
+                }
+            });
+    
+            colorIndex++; // Move to the next color for the next order
+            orderIndex++; // Move to the next order position on the current page
+        });
+    
+        // Output the PDF as a Blob
+        const pdfBlob = doc.output('blob');
+    
+        // Create a URL for the Blob and open it in a new window
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl);
+    };
+    
+      
 
     return (
         <div className="py-4 pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
 
-            <Link
-                href={'/admin/orders/add'}
-                className='bg-gray-700 p-3 rounded-md text-white text-center'
-            >
-                Add
-            </Link>
-
             <div
-                className="flex items-center 2xl:max-w-7xl xl:max-w-5xl justify-start gap-12"
+                className="flex items-center 2xl:max-w-7xl xl:max-w-5xl  justify-start gap-12"
             >
                 <div className='flex gap-4'>
                     <div className='relative'>
@@ -1179,6 +1254,20 @@ function Orders() {
                     >Scheduled</div>
                 </div>
 
+                <div
+                    className='relative whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    onClick={() => {
+                        if(isCrafting) {
+                            setIsCrafting(pre => !pre)
+                            generatePDF(craftingOrders)
+                        }else{
+                            setIsCrafting(pre => !pre)
+                        }
+                    }}
+                >
+                    {isCrafting ? 'Show PDF' : 'start Crafting'}
+                </div>
+
                 <select
                     name="date"
                     onChange={handleDateFilterChange}
@@ -1186,6 +1275,14 @@ function Orders() {
                 >
                     {dateFilterElements}
                 </select>
+
+                <Link
+                    className='justify-self-end  whitespace-nowrap border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    href={'/admin/orders/add'}    
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                    <span className="ml-2 whitespace-nowrap">Add a new order</span>
+                </Link>
             </div>
 
             <div className="relative max-h-[700px] overflow-y-auto w-full">
