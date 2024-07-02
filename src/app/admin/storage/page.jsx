@@ -10,10 +10,24 @@ import { useEffect, useState } from "react";
 import RewMatesComp from '../../../components/admin/storage/RewMates'
 import PartsComp from '../../../components/admin/storage/Parts'
 import ProductsComp from '../../../components/admin/storage/Products'
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
  
 
 function Storage() {
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+    const router = useRouter()
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'storage')
+        if(!access || access.accessibilities.length === 0){
+            router.push('/admin')
+        }
+    },[accessibilities])
 
     
     return (

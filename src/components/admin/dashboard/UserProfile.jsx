@@ -9,14 +9,24 @@ import Image from 'next/image';
 import defultPfp from '../../../../public/assets/pfp defult.png'
 import { editeUserPfp } from '../../../app/actions/users'
 import Link from 'next/link';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAccessibilities } from '../../../app/redux/features/accessibilities/accessibilitiesSlice';
 
 const fetchUserEmail = async (email) => {
-    const res = await axios.get(`/api/users/email/${email}`);
-     if(res.data){
-      return res.data
-     }
-     return []
-  }
+  const res = await axios.get(`/api/users/email/${email}`);
+    if(res.data){
+    return res.data
+    }
+    return {}
+}
+
+const fetchRole = async (name) => {
+  const res = await axios.get(`/api/users/roles/name/${name}`);
+    if(res.data){
+    return res.data
+    }
+    return {}
+}
 
 function UserProfile({userEmail}) {
 
@@ -31,65 +41,87 @@ function UserProfile({userEmail}) {
       queryFn: ({ queryKey }) => fetchUserEmail(queryKey[1]),
       enabled: !!userEmail,
     });
+
+    const { data: Role, isLoading: isLoadingRole, isError : isErrorRole, error: errorRole } = useQuery({
+      queryKey: ['role by name', User1?.role],
+      queryFn: ({ queryKey }) => fetchRole(queryKey[1]),
+      enabled: !!User1,
+    });
   
   
+    
+    const queryClient = useQueryClient();
+    const router = useRouter();
+    const pathName = usePathname()
+    
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+    
+    const dispatch = useDispatch();
+    
+    
     useEffect(() => {
       if(User1){
         setUser(User1)
       } 
     }, [User1]);
-  
-    const queryClient = useQueryClient();
-    const router = useRouter();
-    const pathName = usePathname()
+    useEffect(() => {
 
+      if(Role){
+        dispatch(setAccessibilities(Role.accessibilities))
+      } 
+    }, [Role]);
+    
+    
+    
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
-  
-    if(isLoading) return <div>Loading...</div>
+    if(isLoading || isLoadingRole) return <div>Loading...</div>
     if(isError) return <div>{error.message}</div>
+    if(isErrorRole) return <div>{errorRole.message}</div>
 
     const AdminLinks = [
         { 
-          name: 'Orders', 
+          name: 'orders', 
           icon:faBoxesStacked,
           href: '/admin/orders' 
         },
         { 
-          name: 'Products', 
+          name: 'products', 
           icon:faTag, 
           href: '/admin/products' 
         },
         { 
-          name: 'Users', 
+          name: 'users', 
           icon:faUsers,
           href: '/admin/users' 
         },
         { 
-          name: 'Storage', 
+          name: 'storage', 
           icon:faWarehouse,
           href: '/admin/storage' 
         },
         // { name: 'Category', href: '/admin/categoreis' },
     ]
     
-    
-      const AdminLinksElemnts = AdminLinks.map(link => {
-        const isActive = pathName.startsWith(link.href)
-        return (
-          <Link
-            href={link.href}
-            className={`h-10 flex items-center relative gap-4 hover:bg-gray-300 p-4 ${isActive && 'bg-gray-300'}`}
-            key={link.name}
-          >
-            <span>
-              <FontAwesomeIcon icon={link.icon}/>
-            </span>
-            <span>{link.name}</span>
-            {isActive && 
-              <span className='w-2 h-full bg-black absolute left-0 top-0'></span>
-            }
-          </Link>)
-      })
+
+    const AdminLinksElemnts = AdminLinks.map(link => {
+      const accesseObject = Role.accessibilities.find(item=>item.name === link.name)
+      if(!accesseObject ||accesseObject.accessibilities.length === 0) return null
+      const isActive = pathName.startsWith(link.href)
+      return (
+        <Link
+          href={link.href}
+          className={`h-10 flex items-center relative gap-4 hover:bg-gray-300 p-4 ${isActive && 'bg-gray-300'}`}
+          key={link.name}
+        >
+          <span>
+            <FontAwesomeIcon icon={link.icon}/>
+          </span>
+          <span className='capitalize' >{link.name}</span>
+          {isActive && 
+            <span className='w-2 h-full bg-black absolute left-0 top-0'></span>
+          }
+        </Link>)
+    })
 
     function checkFileSize(file, input) {
         if (file) {
@@ -144,6 +176,7 @@ function UserProfile({userEmail}) {
         
     }
   
+
   return (
     <>
         <div className='flex flex-col justify-center items-center mb-16'>

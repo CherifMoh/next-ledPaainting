@@ -5,11 +5,13 @@ import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import {deleteProduct} from '../../actions/product'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Spinner from '../../../components/loadings/Spinner';
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { faCircleInfo, faPen } from '@fortawesome/free-solid-svg-icons';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
 
 async function fetchProducts() {
     const res = await axios.get('/api/products');
@@ -25,10 +27,22 @@ function Page() {
 
     const [deleting,setDeleting] = useState([])
 
-    if (isLoading) return <div>Loading...</div>;
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
 
+    const router = useRouter()
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'products')
+        if(!access || access.accessibilities.length === 0){
+            router.push('/admin')
+        }
+    },[accessibilities])
+
+    if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error fetching products</div>;
 
+   
 
     function handleDelete (id){
         setDeleting(pre=>([...pre,{

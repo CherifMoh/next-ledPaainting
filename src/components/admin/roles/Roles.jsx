@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { createRole, deleteRole } from '../../../app/actions/users'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 async function fetchRoles() {
     const res = await axios.get('/api/users/roles')
@@ -15,19 +15,36 @@ async function fetchRoles() {
     }return []
 }
 
-function Roles() {
-
-    const [actionError,setActionError] = useState()
-    
-    const [selectRoles,setSelectRoles] = useState([])
+function Roles({users}) {
 
     const { data: Roles, isLoading, isError, error} = useQuery({
         queryKey: ['roles'],
         queryFn: fetchRoles
     });
 
+    const [actionError,setActionError] = useState()
+    
+    const [selectRoles,setSelectRoles] = useState([])
+
+    const [roleCounts,setRoleCounts] = useState([])
+
     const queryClient = useQueryClient()
+
     const router = useRouter()
+    
+    useEffect(()=>{
+        if (!Roles || !users) return;
+        
+        const roleCounts = Roles.map(role => ({
+            name: role.name,
+            count: users.filter(user => user.role === role.name).length,
+        }));
+      
+        setRoleCounts(roleCounts)
+
+    },[Roles,users])
+
+
 
     if (isLoading) return <div>Loading ...</div>
     if (isError) return <div>{error.message}</div>
@@ -63,7 +80,6 @@ function Roles() {
         }
     }
     
-    console.log(selectRoles)
 
     function toggleSelectRoles(id){
         setSelectRoles(pre=>{
@@ -90,7 +106,8 @@ function Roles() {
                     {role.description}
                 </td>
                 <td className='border-0 '>
-                    2 users
+                    {roleCounts.find(item => item.name === role.name)?.count}
+                    <span className='ml-2'>users</span>
                 </td>
                 <td className='flex gap-4 border-0 items-center justify-center '>
                     <FontAwesomeIcon 

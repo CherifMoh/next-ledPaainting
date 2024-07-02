@@ -315,9 +315,11 @@ function Page() {
                     src={order.imageOn}
                     alt=''
                 />
-                <div className='text-sm'>
-                    {selectedOption.title}
-                </div>
+                {selectedOption &&
+                    <div className='text-sm'>
+                        {selectedOption.title}
+                    </div>
+                }
             </div>
         )
     })

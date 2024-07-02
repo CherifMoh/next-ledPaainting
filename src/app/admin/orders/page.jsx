@@ -20,8 +20,10 @@ import orangeBg from '../../../../public/assets/orange bg.png';
 import redBg from '../../../../public/assets/red bg.png';
 import greenBg from '../../../../public/assets/green bg.png';
 import transparent from '../../../../public/assets/transparent.png';
+import '../../../styles/pages/orders.css'
 
 import Spinner from '../../../components/loadings/Spinner'
+import { useSelector } from "react-redux";
 
 
 async function fetchOrders() {
@@ -96,6 +98,17 @@ function Orders() {
     const router = useRouter()
 
     const queryClient = useQueryClient()
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'orders')
+        if(!access || access.accessibilities.length === 0){
+            router.push('/admin')
+        }
+    },[accessibilities])
 
 
     useEffect(() => {
@@ -606,7 +619,7 @@ function Orders() {
         return (
             <td
                 key={i}
-                className="border-black relative border-2 font-medium p-2 pr-4 text-center h-8"
+                className=" border-y border-solid border-[rgb(128,128,128)]  relative font-medium p-2 pr-4 text-center h-8"
             >
 
                 {order._id === editedOrderId
@@ -615,7 +628,7 @@ function Orders() {
                         onChange={(e) => handleOptChange(e, i)}
                         name="option"
                         defaultValue={slectedOption}
-                        className='min-w-10 border-2 border-black pl-1 dynamic-width'
+                        className='min-w-10 border-2 border-gray-300 rounded-md pl-1 dynamic-width'
                     >
                         {optionElement}
                     </select>
@@ -637,7 +650,7 @@ function Orders() {
                 }
 
                 <Image
-                    className=' w-auto m-auto h-16'
+                    className=' w-auto m-auto h-8'
                     src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
                     width={24} height={24} alt=""
                     key={product._id}
@@ -652,7 +665,7 @@ function Orders() {
                 />
 
                 {isproducts.state && isproducts._id === product._id &&
-                    <div className='max-w-96 border-2 border-gray-500 absolute mt-2 bg-white z-50'>
+                    <div className='max-w-96 border-y border-solid border-[rgb(128,128,128)]  absolute mt-2 bg-white z-50'>
                         <div className='flex justify-center mt-2 border-b-2 border-gray-500 z-50'>
                             <FontAwesomeIcon
                                 icon={faMagnifyingGlass}
@@ -689,10 +702,10 @@ function Orders() {
                         name="qnt"
                         defaultValue={product.qnt}
                         min={1}
-                        className='min-w-10 mt-2 border-2 border-black pl-1 dynamic-width'
+                        className='min-w-10 mt-2 border-2 border-gray-300 rounded-md pl-1 dynamic-width'
                     />
                     : <span
-                        className="bg-red-500 absolute left-16 bottom-16 rounded-lg px-1 text-sm text-white text-center"
+                        className="bg-red-500 absolute left-4 bottom-8 rounded-lg px-1 text-[10px] text-white text-center"
                     >
                         {product.qnt}
                     </span>
@@ -752,98 +765,118 @@ function Orders() {
                                 save
                             </button>
                         </td>
-                        <td>
+                        <td className="bg-blue-100">
                             <input
                                 type="text"
                                 onChange={handleChange}
                                 name="name"
                                 defaultValue={editedOrder.name}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
-                        <td>
+                        <td className="bg-blue-100">
                             <input
                                 type='text'
                                 onChange={handleChange}
                                 name="phoneNumber"
                                 defaultValue={editedOrder.phoneNumber}
-                                className='border-2 border-black pl-1 dynamic-width '
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width '
                             />
                         </td>
-                        <td>
+                        <td className="bg-blue-100">
                             <input
                                 type="text"
                                 onChange={handleChange}
                                 name="wilaya"
                                 defaultValue={editedOrder.wilaya}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
-                        <td>
+                        <td className="bg-blue-100">
                             <input
                                 type="text"
                                 onChange={handleChange}
                                 name="adresse"
                                 defaultValue={editedOrder.adresse}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
-                        <td>
+                        <td className="bg-gray-200">
                             <select
                                 value={editedOrder.shippingMethod}
                                 onChange={handleChange}
-                                className="border-2 border-black pl-1 "
+                                className="border-2 bg-transparent border-gray-300 rounded-md pl-1 "
                                 name="shippingMethod"
                             >
                                 <option value="بيت">بيت</option>
                                 <option value="مكتب">مكتب</option>
                             </select>
                         </td>
-                        <td>
+                        <td className="bg-gray-200">
                             <input
                                 type="text"
                                 onChange={handleChange}
                                 name="totalPrice"
                                 defaultValue={editedOrder.totalPrice}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
-                        <td>
+                        <td className="bg-gray-200">
                             <input
                                 type="text"
                                 onChange={handleChange}
                                 name="shippingPrice"
                                 defaultValue={editedOrder.shippingPrice}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
-                        <td>
+                        <td className="bg-gray-200">
                             <input
                                 type="text"
                                 onChange={handleChange}
                                 name="note"
                                 defaultValue={editedOrder.note}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
-                        <td>
+                        <td className="bg-gray-200">
                             <select
                                 onChange={handleChange}
                                 value={editedOrder.state}
-                                className="border-2 border-black pl-1 max-w-32"
+                                className="border-2 bg-transparent border-gray-300 rounded-md pl-1 max-w-32"
                                 name="state"
                             >
-                                <option value="ordered">ordered</option>
-                                <option value="confirmed">confirmed</option>
-                                <option value="didntAnswer">didn&apos;t Answer</option>
-                                <option value="canseled">cancelled</option>
+                                <option 
+                                    value="ordered" 
+                                    className="bg-yellow-300"
+                                >
+                                    غير مؤكدة
+                                </option>
+                                <option 
+                                    value="confirmed"
+                                    className="bg-green-300"
+                                >
+                                    مؤكدة
+                                </option>
+                                <option 
+                                    value="didntAnswer"
+                                    className="bg-orange-300"
+                                >
+                                    لم يرد
+                                </option>
+                                <option 
+                                    value="canseled"
+                                    className="bg-red-500"
+                                >
+                                    ملغاة
+                                </option>
                             </select>
                         </td>
                         <td>
                             <DatePicker
                                 selected={selectedDate}
                                 onChange={handleDateChange}
-                                className='border-2 border-black pl-1 dynamic-width'
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                                 dateFormat="yyyy-MM-dd"
                             />
                         </td>
@@ -862,7 +895,7 @@ function Orders() {
                             <select
                                 value={editedOrder.tracking}
                                 onChange={handleChange}
-                                className="border-2 border-black pl-1 max-w-32"
+                                className="border-2 bg-transparent border-gray-300 rounded-md pl-1 max-w-32"
                                 name="tracking"
                             >
                                 <option hidden>Tracking</option>
@@ -1041,15 +1074,22 @@ function Orders() {
                                 </div>
                             }
                         </td>
-                        <td>{order.name}</td>
-                        <td>{order.phoneNumber}</td>
-                        <td>{order.wilaya}</td>
-                        <td>{order.adresse}</td>
-                        <td>{order.shippingMethod}</td>
-                        <td>{order.totalPrice}</td>
-                        <td>{order.shippingPrice}</td>
-                        <td>{order.note}</td>
-                        <td>{order.state}</td>
+                        <td className="bg-blue-100">{order.name}</td>
+                        <td className="bg-blue-100">{order.phoneNumber}</td>
+                        <td className="bg-blue-100">{order.wilaya}</td>
+                        <td className="bg-blue-100">{order.adresse}</td>
+                        <td className="bg-gray-200">{order.shippingMethod}</td>
+                        <td className="bg-gray-200">{order.shippingPrice}</td>
+                        <td className="bg-gray-200">{order.totalPrice}</td>
+                        <td className="relative bg-gray-200 max-w-40 whitespace-nowrap overflow-hidden text-ellipsis hover:overflow-visible group">
+                            <div className="overflow-hidden text-ellipsis">
+                                {order.note}
+                            </div>
+                            <div className="absolute top-0 left-0 mt-2 w-max max-w-xs p-2 bg-gray-700 text-white text-sm rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                {order.note}
+                            </div>
+                        </td>
+                        <td className="bg-gray-200">{order.state}</td>
                         <td>{order.schedule}</td>
                         <td className="text-center">
                             {order.inDelivery
@@ -1148,29 +1188,92 @@ function Orders() {
                 </select>
             </div>
 
-            <table border='1' className='font-normal w-full ml-auto'>
-                <thead>
-                    <tr>
-                        <th>تعديل</th>
-                        <th>الأسم</th>
-                        <th>الرقم</th>
-                        <th>الولاية</th>
-                        <th>البلدية</th>
-                        <th>نوع التوصيل</th>
-                        <th>سعر كلي </th>
-                        <th>سعر توصيل</th>
-                        <th>ملاحضة </th>
-                        <th>الحالة </th>
-                        <th>التأجيل</th>
-                        <th>في التوصيل</th>
-                        <th>التتبع</th>
-                        <th colSpan={longesOrder.length}>الطلبيات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {ordersElement}
-                </tbody>
-            </table>
+            <div className="relative max-h-[700px] overflow-y-auto w-full">
+                <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
+                    <thead className="sticky top-0 z-[999999999] border-2 border-gray-500 bg-white">
+                        <tr>
+                            <th>
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    تعديل       
+                                </div>
+                            </th>
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    الأسم
+                                </div>
+                                    
+                            </th>
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    الرقم
+                                </div>
+                            </th>
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    الولاية
+                                </div>
+                            </th>
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    البلدية 
+                                </div>
+                            </th>
+                            <th className="bg-gray-200">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    نوع التوصيل 
+                                </div>
+                            </th>
+                            <th className="bg-gray-200">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    سعر التوصيل 
+                                </div>
+                            </th>
+                            <th className="bg-gray-200">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    سعر كلي 
+                                </div>
+                            </th>
+                            <th className="bg-gray-200">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    ملاحضة   
+                                </div>
+                            </th>
+                            <th className="bg-gray-200">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    الحالة   
+                                </div>
+                            </th>
+                            <th>
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    التأجيل    
+                                </div>
+                            </th>
+                            <th>
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    في التوصيل 
+                                </div>
+                            </th>
+                            <th>
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    التتبع      
+                                </div>
+                            </th>
+                            <th colSpan={longesOrder.length}>
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                الطلبيات      
+                                </div>
+                            </th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {ordersElement}
+                    </tbody>
+                </table>
+            </div>
+
+
+
         </div>
     )
 }

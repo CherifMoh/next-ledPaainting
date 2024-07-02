@@ -1,7 +1,7 @@
 'use client'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -10,6 +10,8 @@ import { deleteUser } from '../../actions/users'
 import Spinner from '../../../components/loadings/Spinner';
 import Roles from '../../../components/admin/roles/Roles';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 
 async function fetchUsers() {
   const res = await axios.get('/api/users');
@@ -18,7 +20,7 @@ async function fetchUsers() {
 
 function User() {
 
-  const { data: users, isLoading, isError } = useQuery({
+  const { data: users, isLoading, isError, error } = useQuery({
     queryKey: ['users'],
     queryFn: fetchUsers
   });
@@ -27,7 +29,20 @@ function User() {
 
   const [nav, setNav] = useState('users')
 
+  const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+  const router = useRouter()
+
+  useEffect(()=>{
+    if(accessibilities.length === 0)return
+      const access = accessibilities.find(item=>item.name === 'users')
+      if(!access || access.accessibilities.length === 0){
+          router.push('/admin')
+      }
+  },[accessibilities])
+
   if (isLoading) return <div>Loading ...</div>
+  if (isError) return <div>{error.message}</div>
 
   const headsArray = [
     'User Name',
@@ -145,7 +160,7 @@ function User() {
           </table>
         </>
         :
-        <Roles />}
+        <Roles users={users}/>}
     </section>
   )
 

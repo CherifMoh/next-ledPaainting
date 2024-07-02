@@ -1,0 +1,15 @@
+table {
+    border-collapse:unset;
+    border-right:2px solid gray ;
+}
+
+td, th, tr {
+    border: 1px solid gray;
+    padding: 12px;
+    font-weight: 500;
+}
+
+th{
+    padding: 0;
+    font-weight: 600;
+}
