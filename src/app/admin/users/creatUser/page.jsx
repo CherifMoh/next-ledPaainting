@@ -1,4 +1,4 @@
-import UserForm from '../../../../components/admin/userForm' 
+import UserForm from '../../../../components/admin/auth/userForm' 
 
 function CreatUser() {
   return (
