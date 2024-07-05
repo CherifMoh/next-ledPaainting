@@ -3,11 +3,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addRewMates, deleteRewMate} from "../../../actions/storage"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import Spinner from "../../../../components/loadings/Spinner";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 
 const fetchRewMates = async () => {
@@ -38,6 +40,29 @@ function RawMaterials() {
 
   const [deleting, setDeleting] = useState([])
 
+    const [isCreateAccess, setIsCreateAccess] = useState(false)
+    const [isUpdateAccess, setIsUpdateAccess] = useState(false)
+    const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+    const router = useRouter()
+ 
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'storage')
+        if(!access || access.accessibilities.length === 0){
+          router.push('/admin')
+        }
+        if(!access.accessibilities.includes('delete') && !access.accessibilities.includes('create')){
+          router.push('/admin')
+        }
+        setIsDeleteAccess(access.accessibilities.includes('delete'))
+        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
+    },[accessibilities])
+      
+ 
   if (IsLoading) return <div>Loading...</div>;
 
   if (IsError) return <div>Error: {Error.message}</div>;
@@ -66,7 +91,7 @@ function RawMaterials() {
       }]
     }))
   }
-  console.log(formData)
+
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -91,7 +116,7 @@ function RawMaterials() {
   const materials = RewMates.map(mate => <td key={mate._id}>{mate.name}</td>);
   const quantities = RewMates.map(mate => {
     let totalQnt = 0
-    console.log(mate.qnts)
+  
     mate?.qnts.forEach(qnt=>totalQnt=totalQnt+Number(qnt.qnt))
     return(
       <td key={mate._id}>{totalQnt}</td>
@@ -113,13 +138,15 @@ function RawMaterials() {
 
   return (
     <main className='p-4 w-full h-screen flex items-center gap-5 justify-start flex-col'>
-      <button
-        className='bg-gray-400 rounded-lg text-white text-sm px-2 py-1'
-        onClick={() => setIsAdding(prev => !prev)}
-      >
-        <span className='mr-2 font-bold text-base'>+</span>
-        Add New Rew Material
-      </button>
+      {isCreateAccess &&
+        <button
+          className='bg-gray-400 rounded-lg text-white text-sm px-2 py-1'
+          onClick={() => setIsAdding(prev => !prev)}
+        >
+          <span className='mr-2 font-bold text-base'>+</span>
+          Add New Rew Material
+        </button>
+      }
       {isAdding &&
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <div>
@@ -168,10 +195,12 @@ function RawMaterials() {
             <td>الكمية</td>
             {quantities}
           </tr>
-          <tr>
-            <td>Actions</td>
-            {actions}
-          </tr>
+          {isDeleteAccess &&
+            <tr>
+              <td>Actions</td>
+              {actions}
+            </tr>
+          }
         </tbody>
       </table>
     </main>

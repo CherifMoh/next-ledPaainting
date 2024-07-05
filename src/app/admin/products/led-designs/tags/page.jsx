@@ -1,8 +1,9 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
 
 
 const fetchTags = async()=>{
@@ -37,6 +38,27 @@ function AddTag() {
     
     const router = useRouter()
     const queryClient = useQueryClient()
+
+    const [isCreateAccess, setIsCreateAccess] = useState(false)
+    const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'products')
+        if(!access || access.accessibilities.length === 0){
+            router.push('/admin')
+        }
+        setIsDeleteAccess(access.accessibilities.includes('delete'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
+    },[accessibilities])
+
+    
+    if(isLoading) return <div>Loding...</div>
+    if(isError) return <div>{error.message}</div>
+    
     const handleDelete = async (id)=>{
         try{
             setDeleting({
@@ -56,14 +78,12 @@ function AddTag() {
         createTag({ name: name});
     };
 
-    if(isLoading) return <div>Loding...</div>
-    if(isError) return <div>{error.message}</div>
-
     const AllTagsElement = Tags.map(tag=>(
         <tr key={tag.name}>
             <td className='capitalize'>
                 {tag.name}
             </td>
+            {isDeleteAccess &&
             <td >
                 <button 
                  className='bg-red-400 p-2 rounded-md'
@@ -72,23 +92,25 @@ function AddTag() {
                 {deleting.state && deleting.id === tag._id ?'Deleting':'Delete'}
                 </button>
             </td>
+            }
         </tr>
     ))
 
     const tHeades =[
         {name:'Name'},
-        {name:'Delete'},
+        isDeleteAccess &&{name:'Delete'},
     ]
 
-    const tHeadesElements=tHeades.map(tHead=>(
-        <th key={tHead.name}>{tHead.name}</th>
-    ))
+    const tHeadesElements=tHeades.map(tHead=>{
+        if(!tHead) return
+        return <th key={tHead.name}>{tHead.name}</th>
+    })
 
     return(
         <div className="h-screen w-full flex flex-col justify-start pt-20 gap-40 items-center">
 
             <div className='w-full'>
-                <table border={1} className="border-2 border-gray-400 w-full ">
+                <table border={1} className="border-2 border-gray-400 w-1/4 m-auto ">
                     <thead>
                         <tr>
                             {tHeadesElements}
@@ -100,6 +122,7 @@ function AddTag() {
                 </table>
             </div>
                 
+           {isCreateAccess && 
             <form onSubmit={(e)=>handleSubmit(e)} className='flex w-96 flex-col justify-center items-cente' >
                 <label 
                  htmlFor="tag"
@@ -124,6 +147,7 @@ function AddTag() {
                     Submit
                 </button>
             </form>
+            }
             {errorMessage && <p>{errorMessage}</p>}
         </div>
     )

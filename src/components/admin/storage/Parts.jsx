@@ -21,9 +21,14 @@ const fetchRewMates = async () => {
 }
 
 const fetchPartByName = async (name) => {
-    const res = await axios.get(`/api/storage/workshop/${name}`);
-    if(!res.data[0]) return []
-    return res.data[0]
+    const response = await fetch(`/api/workshop/${name}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('An error occurred while fetching the data.');
+    }
+    return response.json();
 }
 
 const fetchParts = async () => {
@@ -33,7 +38,7 @@ const fetchParts = async () => {
 }
 
 
-function Parts() {
+function Parts({isUpdateAccess}) {
 
     const [EditedPart, setEditedPart] = useState({name:'',mates:[]});
     
@@ -124,12 +129,12 @@ function Parts() {
     },[qnt,minusQnt,Products])
 
     useEffect(()=>{
-        if(!RewMates || !EditedPart) return
+        if(!RewMates || !EditedPart || !EditedPart?.mates) return
         if(plusOrMinus === 'minus') return
         let totalAmount = 0
         RewMates.forEach(rewMate=>{
     
-            const needed =EditedPart.mates.filter(item => item.name === rewMate.name);
+            const needed =EditedPart?.mates?.filter(item => item.name === rewMate.name);
             if(rewMate.qnts.length === 0){
                 setNeededMates(pre=>{
                     const i =pre.findIndex(item => item?.name === rewMate.name)
@@ -145,12 +150,12 @@ function Parts() {
                 })
                 return
             }
-            if(!needed[0]) return
-            const total = calculateTotal(rewMate.qnts, needed[0].qnt, needed[0].name)
+            if( !needed[0]) return
+            const total = calculateTotal(rewMate.qnts, needed[0]?.qnt, needed[0]?.name)
 
             if(typeof total === 'number'){
-                if(isMax.includes(needed[0].name)){
-                    setIsMax(pre=>pre.filter(item => item !== needed[0].name))
+                if(isMax.includes(needed[0]?.name)){
+                    setIsMax(pre=>pre.filter(item => item !== needed[0]?.name))
                     setNeededMates(pre=>{
                         return pre.map(item=>{
                             if(item?.name !== needed[0].name){
@@ -174,7 +179,7 @@ function Parts() {
     },[EditedPart,RewMates])  
     
     useEffect(()=>{
-        if(!RewMates || !EditedPart || !plusOrMinus ) return
+        if(!RewMates || !EditedPart || !plusOrMinus || !EditedPart?.mates ) return
 
         
         EditedPart.mates.forEach(rewMate=>{
@@ -224,16 +229,14 @@ function Parts() {
 
 
 
-    if(IsLoading) return <div>Loading...</div>;
+    if(IsLoading ||IsRewLoading || IsPartLoading || IsPartsLoading) return <div>Loading...</div>;
+    
     if(IsError) return <div>Error: {Error.message}</div>;
 
-    if(IsRewLoading) return <div>Loading...</div>;
     if(IsRewError) return <div>Error: {RewError.message}</div>;
 
-    if(IsPartLoading) return <div>Loading...</div>;
     if(IsPartError) return <div>Error: {PartError.message}</div>;
 
-    if(IsPartsLoading) return <div>Loading...</div>;
     if(IsPartsError) return <div>Error: {PartsError.message}</div>;
 
     const notReadyParts = allParts
@@ -282,9 +285,9 @@ function Parts() {
             return (
 
                 <div 
-                    className='relative  cursor-pointer' 
+                    className={`relative ${(isUpdateAccess && part.mates) && 'cursor-pointer'}`}
                     key={part.name}
-                    onClick={()=>{setEditedPart(part)}}
+                    onClick={()=>{(isUpdateAccess && part.mates) && setEditedPart(part)}}
                 >
                     <div className="line-before"></div>
 

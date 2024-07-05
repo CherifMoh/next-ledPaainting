@@ -17,6 +17,10 @@ import { useSelector } from "react-redux";
 
 function Storage() {
 
+    const [isCreateAccess, setIsCreateAccess] = useState(false)
+    const [isUpdateAccess, setIsUpdateAccess] = useState(false)
+    const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+
     const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
 
     const router = useRouter()
@@ -27,6 +31,9 @@ function Storage() {
         if(!access || access.accessibilities.length === 0){
             router.push('/admin')
         }
+        setIsDeleteAccess(access.accessibilities.includes('delete'))
+        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
     },[accessibilities])
 
     
@@ -35,12 +42,14 @@ function Storage() {
             <header
                 className='flex justify-evenly'
             >
-            <Link
-                href={'/admin/storage/rew-mates'}
-                className="text-lg hover:text-purple-800 font-medium underline"
-            >
-                مواد أولية
-            </Link>
+            {(isCreateAccess || isDeleteAccess) && ( 
+                <Link
+                    href={'/admin/storage/rew-mates'}
+                    className="text-lg hover:text-purple-800 font-medium underline"
+                    >
+                    مواد أولية
+                </Link>
+            )}
             <Link
                 href={'/admin/storage/archive'}
                 className="text-lg hover:text-purple-800 font-medium underline"
@@ -60,9 +69,9 @@ function Storage() {
             <div 
                 className="m-auto text-xl w-[800px] flex justify-between items-start mt-10 "
             >
-                <ProductsComp/>
-                <PartsComp />
-                <RewMatesComp />
+                <ProductsComp isUpdateAccess={isUpdateAccess}/>
+                <PartsComp isUpdateAccess={isUpdateAccess}/>
+                <RewMatesComp isUpdateAccess={isUpdateAccess}/>
             </div>
         </main>
     )

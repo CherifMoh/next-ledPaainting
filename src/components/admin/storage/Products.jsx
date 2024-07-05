@@ -25,7 +25,7 @@ const fetchProductByName = async (title) => {
 }
 
 
-function Products() {
+function Products({isUpdateAccess}) {
 
     const [EditedProduct,setEditedProduct] = useState({title:'',parts:[]});
 
@@ -366,8 +366,8 @@ function Products() {
         return(
             <div
                 key={product._id}
-                className="px-2 py-1 relative rounded-md border border-black w-max cursor-pointer"
-                onClick={()=>setEditedProduct(product)}
+                className={`px-2 py-1 relative rounded-md border border-black w-max ${isUpdateAccess && 'cursor-pointer'}`}
+                onClick={()=>isUpdateAccess &&setEditedProduct(product)}
             >
                 <div class="line-top"></div>
                 {product.title}

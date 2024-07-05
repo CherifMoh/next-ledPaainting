@@ -1,5 +1,5 @@
 "use client"
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { addProduct } from "../../../actions/product";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Spinner from "../../../../components/loadings/Spinner";
 import { useQuery } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
 
 
 const fetchRewMates = async () => {
@@ -44,6 +45,19 @@ function Admin() {
     const [isRewMates, setIsRewMates] = useState([])
 
     const router = useRouter()
+
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'products')
+        if(!access || access.accessibilities.length === 0 || !access.accessibilities.includes('create')){
+           return router.push('/admin')
+        }
+       
+    },[accessibilities])
 
     if (IsLoading) return <div>Loading...</div>;
 

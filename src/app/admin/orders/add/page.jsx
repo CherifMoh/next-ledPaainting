@@ -13,6 +13,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import Spinner from '../../../../components/loadings/Spinner';
+import { useSelector } from 'react-redux';
 
 async function fetchDesigns() {
     const res = await axios.get('/api/products/ledDesigns');
@@ -55,6 +56,18 @@ function Page() {
     });
 
     const router = useRouter()
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'orders')
+        if(!access || access.accessibilities.length === 0 || !access.accessibilities.includes('create')){
+           return router.push('/admin')
+        }
+       
+    },[accessibilities])
 
     useEffect(() => {
         if (typeof localStorage !== 'undefined') {

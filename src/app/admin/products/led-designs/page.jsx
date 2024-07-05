@@ -4,10 +4,11 @@ import Link from 'next/link'
 import axios from "axios";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from "next/navigation";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { useSelector } from 'react-redux';
 
 
 async function fetchDesigns() {
@@ -32,6 +33,24 @@ function Page() {
     });
 
     const [search,setSearch] = useState('')
+
+    const [isCreateAccess, setIsCreateAccess] = useState(false)
+    const [isUpdateAccess, setIsUpdateAccess] = useState(false)
+    const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+
+    const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
+
+
+    useEffect(()=>{
+        if(accessibilities.length === 0)return
+        const access = accessibilities.find(item=>item.name === 'products')
+        if(!access || access.accessibilities.length === 0){
+            router.push('/admin')
+        }
+        setIsDeleteAccess(access.accessibilities.includes('delete'))
+        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
+    },[accessibilities])
 
     if (isLoading) return <div>Loading...</div>;
 
@@ -74,9 +93,13 @@ function Page() {
                             {design.tags}
                         </div>
                     </td>
-                    <td>               
-                        <Link href={`/admin/products/led-designs/${design._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>                
-                    </td>
+                    {isUpdateAccess && 
+                        <td>               
+                            <Link href={`/admin/products/led-designs/${design._id}`} className='bg-green-200 p-2 rounded-md'>Update</Link>                
+                        </td>
+                    }
+                    
+                   {isDeleteAccess &&
                     <td>               
                         <button 
                          onClick={()=>handleDelete(design._id)} 
@@ -85,6 +108,7 @@ function Page() {
                             {deleting.some(item => item.id === design._id && item.state)?'Deleting':'Delete'}
                         </button>                
                     </td>
+                    }
                 </tr>
             )
         }
@@ -95,29 +119,37 @@ function Page() {
         {name:'Image'},
         {name:'Title'},
         {name:'Tags'},
-        {name:'Update'},
-        {name:'Delete'},
+        isUpdateAccess && {name:'Update'},
+        isDeleteAccess &&{name:'Delete'},
     ]
 
-    const tHeadesElements=tHeades.map(tHead=>(
-        <th key={tHead.name}>{tHead.name}</th>
-    ))
+
+    const tHeadesElements=tHeades.map(tHead=>{
+        if(!tHead) return
+        return(      
+            <th key={tHead.name}>{tHead.name}</th>
+        )
+    })
 
   return (
     <div className='p-4 flex flex-col gap-6'>
         <div className='flex w-full justify-around'>
-            <Link 
-            href={'/admin/products/led-designs/add'}
-            className='bg-gray-700 p-3 rounded-md text-white text-center w-1/4'
-            >
-                Add
-            </Link>
-            <Link 
-            className='bg-gray-700 p-3 rounded-md text-white text-center w-1/4' 
-            href={'/admin/products/led-designs/tags'}
-            >
-                Tages
-            </Link>
+            {isCreateAccess &&
+                <Link 
+                    href={'/admin/products/led-designs/add'}
+                    className='bg-gray-700 p-3 rounded-md text-white text-center w-1/4'
+                    >
+                    Add
+                </Link>
+            }
+            {(isCreateAccess || isDeleteAccess) &&  (
+                <Link 
+                    className="bg-gray-700 p-3 rounded-md text-white text-center w-1/4" 
+                    href="/admin/products/led-designs/tags"
+                >
+                    Tags
+                </Link>
+            )}
         </div>
 
         <div className='flex gap-4'>

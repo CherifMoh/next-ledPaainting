@@ -15,7 +15,7 @@ const fetchRewMates = async () => {
 }
 
 
-function RewMatesComp() {
+function RewMatesComp({isUpdateAccess}) {
 
 
     const queryClient = useQueryClient();
@@ -92,22 +92,25 @@ function RewMatesComp() {
 
         return (
             <div 
-                className="px-2  w-full py-1 border-gray-700 border-b last:border-b-0 flex items-center justify-between"
+                className={`px-2  w-full py-1 border-gray-700 border-b last:border-b-0 flex items-center ${isUpdateAccess?'justify-between':'justify-center'}`}
                 key={rewMate._id}
             >
+                    {isUpdateAccess &&
                     <button 
                         onClick={()=>setIsPlus(pre=>[...pre,rewMate._id])}
                         className="h-5"
                     >
                         <FontAwesomeIcon icon={faPlus} className='text-green-500' />
-                    </button>
+                    </button>}
                     {rewMate.name}
+
+                    {isUpdateAccess &&
                     <button 
                         onClick={()=>setIsMinus(pre=>[...pre,rewMate._id])}
                         className="h-5"
                     >
                         <FontAwesomeIcon icon={faMinus} className='text-red-500' />
-                    </button>
+                    </button>}
 
                         {isPlus.includes(rewMate._id) && 
                             <div className="bg-[#0000004f] md:p-48 p-72 z-[999] backdrop-filter backdrop-blur-sm h-screen w-screen fixed top-0 right-0">

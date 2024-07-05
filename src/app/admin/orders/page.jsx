@@ -101,6 +101,10 @@ function Orders() {
     const [craftingOrders, setCraftingOrders] = useState([])
     const [isCrafting, setIsCrafting] = useState(false)
 
+    const [isCreateAccess, setIsCreateAccess] = useState(false)
+    const [isUpdateAccess, setIsUpdateAccess] = useState(false)
+    const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+
 
 
     const router = useRouter()
@@ -114,8 +118,11 @@ function Orders() {
         if(accessibilities.length === 0)return
         const access = accessibilities.find(item=>item.name === 'orders')
         if(!access || access.accessibilities.length === 0){
-            router.push('/admin')
+           return router.push('/admin')
         }
+        setIsDeleteAccess(access.accessibilities.includes('delete'))
+        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
     },[accessibilities])
 
 
@@ -142,7 +149,7 @@ function Orders() {
         setScheduleQnt(newSchedule)
     }, [editedOrder, Orders]);
 
-
+    
 
     if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error fetching Orders: {error.message}</div>;
@@ -764,15 +771,17 @@ function Orders() {
                     <tr key={order._id} className={`h-5`}>
                         <td>
 
-                            {deleting.some(item => item.id === order._id && item.state)
-                                ? <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
-                                : <button
+                            {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                                <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
+                            }  
+                            {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
+                                <button
                                     className=' p-2 rounded-md'
                                     onClick={() => handleDelete(order._id)}
                                 >
                                     <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
-                                </button>
-                            }
+                                </button>                            
+                            }  
 
                             <button
                                 onClick={() => {
@@ -1061,48 +1070,55 @@ function Orders() {
                         key={order._id}
                         className={`h-5 ${saving.includes(order._id) && 'opacity-40'} ${deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
                     >
-                        <td>
-                            {saving.includes(order._id)
-                                ?
-                                <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
-                                :
-                                <div className=" whitespace-nowrap flex items-center justify-center">
-                                    {isCrafting &&
-                                        <div className="p-2 flex items-center">
-                                            <input 
-                                                type="checkbox" 
-                                                className="size-4 m-0"
-                                                checked={craftingOrders.some(item => item._id === order._id)}
-                                                onChange={(e) => handleSelectCrafting(order)} 
-                                            />
-                                        </div>
-                                    }
-                                    {deleting.some(item => item.id === order._id && item.state)
-                                        ? <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
-                                        : <button
-                                            className=' p-2 rounded-md'
-                                            onClick={() => handleDelete(order._id)}
+                        {(isUpdateAccess || isDeleteAccess || isCrafting) && (
+                            <td>
+                                {saving.includes(order._id)
+                                    ?
+                                    <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
+                                    :
+                                    <div className=" whitespace-nowrap flex items-center justify-center">
+                                        {isCrafting &&
+                                            <div className="p-2 flex items-center">
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="size-4 m-0"
+                                                    checked={craftingOrders.some(item => item._id === order._id)}
+                                                    onChange={(e) => handleSelectCrafting(order)} 
+                                                />
+                                            </div>
+                                        }
+                                        {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                                            <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
+                                        }  
+                                        {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
+                                            <button
+                                                className=' p-2 rounded-md'
+                                                onClick={() => handleDelete(order._id)}
+                                            >
+                                                <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
+                                            </button>                            
+                                        }  
+                                        {isUpdateAccess &&
+                                        <button
+                                            onClick={() => {
+                                                setEditedOrderId(order._id)
+                                                setEditedOrder(order)
+                                            }}
+                                            disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)}
+                                            className={` text-white 
+                                            ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'}
+                                            ${deleting.some(item => item.id === order._id) && 'hidden'}
+                                            rounded-lg px-3 py-2
+                                        `}
                                         >
-                                            <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
+                                            <FontAwesomeIcon icon={faPen} className='text-green-600' />
                                         </button>
-                                    }
-                                    <button
-                                        onClick={() => {
-                                            setEditedOrderId(order._id)
-                                            setEditedOrder(order)
-                                        }}
-                                        disabled={editedOrderId !== order._id && editedOrderId !== '' || saving.includes(order._id)}
-                                        className={` text-white 
-                                         ${saving._id === order._id && saving.stat && 'w-8 h-10 relative'}
-                                         ${deleting.some(item => item.id === order._id) && 'hidden'}
-                                         rounded-lg px-3 py-2
-                                      `}
-                                    >
-                                        <FontAwesomeIcon icon={faPen} className='text-green-600' />
-                                    </button>
-                                </div>
-                            }
-                        </td>
+                                        }
+                                    </div>
+                                }
+                            </td>
+                        )}
+                        
                         <td className="bg-blue-100">{order.name}</td>
                         <td className="bg-blue-100">{order.phoneNumber}</td>
                         <td className="bg-blue-100">{order.wilaya}</td>
@@ -1276,24 +1292,28 @@ function Orders() {
                     {dateFilterElements}
                 </select>
 
-                <Link
-                    className='justify-self-end  whitespace-nowrap border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
-                    href={'/admin/orders/add'}    
-                >
-                    <FontAwesomeIcon icon={faPlus} />
-                    <span className="ml-2 whitespace-nowrap">Add a new order</span>
-                </Link>
+                {isCreateAccess &&
+                    <Link
+                        className='justify-self-end  whitespace-nowrap border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                        href={'/admin/orders/add'}    
+                        >
+                        <FontAwesomeIcon icon={faPlus} />
+                        <span className="ml-2 whitespace-nowrap">Add a new order</span>
+                    </Link>
+                }
             </div>
 
             <div className="relative max-h-[700px] overflow-y-auto w-full">
                 <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
                     <thead className="sticky top-0 z-[999999999] border-2 border-gray-500 bg-white">
                         <tr>
+                        {(isUpdateAccess || isDeleteAccess || isCrafting) && (
                             <th>
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className="border-y border-solid border-[rgb(128,128,128)] p-[13px]">
                                     تعديل       
                                 </div>
                             </th>
+                        )}
                             <th className="bg-blue-100">
                                 <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
                                     الأسم

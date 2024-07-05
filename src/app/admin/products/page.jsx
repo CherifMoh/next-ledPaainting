@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import Spinner from '../../../components/loadings/Spinner';
 import { FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { faCircleInfo, faPen } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 
@@ -27,6 +27,10 @@ function Page() {
 
     const [deleting,setDeleting] = useState([])
 
+    const [isCreateAccess, setIsCreateAccess] = useState(false)
+    const [isUpdateAccess, setIsUpdateAccess] = useState(false)
+    const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+
     const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
 
     const router = useRouter()
@@ -37,6 +41,9 @@ function Page() {
         if(!access || access.accessibilities.length === 0){
             router.push('/admin')
         }
+        setIsDeleteAccess(access.accessibilities.includes('delete'))
+        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
     },[accessibilities])
 
     if (isLoading) return <div>Loading...</div>;
@@ -70,32 +77,41 @@ function Page() {
                         <Link href={`/admin/products/led-designs`} className='p-2 rounded-md'>
                             <FontAwesomeIcon  icon={faCircleInfo} />
                         </Link>
-                        <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
-                            <FontAwesomeIcon  icon={faPen} />
-                        </Link>
-                        {deleting.some(item => item.id === product._id && item.state)
-                        ?<Spinner size={'h-8 w-8'} color={'border-red-500'} />
-                        :<button 
-                         className=' p-2 rounded-md'
-                         onClick={()=>handleDelete(product._id)}
-                        >
-                            <FontAwesomeIcon  icon={faTrashCan} />
-                        </button>
+                        {isUpdateAccess &&
+                            <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
+                                <FontAwesomeIcon  icon={faPen} />
+                            </Link>
                         }
+                        {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                            <Spinner size={'h-8 w-8'} color={'border-red-500'} />
+                        }  
+                        {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
+                            <button
+                                className=' p-2 rounded-md'
+                                onClick={() => handleDelete(order._id)}
+                            >
+                                <FontAwesomeIcon icon={faTrashCan} />
+                            </button>                            
+                        }  
+                        
                     </div>
                     :<div className='flex gap-3'>
-                        <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
-                            <FontAwesomeIcon  icon={faPen} />
-                        </Link>
-                        {deleting.some(item => item.id === product._id && item.state)
-                        ?<Spinner size={'h-8 w-8'} color={'border-red-500'} />
-                        :<button 
-                         className=' p-2 rounded-md'
-                         onClick={()=>handleDelete(product._id)}
-                        >
-                            <FontAwesomeIcon  icon={faTrashCan} />
-                        </button>
+                       {isUpdateAccess &&
+                            <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
+                                <FontAwesomeIcon  icon={faPen} />
+                            </Link>
                         }
+                        {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                            <Spinner size={'h-8 w-8'} color={'border-red-500'} />
+                        }  
+                        {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
+                            <button
+                                className=' p-2 rounded-md'
+                                onClick={() => handleDelete(order._id)}
+                            >
+                                <FontAwesomeIcon icon={faTrashCan} />
+                            </button>                            
+                        }  
                     </div>
                 }
             </td>
@@ -117,7 +133,15 @@ function Page() {
   return (
     <div>
         <div className='flex items-center justify-around p-20 pt-14'>
-            <Link className='bg-gray-700 p-3 rounded-md text-white' href={'/admin/products/add'}>Add a product</Link>
+            {isCreateAccess &&
+                <Link
+                    className='justify-self-end  whitespace-nowrap border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    href={'/admin/products/add'}
+                    >
+                    <FontAwesomeIcon icon={faPlus} />
+                    <span className="ml-2 whitespace-nowrap">Add a new product</span>
+                </Link>
+            }
         </div>
         <div className='flex items-center justify-center w-full'>
             <table border='1' className='font-normal h-1 w-full'>

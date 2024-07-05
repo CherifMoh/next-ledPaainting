@@ -6,7 +6,7 @@ import ResetPass from '../../../components/admin/auth/ResetPass'
 function ForgotPassword() {
 
   const [isCorrectOTP, setIsCorrectOTP] = useState(false)
-
+  
   return (
     <>
       {isCorrectOTP
