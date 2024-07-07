@@ -23,17 +23,32 @@ function Page() {
     const router = useRouter()
 
     function handleAccessibilitiesChange(e) {
+
+        const name = e.target.name
         const updatedAccessibilities = [...accessibilities]
+
         const index = updatedAccessibilities.findIndex(item => item.name === accessGategory)
+        
+
         if (index > -1) {
             const selectedAccessibilities = updatedAccessibilities[index].accessibilities
-            if (selectedAccessibilities.includes(e.target.name)) {
+            if(name === 'read' && (selectedAccessibilities.includes('delete') || selectedAccessibilities.includes('update'))){
+                
+            }
+            else if (selectedAccessibilities.includes(name)) {
                 updatedAccessibilities[index].accessibilities = selectedAccessibilities.filter(access => access !== e.target.name)
             } else {
-                updatedAccessibilities[index].accessibilities.push(e.target.name)
+                if(!selectedAccessibilities.includes('read') && (name === 'delete' || name === 'update')){
+                    updatedAccessibilities[index].accessibilities.push('read')
+                }
+                updatedAccessibilities[index].accessibilities.push(name)
             }
         } else {
-            updatedAccessibilities.push({ name: accessGategory, accessibilities: [e.target.name] })
+            if(name === 'delete' || name === 'update'){
+                updatedAccessibilities.push({ name: accessGategory, accessibilities: [name,'read'] })
+            }else{
+                updatedAccessibilities.push({ name: accessGategory, accessibilities: [name] })
+            }
         }
         setNewRole(prev => ({
             ...prev,

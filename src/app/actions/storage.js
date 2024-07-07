@@ -169,7 +169,8 @@ export async function editMinusPart(name, newQnt, note, ready) {
 
     // Process the qnts array from the last element to the first
     for (let i = 0; i < qnts.length && newQnt > 0; i++) {
-        if (ready === undefined || qnts[i].ready === ready) {
+    
+        if (ready !== undefined && qnts[i].ready === ready) {
             if (qnts[i].qnt <= newQnt) {
                 newQnt -= qnts[i].qnt;
                 deletedQnts.push(qnts[i]);
@@ -212,6 +213,7 @@ export async function editMinusPart(name, newQnt, note, ready) {
 
 export async function editReadyPart(name, numberToUpdate) {
     await dbConnect();
+    console.log(name, numberToUpdate)
     if(!numberToUpdate || numberToUpdate === 0) return
     let removedQnts = await editMinusPart(name, numberToUpdate, null, false);
 

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import arrowDown from '../../../../public/assets/arrow-down.svg'
@@ -21,7 +21,7 @@ const fetchRewMates = async () => {
 }
 
 const fetchPartByName = async (name) => {
-    const response = await fetch(`/api/workshop/${name}`);
+    const response = await fetch(`/api/storage/workshop/${name}`);
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -92,6 +92,8 @@ function Parts({isUpdateAccess}) {
     const [Ready,setReady] = useState(false);
 
     const [emptyMate,setEmptyMate] = useState(false);
+
+    const queryClient = useQueryClient()
 
 
     useEffect(()=>{
@@ -210,11 +212,11 @@ function Parts({isUpdateAccess}) {
 
     },[EditedPart,RewMates,plusOrMinus])
 
-    useEffect(()=>{
-        setIsRedBG(pre=>!pre)
-        const interval = setInterval(()=>{setIsRedBG(pre=>!pre)},250)
-        setTimeout(()=>{clearInterval(interval)},1000)
-    },[isMax])
+    // useEffect(()=>{
+    //     setIsRedBG(pre=>!pre)
+    //     const interval = setInterval(()=>{setIsRedBG(pre=>!pre)},250)
+    //     setTimeout(()=>{clearInterval(interval)},1000)
+    // },[isMax])
 
     useEffect(()=>{
         if(!Part) return
@@ -256,7 +258,6 @@ function Parts({isUpdateAccess}) {
         })
     })
 
-    // console.log(editedNotReadyQnt)
 
     function togelParts(id){
         setIsParts(pre=>{
@@ -313,7 +314,7 @@ function Parts({isUpdateAccess}) {
         })
         return (
             <div 
-                className="flex flex-col items-center justify-center"
+                className="flex flex-col items-end justify-center"
                 key={product._id}
             >
                 <div 
@@ -385,8 +386,6 @@ function Parts({isUpdateAccess}) {
         // Update the state with the new array
         setNeededMates(updatedNeededMates);
     };
-
-   
 
     function calculateTotal(data, neededQnt, neededName) {
 
@@ -527,23 +526,25 @@ function Parts({isUpdateAccess}) {
         </table>
     ]
 
-    function submitAddPart() {
-        editAddPart(EditedPart.name,{qnt:qnt,price:(totalPrice/qnt).toFixed(2),ready:false},)
-        EditedPart.mates.forEach(mate=>{
-            editMinusRewMateQnt(mate._id,mate.qnt,mate.name)
+    async function submitAddPart() {
+        const res = await editAddPart(EditedPart.name,{qnt:qnt,price:(totalPrice/qnt).toFixed(2),ready:false},)
+        EditedPart.mates.forEach(async(mate)=>{
+            const res = await editMinusRewMateQnt(mate._id,mate.qnt,mate.name)
         })
+        queryClient.invalidateQueries(['All parts']);
     }
 
-    function submitMinusPart() {
-        editMinusPart(EditedPart.name,minusQnt,note)
-        EditedPart.mates.forEach(mate=>{
-            editAddRewMateQnt(mate._id,{qnt:mate.qnt},mate.name)
+    async function submitMinusPart() {
+        const res = await editMinusPart(EditedPart.name,minusQnt,note)
+        EditedPart.mates.forEach(async(mate)=>{
+            const res = await editAddRewMateQnt(mate._id,{qnt:mate.qnt},mate.name)
         })
+        queryClient.invalidateQueries(['All parts']);
     }
     
-    function submitReadyPart() {
-        console.log('ready')
-        editReadyPart(EditedPart.name,notReadyQnt)
+    async function submitReadyPart() {
+        const res = await editReadyPart(EditedPart.name,notReadyQnt)
+        queryClient.invalidateQueries(['All parts']);
     }
     
 

@@ -9,6 +9,7 @@ const WorkshopSchema = new Schema({
         type: Array,
         required: true
     },
+
 },{timestamps:true})
 
 const Workshop = mongoose.models.Workshop || mongoose.model('Workshop', WorkshopSchema)

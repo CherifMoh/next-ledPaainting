@@ -405,6 +405,39 @@ function Admin() {
             }
         });
     }
+    function handelPartOptChange(e, i) {
+        
+        const value = e.target.value
+
+        setNewProduct(prevState => {
+            if (prevState?.parts) {
+
+                const updatedParts = [...prevState.parts]; // Create a copy of sales array
+
+
+                if (updatedParts[i]?.options) {
+                    if(updatedParts[i]?.options?.includes(value)){
+                        updatedParts[i] = { ...updatedParts[i], options:updatedParts[i]?.options?.filter(item => item !== value)}
+                    }else{
+                        updatedParts[i] = { ...updatedParts[i], options:[...updatedParts[i]?.options, value] }; // Update the specific sale at index i
+                    }
+                }else{
+                    updatedParts[i] = { ...updatedParts[i], options:[value] };
+                }
+                
+                
+                return {
+                    ...prevState,
+                    parts: updatedParts // Set the updated sales array
+                };
+            } else {
+                return {
+                    ...prevState,
+                    parts: [{ options: [value] }]
+                }
+            }
+        });
+    }
 
     function handelPartMatesChange(value, i) {
         setNewProduct(prevState => {
@@ -575,9 +608,41 @@ function Admin() {
         }
     }
 
+    function optionsOfPartsElemnt(i){
+        return newProduct.options?.map((option) => {
+            return (
+                <div
+                    key={option.name}
+                    className="flex gap-2 items-center"
+                >
+                    <input 
+                        type="radio" 
+                        value={option.name} 
+                        id={option.name} 
+                        checked={Array.isArray(newProduct?.parts) &&  newProduct?.parts[i]?.options?.includes(option.name)|| false}
+                        onClick={(e)=>handelPartOptChange(e,i)}
+                    />
+                    <label htmlFor={option.name}>{option.name}</label>
+                </div>
+            )
+        })
+    }
     const partsElemnt = partsArray.map((num, i) => {
         return (
             <div className="flex gap-2 flex-col z-10 mt-6 shadow-md relative" key={num}>
+                <div className=" pl-8 flex gap-4 z-10">
+                    <div className="flex gap-2 items-center">
+                        <input 
+                            type="radio" 
+                            value="all" 
+                            id='All' 
+                            checked={newProduct?.parts?.[i]?.options?.includes('all') || false}
+                            onClick={(e)=>handelPartOptChange(e,i)}
+                        />
+                        <label htmlFor='All'>All</label>
+                    </div>
+                    {optionsOfPartsElemnt(i)}
+                </div>
                 <div
                     className="size-full absolute top-0 right-0"
                     onClick={() => setIsRewMates([])}

@@ -1,6 +1,6 @@
 import { faMinus, faPlus, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { editAddPart, editAddProduct, editMinusPart, editMinusProduct } from "../../../app/actions/storage";
@@ -67,6 +67,8 @@ function Products({isUpdateAccess}) {
 
     const [note,setNote] = useState('');
 
+    const [selectedOption,setSelectedOption] = useState(null);
+    
     useEffect(()=>{
         if (!Products || !EditedProduct) return;
 
@@ -75,6 +77,7 @@ function Products({isUpdateAccess}) {
             let updatedProduct = { ...pre };
         
             updatedProduct.parts = updatedProduct.parts.map(part => {
+              if(!part.options.includes(selectedOption) && !part.options.includes('all')) return part
               let oldQnt = 0;
         
               Products.forEach(product => {
@@ -104,8 +107,10 @@ function Products({isUpdateAccess}) {
         if(plusOrMinus === 'minus') return
         let totalAmount = 0
         allParts.forEach(part=>{
+            
             const needed =EditedProduct.parts.filter(item => item.name === part.name);
 
+            if(needed.length === 0 && !needed[0]?.options.includes(selectedOption) && !needed[0]?.options.includes('all')) return
             if(part.qnts.length === 0){
                 setNeededParts(pre=>{
                     const i =pre.findIndex(item => item?.name === part.name)
@@ -154,11 +159,11 @@ function Products({isUpdateAccess}) {
         setTotalPrice(totalAmount)
     },[EditedProduct,allParts])  
     
-    useEffect(()=>{
-        setIsRedBG(pre=>!pre)
-        const interval = setInterval(()=>{setIsRedBG(pre=>!pre)},250)
-        setTimeout(()=>{clearInterval(interval)},1000)
-    },[isMax])
+    // useEffect(()=>{
+    //     setIsRedBG(pre=>!pre)
+    //     const interval = setInterval(()=>{setIsRedBG(pre=>!pre)},250)
+    //     setTimeout(()=>{clearInterval(interval)},1000)
+    // },[isMax])
 
     useEffect(()=>{
         if(!EditedProduct) return
@@ -185,6 +190,7 @@ function Products({isUpdateAccess}) {
         if(!Product) return
        
         let maxQnt = 0
+        console.log(Product)
         if(Product.qnts)Product.qnts.forEach(qnt=>{
             maxQnt+=Number(qnt.qnt)
         })
@@ -193,6 +199,7 @@ function Products({isUpdateAccess}) {
 
     },[Product])
 
+    const queryClient = useQueryClient()
 
     if(IsLoading || IsPartsLoading||IsProductLoading) return <div>Loading...</div>;
     if(IsError) return <div>Error: {Error.message}</div>;
@@ -334,7 +341,7 @@ function Products({isUpdateAccess}) {
     ]
 
     const partsElement = EditedProduct?.parts.map(part=>{
-
+        if(!part.options.includes(selectedOption) && !part.options.includes('all')) return
         const needed = neededParts.find(item => item?.name === part.name)
         return (
 
@@ -342,7 +349,7 @@ function Products({isUpdateAccess}) {
                 className='relative  cursor-pointer' 
                 key={part.name}
             >
-                <div class="line-before"></div>
+                <div className="line-before"></div>
 
                 <div 
                     className="px-2 relative w-max py-1 flex items-center justify-center flex-col gap-2 rounded-md border border-black"
@@ -369,24 +376,63 @@ function Products({isUpdateAccess}) {
                 className={`px-2 py-1 relative rounded-md border border-black w-max ${isUpdateAccess && 'cursor-pointer'}`}
                 onClick={()=>isUpdateAccess &&setEditedProduct(product)}
             >
-                <div class="line-top"></div>
+                <div className="line-top"></div>
                 {product.title}
             </div>
         )
     })
 
+    const optionsElement = EditedProduct?.options?.map((option,i) => {
+        if(i === 0 && selectedOption === null) setSelectedOption(option.name)
+        return (
+            <div
+                key={option.name}
+            >
+                <input 
+                    type="radio" 
+                    name="option" 
+                    value={option.name} 
+                    className="bg-transparent mr-2"
+                    checked={option.name === selectedOption}
+                    onClick={()=>{
+                        setSelectedOption(option.name)
+                        setQnt(1)
+                        setMinusQnt(1)
+                    }}
+                    onChange={(e)=>{}}
+                />
+                {option.name}
+            </div>
+        )
+    })
+
+
     function submitAddProduct() {
-        editAddProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2)},)
-        EditedProduct.parts.forEach(part=>{part
-            editMinusPart(part.name,part.qnt)
-        })
+        try{
+            editAddProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2)},)
+            EditedProduct.parts.forEach(part=>{
+                if(!part.options.includes(selectedOption) && !part.options.includes('all')) return
+                editMinusPart(part.name,part.qnt,'',true)
+            })
+        }catch(err){
+            console.log(err)
+        }finally{
+            queryClient.invalidateQueries(['All parts'])
+        }
     }
     
     function submitMinusProduct() {
-        editMinusProduct(EditedProduct.title,minusQnt,note)
-        EditedProduct.parts.forEach(part=>{
-            editAddPart(part.name,{qnt:part.qnt})
-        })
+        try{
+            editMinusProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2)},)
+            EditedProduct.parts.forEach(part=>{
+                if(!part.options.includes(selectedOption) && !part.options.includes('all')) return
+                editAddPart(part.name,{qnt:part.qnt})
+            })
+        }catch(err){
+            console.log(err)
+        }finally{
+            queryClient.invalidateQueries(['All parts'])
+        }
     }
 
 
@@ -429,6 +475,11 @@ function Products({isUpdateAccess}) {
                         <FontAwesomeIcon icon={faX} className="text-white" />
                         </button>                    
                     </div>
+
+                    <div className="flex my-3 items-start justify-around w-2/4">
+                        {optionsElement}
+                    </div>
+
                     <div className="flex items-start justify-around w-full">
                         <div className="flex flex-col">
                             <FontAwesomeIcon 

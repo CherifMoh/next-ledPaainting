@@ -52,6 +52,7 @@ function Page() {
    
 
     function handleDelete (id){
+        console.log('delete')
         setDeleting(pre=>([...pre,{
             id:id,
             state:true
@@ -82,13 +83,13 @@ function Page() {
                                 <FontAwesomeIcon  icon={faPen} />
                             </Link>
                         }
-                        {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                        {isDeleteAccess && deleting.some(item => item.id === product._id && item.state) &&
                             <Spinner size={'h-8 w-8'} color={'border-red-500'} />
                         }  
-                        {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
+                        {isDeleteAccess && !deleting.some(item => item.id === product._id && item.state) &&
                             <button
                                 className=' p-2 rounded-md'
-                                onClick={() => handleDelete(order._id)}
+                                onClick={() => handleDelete(product._id)}
                             >
                                 <FontAwesomeIcon icon={faTrashCan} />
                             </button>                            
@@ -101,13 +102,13 @@ function Page() {
                                 <FontAwesomeIcon  icon={faPen} />
                             </Link>
                         }
-                        {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                        {isDeleteAccess && deleting.some(item => item.id === product._id && item.state) &&
                             <Spinner size={'h-8 w-8'} color={'border-red-500'} />
                         }  
-                        {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
+                        {isDeleteAccess && !deleting.some(item => item.id === product._id && item.state) &&
                             <button
                                 className=' p-2 rounded-md'
-                                onClick={() => handleDelete(order._id)}
+                                onClick={() => handleDelete(product._id)}
                             >
                                 <FontAwesomeIcon icon={faTrashCan} />
                             </button>                            

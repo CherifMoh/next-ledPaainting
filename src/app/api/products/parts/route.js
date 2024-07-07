@@ -7,7 +7,7 @@ import { NextResponse } from "next/server"
 export async function GET() {
   try{
     await dbConnect()
-    return Product.find().sort({_id: -1}).select('parts title')
+    return Product.find().sort({_id: -1}).select('parts title options')
     .then(result=> Response.json(result))
     .catch(err=>Response.json({message:err.message}))
 
