@@ -1303,7 +1303,7 @@ function Orders() {
                 }
             </div>
 
-            <div className="relative max-h-[700px] overflow-y-auto w-full">
+            <div className="relative h-[700px] overflow-y-auto w-full">
                 <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
                     <thead className="sticky top-0 z-[999999999] border-2 border-gray-500 bg-white">
                         <tr>

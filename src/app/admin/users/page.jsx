@@ -8,10 +8,16 @@ import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteUser } from '../../actions/users'
 import Spinner from '../../../components/loadings/Spinner';
-import Roles from '../../../components/admin/roles/Roles';
+// import Roles from '../../../components/admin/roles/Roles';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
+import dynamic from 'next/dynamic';
+
+
+const Roles = dynamic(() => import('../../../components/admin/roles/Roles'), {
+  ssr: false,
+});
 
 async function fetchUsers() {
   const res = await axios.get('/api/users');
