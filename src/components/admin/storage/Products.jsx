@@ -409,7 +409,7 @@ function Products({isUpdateAccess}) {
 
     function submitAddProduct() {
         try{
-            editAddProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2)},)
+            editAddProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2),option:selectedOption},)
             EditedProduct.parts.forEach(part=>{
                 if(!part.options.includes(selectedOption) && !part.options.includes('all')) return
                 editMinusPart(part.name,part.qnt,'',true)
@@ -426,7 +426,7 @@ function Products({isUpdateAccess}) {
             editMinusProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2)},)
             EditedProduct.parts.forEach(part=>{
                 if(!part.options.includes(selectedOption) && !part.options.includes('all')) return
-                editAddPart(part.name,{qnt:part.qnt})
+                editAddPart(part.name,{qnt:part.qnt,ready:false})
             })
         }catch(err){
             console.log(err)

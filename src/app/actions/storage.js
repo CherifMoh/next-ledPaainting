@@ -131,6 +131,11 @@ export async function editAddPart(name,newQnts){
         return
     }
 
+    if (!newQnts.price && newQnts.price !== 0) {
+        const lastQnt = result.qnts[result.qnts.length - 1];
+        newQnts.price = lastQnt ? lastQnt.price : 0; // Use the last quantity's price or default to 0
+    }
+
     result.qnts =[...result.qnts, newQnts]
     const newDocument = await Workshop.findOneAndUpdate({name:name}, result, { new: true })
 
