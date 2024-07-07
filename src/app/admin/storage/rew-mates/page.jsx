@@ -160,7 +160,7 @@ function RawMaterials() {
               placeholder="Material Name"
             />
             <input 
-              type='number'
+              type='text'
               name="qnt"
               onChange={handleQntPriceChange}
               value={formData?.qnts[0]?.qnt}
@@ -170,7 +170,7 @@ function RawMaterials() {
               placeholder="Quantity"
             />
             <input 
-              type='number'
+              type='text'
               name="price"
               onChange={handleQntPriceChange}
               value={formData?.qnts[0]?.price}
