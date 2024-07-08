@@ -68,7 +68,7 @@ function Parts({isUpdateAccess,fetchProductsParts,fetchRewMates,fetchPartByName,
 
     const { data: RewMates, isLoading: IsRewLoading, isError: IsRewError, error: RewError } = useQuery({
         queryKey: ['Rew Mates'],
-        queryFn: () => fetchRewMates(EditedPart.name||'randome name')
+        queryFn: fetchRewMates
     });
 
     const [isProducts, setIsProducts] = useState(false);

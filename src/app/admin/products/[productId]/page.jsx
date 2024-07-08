@@ -612,19 +612,20 @@ function ProductUpdate({ params }) {
 
     function optionsOfPartsElemnt(i){
         return newProduct.options?.map((option) => {
+  
             return (
                 <div
-                    key={option.name}
+                    key={option.title}
                     className="flex gap-2 items-center"
                 >
                     <input 
                         type="radio" 
-                        value={option.name} 
-                        id={option.name} 
-                        checked={Array.isArray(newProduct?.parts) &&  newProduct?.parts[i]?.options?.includes(option.name)|| false}
+                        value={option.title} 
+                        id={option.title} 
+                        checked={Array.isArray(newProduct?.parts) &&  newProduct?.parts[i]?.options?.includes(option.title)|| false}
                         onClick={(e)=>handelPartOptChange(e,i)}
                     />
-                    <label htmlFor={option.name}>{option.name}</label>
+                    <label htmlFor={option.title}>{option.title}</label>
                 </div>
             )
         })

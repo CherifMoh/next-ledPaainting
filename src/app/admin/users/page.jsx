@@ -8,16 +8,19 @@ import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteUser } from '../../actions/users'
 import Spinner from '../../../components/loadings/Spinner';
-// import Roles from '../../../components/admin/roles/Roles';
+import RolesComp from '../../../components/admin/roles/Roles';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 
+async function fetchRoles() {
+  const res = await axios.get('/api/users/roles')
+  if(res.data){
+      return res.data
+  }return []
+}
 
-const Roles = dynamic(() => import('../../../components/admin/roles/Roles'), {
-  ssr: false,
-});
 
 async function fetchUsers() {
   const res = await axios.get('/api/users');
@@ -25,6 +28,12 @@ async function fetchUsers() {
 }
 
 function User() {
+
+  const { data: Roles, isLoading: IsRolesLoading, isError: IsRolesError, error: RolesError } = useQuery({
+      queryKey: ['roles'],
+      queryFn: fetchRoles
+  });
+
 
   const { data: users, isLoading, isError, error } = useQuery({
     queryKey: ['users'],
@@ -47,8 +56,9 @@ function User() {
       }
   },[accessibilities])
 
-  if (isLoading) return <div>Loading ...</div>
+  if (isLoading || IsRolesLoading) return <div>Loading ...</div>
   if (isError) return <div>{error.message}</div>
+  if (IsRolesError) return <div>{RolesError.message}</div>
 
   const headsArray = [
     'User Name',
@@ -166,7 +176,10 @@ function User() {
           </table>
         </>
         :
-        <Roles users={users}/>}
+        <RolesComp 
+          Roles={Roles} 
+          users={users}
+        />}
     </section>
   )
 

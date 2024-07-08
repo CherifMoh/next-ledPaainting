@@ -385,25 +385,25 @@ function Products({isUpdateAccess,fetchProductByName,fetchParts,fetchProductsPar
     })
 
     const optionsElement = EditedProduct?.options?.map((option,i) => {
-        if(i === 0 && selectedOption === null) setSelectedOption(option.name)
+        if(i === 0 && selectedOption === null) setSelectedOption(option.title)
         return (
             <div
-                key={option.name}
+                key={option.title}
             >
                 <input 
                     type="radio" 
                     name="option" 
-                    value={option.name} 
+                    value={option.title} 
                     className="bg-transparent mr-2"
-                    checked={option.name === selectedOption}
+                    checked={option.title === selectedOption}
                     onClick={()=>{
-                        setSelectedOption(option.name)
+                        setSelectedOption(option.title)
                         setQnt(1)
                         setMinusQnt(1)
                     }}
                     onChange={(e)=>{}}
                 />
-                {option.name}
+                {option.title}
             </div>
         )
     })

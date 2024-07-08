@@ -8,20 +8,11 @@ import { createRole, deleteRole } from '../../../app/actions/users'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-async function fetchRoles() {
-    const res = await axios.get('/api/users/roles')
-    if(res.data){
-        return res.data
-    }return []
-}
 
-function Roles({users}) {
 
-    const { data: Roles, isLoading, isError, error} = useQuery({
-        queryKey: ['roles'],
-        queryFn: fetchRoles
-    });
+function Roles({users,Roles}) {
 
+  
     const [actionError,setActionError] = useState()
     
     const [selectRoles,setSelectRoles] = useState([])
@@ -46,8 +37,7 @@ function Roles({users}) {
 
 
 
-    if (isLoading) return <div>Loading ...</div>
-    if (isError) return <div>{error.message}</div>
+    
 
     async function duplicteRole(oldRole){
         try{
