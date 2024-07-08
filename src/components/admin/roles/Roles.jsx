@@ -16,7 +16,7 @@ async function fetchRoles() {
     }return []
   }
 
-function Roles({users,Roles}) {
+function Roles({users}) {
 
     const { data: Roles, isLoading: IsRolesLoading, isError: IsRolesError, error: RolesError } = useQuery({
         queryKey: ['roles'],
