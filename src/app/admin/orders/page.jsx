@@ -15,6 +15,7 @@ import { deleteOrder } from '../../actions/order'
 import { editMinusProduct } from '../../actions/storage'
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
+import {AmiriFont} from '../../data/AmiriFont'
 
 import orangeBg from '../../../../public/assets/orange bg.png';
 import redBg from '../../../../public/assets/red bg.png';
@@ -44,6 +45,7 @@ async function fetchProducts() {
 }
 
 function Orders() {
+
 
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
 
@@ -1182,7 +1184,15 @@ function Orders() {
     }
 
     const generatePDF = (data) => {
+
         const doc = new jsPDF();
+
+
+
+        doc.addFileToVFS('arabic.ttf',  AmiriFont);
+        doc.addFont('arabic.ttf', 'Arabic', 'normal');
+        doc.setFont('Arabic');
+
     
         const colors = ['#e3f2fd', '#f5f5f5']; // Light blue and light gray colors
         let colorIndex = 0; // Index to alternate colors
