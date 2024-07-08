@@ -127,6 +127,8 @@ function User() {
     )
   })
 
+  console.log(Roles)
+
   return (
     <section className='p-4'>
 

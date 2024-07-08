@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react'
 
 
 function Roles({users,Roles}) {
-
+    console.log(Roles)
   
     const [actionError,setActionError] = useState()
     
