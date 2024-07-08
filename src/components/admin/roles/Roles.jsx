@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react'
 
 async function fetchRoles() {
     const res = await axios.get('/api/users/roles')
-    console.log(res.data)
     if(res.data){
         return res.data
     }return []
