@@ -117,7 +117,6 @@ function User() {
     )
   })
 
-  console.log(Roles)
 
   return (
     <section className='p-4'>
@@ -169,7 +168,6 @@ function User() {
         </>
         :
         <RolesComp 
-          Roles={Roles} 
           users={users}
         />}
     </section>
