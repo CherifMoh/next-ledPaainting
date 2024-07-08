@@ -8,21 +8,27 @@ import Image from "next/image";
 import { faX, faPlus, faMinus, faHammer, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { editAddPart, editMinusRewMateQnt, editAddRewMateQnt, editMinusPart, editReadyPart } from '../../../app/actions/storage'
+import { unstable_noStore as noStore } from "next/cache";
 
+
+export const dynamic = "force-dynamic"
 
 const fetchProductsParts = async () => {
+    noStore()
     const res = await axios.get(`/api/products/parts`);
     if(!res.data) return []
     return res.data;
 }
 
 const fetchRewMates = async () => {
+    noStore()
     const res = await axios.get(`/api/storage/rewMates`);
     if(!res.data) return []
     return res.data;
 }
 
 const fetchPartByName = async (name) => {
+    noStore()
     const response = await fetch(`/api/storage/workshop/${name}`);
     if (!response.ok) {
       if (response.status === 404) {
@@ -34,6 +40,7 @@ const fetchPartByName = async (name) => {
 }
 
 const fetchParts = async () => {
+    noStore()
     const res = await axios.get(`/api/storage/workshop`);
     if(!res.data) return []
     return res.data;
@@ -41,7 +48,7 @@ const fetchParts = async () => {
 
 
 function Parts({isUpdateAccess}) {
-
+    noStore()
     const [EditedPart, setEditedPart] = useState({name:'',mates:[]});
     
     const { data: Products, isLoading: IsLoading, isError: IsError, error: Error } = useQuery({

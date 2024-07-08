@@ -7,24 +7,13 @@ import axios from "axios";
 import Link from "next/link"
 import { useEffect, useState } from "react";
 
-// import RewMatesComp from '../../../components/admin/storage/RewMates'
-// import PartsComp from '../../../components/admin/storage/Parts'
-// import ProductsComp from '../../../components/admin/storage/Products'
+import RewMatesComp from '../../../components/admin/storage/RewMates'
+import PartsComp from '../../../components/admin/storage/Parts'
+import ProductsComp from '../../../components/admin/storage/Products'
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import dynamic from "next/dynamic";
 
-const RewMatesComp = dynamic(() => import('../../../components/admin/storage/RewMates'), {
-    ssr: false,
-});
-
-const PartsComp = dynamic(() => import('../../../components/admin/storage/Parts'), {
-    ssr: false,
-});
-
-const ProductsComp = dynamic(() => import('../../../components/admin/storage/Products'), {
-    ssr: false,
-});
 
 function Storage() {
 
