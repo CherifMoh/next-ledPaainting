@@ -13,9 +13,53 @@ import ProductsComp from '../../../components/admin/storage/Products'
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import dynamic from "next/dynamic";
+import { unstable_noStore as noStore} from "next/cache";
+
+
+const fetchRewMates = async () => {
+    noStore()
+    const res = await axios.get(`/api/storage/rewMates`);
+    if(!res.data) return []
+    return res.data;
+}
+
+const fetchPartByName = async (name) => {
+    noStore()
+    const response = await fetch(`/api/storage/workshop/${name}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('An error occurred while fetching the data.');
+    }
+    return response.json();
+}
+
+const fetchParts = async () => {
+    noStore()
+    const res = await axios.get(`/api/storage/workshop`);
+    if(!res.data) return []
+    return res.data;
+}
+
+
+
+const fetchProductsParts = async () => {
+    const res = await axios.get(`/api/products/parts`);
+    if(!res.data) return []
+    return res.data;
+}
+
+const fetchProductByName = async (title) => {
+    const res = await axios.get(`/api/storage/products/${title}`);
+    if(!res.data[0]) return []
+    return res.data[0]
+}
+
 
 
 function Storage() {
+
 
     const [isCreateAccess, setIsCreateAccess] = useState(false)
     const [isUpdateAccess, setIsUpdateAccess] = useState(false)
@@ -69,8 +113,19 @@ function Storage() {
             <div 
                 className="m-auto text-xl w-[800px] flex justify-between items-start mt-10 "
             >
-                <ProductsComp isUpdateAccess={isUpdateAccess}/>
-                <PartsComp isUpdateAccess={isUpdateAccess}/>
+                <ProductsComp 
+                    isUpdateAccess={isUpdateAccess}
+                    fetchProductByName={fetchProductByName}
+                    fetchProductsParts={fetchProductsParts}
+                    fetchParts={fetchParts}
+                    />
+                <PartsComp 
+                    isUpdateAccess={isUpdateAccess}
+                    fetchProductsParts={fetchProductsParts}
+                    fetchParts={fetchParts}
+                    fetchRewMates={fetchRewMates}
+                    fetchPartByName={fetchPartByName}
+                />
                 <RewMatesComp isUpdateAccess={isUpdateAccess}/>
             </div>
         </main>
