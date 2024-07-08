@@ -11,42 +11,43 @@ import { editAddPart, editMinusRewMateQnt, editAddRewMateQnt, editMinusPart, edi
 import { unstable_noStore as noStore } from "next/cache";
 
 
+export const dynamic = "force-dynamic"
 
-// const fetchProductsParts = async () => {
-//     noStore()
-//     const res = await axios.get(`/api/products/parts`);
-//     if(!res.data) return []
-//     return res.data;
-// }
+const fetchProductsParts = async () => {
+    noStore()
+    const res = await axios.get(`/api/products/parts`);
+    if(!res.data) return []
+    return res.data;
+}
 
-// const fetchRewMates = async () => {
-//     noStore()
-//     const res = await axios.get(`/api/storage/rewMates`);
-//     if(!res.data) return []
-//     return res.data;
-// }
+const fetchRewMates = async () => {
+    noStore()
+    const res = await axios.get(`/api/storage/rewMates`);
+    if(!res.data) return []
+    return res.data;
+}
 
-// const fetchPartByName = async (name) => {
-//     noStore()
-//     const response = await fetch(`/api/storage/workshop/${name}`);
-//     if (!response.ok) {
-//       if (response.status === 404) {
-//         return null;
-//       }
-//       throw new Error('An error occurred while fetching the data.');
-//     }
-//     return response.json();
-// }
+const fetchPartByName = async (name) => {
+    noStore()
+    const response = await fetch(`/api/storage/workshop/${name}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('An error occurred while fetching the data.');
+    }
+    return response.json();
+}
 
-// const fetchParts = async () => {
-//     noStore()
-//     const res = await axios.get(`/api/storage/workshop`);
-//     if(!res.data) return []
-//     return res.data;
-// }
+const fetchParts = async () => {
+    noStore()
+    const res = await axios.get(`/api/storage/workshop`);
+    if(!res.data) return []
+    return res.data;
+}
 
 
-function Parts({isUpdateAccess,fetchProductsParts,fetchRewMates,fetchPartByName,fetchParts}) {
+function Parts({isUpdateAccess}) {
     noStore()
     const [EditedPart, setEditedPart] = useState({name:'',mates:[]});
     
@@ -68,7 +69,7 @@ function Parts({isUpdateAccess,fetchProductsParts,fetchRewMates,fetchPartByName,
 
     const { data: RewMates, isLoading: IsRewLoading, isError: IsRewError, error: RewError } = useQuery({
         queryKey: ['Rew Mates'],
-        queryFn: fetchRewMates
+        queryFn: () => fetchRewMates(EditedPart.name||'randome name')
     });
 
     const [isProducts, setIsProducts] = useState(false);

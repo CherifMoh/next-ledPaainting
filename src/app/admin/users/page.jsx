@@ -14,12 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 
-async function fetchRoles() {
-  const res = await axios.get('/api/users/roles')
-  if(res.data){
-      return res.data
-  }return []
-}
+
 
 
 async function fetchUsers() {
@@ -28,11 +23,6 @@ async function fetchUsers() {
 }
 
 function User() {
-
-  const { data: Roles, isLoading: IsRolesLoading, isError: IsRolesError, error: RolesError } = useQuery({
-      queryKey: ['roles'],
-      queryFn: fetchRoles
-  });
 
 
   const { data: users, isLoading, isError, error } = useQuery({
@@ -56,9 +46,9 @@ function User() {
       }
   },[accessibilities])
 
-  if (isLoading || IsRolesLoading) return <div>Loading ...</div>
+  if (isLoading ) return <div>Loading ...</div>
   if (isError) return <div>{error.message}</div>
-  if (IsRolesError) return <div>{RolesError.message}</div>
+  
 
   const headsArray = [
     'User Name',

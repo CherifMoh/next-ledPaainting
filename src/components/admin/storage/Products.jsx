@@ -8,26 +8,26 @@ import { useEffect, useState } from "react";
 import { editAddPart, editAddProduct, editMinusPart, editMinusProduct } from "../../../app/actions/storage";
 
 
-// const fetchProductsParts = async () => {
-//     const res = await axios.get(`/api/products/parts`);
-//     if(!res.data) return []
-//     return res.data;
-// }
+const fetchProductsParts = async () => {
+    const res = await axios.get(`/api/products/parts`);
+    if(!res.data) return []
+    return res.data;
+}
 
-// const fetchParts = async () => {
-//     const res = await axios.get(`/api/storage/workshop`);
-//     if(!res.data) return []
-//     return res.data;
-// }
+const fetchParts = async () => {
+    const res = await axios.get(`/api/storage/workshop`);
+    if(!res.data) return []
+    return res.data;
+}
 
-// const fetchProductByName = async (title) => {
-//     const res = await axios.get(`/api/storage/products/${title}`);
-//     if(!res.data[0]) return []
-//     return res.data[0]
-// }
+const fetchProductByName = async (title) => {
+    const res = await axios.get(`/api/storage/products/${title}`);
+    if(!res.data[0]) return []
+    return res.data[0]
+}
 
 
-function Products({isUpdateAccess,fetchProductByName,fetchParts,fetchProductsParts}) {
+function Products({isUpdateAccess}) {
 
     const [EditedProduct,setEditedProduct] = useState({title:'',parts:[]});
 
