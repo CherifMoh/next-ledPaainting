@@ -209,12 +209,13 @@ function Products({isUpdateAccess}) {
         let maxQnt = 0
         console.log(Product)
         if(Product.qnts)Product.qnts.forEach(qnt=>{
+            if(qnt?.option !== selectedOption) return
             maxQnt+=Number(qnt.qnt)
         })
         setMinusMax(maxQnt)
         if(maxQnt === 0) setMinusQnt(0)
 
-    },[Product])
+    },[Product,selectedOption])
 
     const queryClient = useQueryClient()
 
@@ -449,12 +450,13 @@ function Products({isUpdateAccess}) {
             console.log(err)
         }finally{
             queryClient.invalidateQueries(['All parts'])
+            queryClient.invalidateQueries(['Products in Storage'])
         }
     }
     
     function submitMinusProduct() {
         try{
-            editMinusProduct(EditedProduct.title,{qnt:qnt,price:(totalPrice/qnt).toFixed(2)},)
+            editMinusProduct(EditedProduct.title,minusQnt,note,selectedOption)
             EditedProduct.parts.forEach(part=>{
                 if(!part.options.includes(selectedOption) && !part.options.includes('all')) return
                 editAddPart(part.name,{qnt:part.qnt,ready:false})
@@ -462,6 +464,7 @@ function Products({isUpdateAccess}) {
         }catch(err){
             console.log(err)
         }finally{
+            queryClient.invalidateQueries(['Products in Storage'])
             queryClient.invalidateQueries(['All parts'])
         }
     }
@@ -518,6 +521,9 @@ function Products({isUpdateAccess}) {
                                 className={`text-white bg-${plusOrMinus==='minus'&&'green-200 cursor-pointer'} text-2xl p-4 `}
                                 onClick={()=>{
                                     setPlusOrMinus('plus')
+                                    setSelectedOption(null)
+                                    setQnt(1)
+                                    setMinusQnt(1)
                                     setNeededParts([])
                                     setIsMax([])
                                 }} 
@@ -527,6 +533,9 @@ function Products({isUpdateAccess}) {
                                 className={`text-white ${plusOrMinus==='plus'&&'bg-red-400 cursor-pointer'} text-2xl p-4 `} 
                                 onClick={()=>{
                                     setPlusOrMinus('minus')
+                                    setSelectedOption(null)
+                                    setQnt(1)
+                                    setMinusQnt(1)
                                     setNeededParts([])
                                     setIsMax([])
                                 }}

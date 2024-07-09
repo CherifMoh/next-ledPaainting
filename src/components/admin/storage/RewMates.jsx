@@ -92,7 +92,7 @@ function RewMatesComp({isUpdateAccess}) {
         let totalQnt = 0
   
         rewMate.qnts.forEach(qnt=>totalQnt=totalQnt+Number(qnt.qnt))
-        
+        totalQnt = totalQnt.toFixed(2)
 
         return (
             <div 

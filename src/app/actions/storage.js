@@ -261,12 +261,13 @@ export async function editAddProduct(name,newQnts){
     return newDocument       
 }
 
-export async function editMinusProduct(name,newQnt,note){
+export async function editMinusProduct(name,newQnt,note,option){
    
     const firstQnt = newQnt
     let result = await ProductsStorage.findOne({name:name});
     
- 
+    console.log(result)
+
     if (!result || !result.qnts || !result.qnts.length) {
         console.log('No data found or qnts array is empty');
         return;
@@ -275,28 +276,35 @@ export async function editMinusProduct(name,newQnt,note){
     // Convert qnt values to numbers since they are strings in the database
     let qnts = result.qnts.map(item => ({
         price: item.price,
-        qnt: Number(item.qnt)
+        qnt: Number(item.qnt),
+        option: item.option
     }));
 
     // Process the qnts array from the last element to the first
     for (let i = 0; i < qnts.length && newQnt > 0; i++) {
-        if (qnts[i].qnt <= newQnt) {
-            newQnt -= qnts[i].qnt;
-            qnts.splice(i, 1);  // Remove the element from the array
-        } else {
-            qnts[i].qnt -= newQnt;
-            newQnt = 0;
+        if (option !== undefined && qnts[i].option === option) {
+            if (qnts[i].qnt <= newQnt) {
+                newQnt -= qnts[i].qnt; // Decrease newQnt by the quantity of the current element
+                qnts.splice(i, 1);  // Remove the element from the array
+                i--; // Adjust the index after removing an element
+            } else {
+                qnts[i].qnt -= newQnt; // Decrease the element's quantity by newQnt
+                newQnt = 0; // Set newQnt to 0
+            }
         }
     }
 
     // Convert qnt values back to strings before updating the database
     qnts = qnts.map(item => ({
         price: item.price,
-        qnt: item.qnt.toString()
+        qnt: item.qnt.toString(),
+        option: item.option
     }));
 
     // Save the updated qnts array back to the database
     result.qnts = qnts;
+    
+    
 
     const newDocument = await ProductsStorage.findOneAndUpdate({name:name}, result, { new: true })
     AddToArchive({
