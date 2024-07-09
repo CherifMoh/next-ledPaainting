@@ -357,7 +357,7 @@ function Page() {
 
     const galleryElement = selectedProduct.gallery?.map(img=>{
         return(
-            <div>
+            <div key={uuidv4()}>
             <Image
                 src={img}
                 alt=''
