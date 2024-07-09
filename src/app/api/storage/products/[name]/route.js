@@ -7,7 +7,7 @@ export async function GET(req,{params}){
         await dbConnect()
 
         const result = await ProductsStorge.find({title:params.title})
-        console.log(result)
+
         return Response.json(result)
     }catch(err){
         return new NextResponse("Error :" + err)

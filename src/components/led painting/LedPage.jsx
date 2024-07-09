@@ -158,8 +158,13 @@ function ProductPage({ mproduct }) {
     const PDescriptionElement = Plines.map((line, i) => {
         return (
             <Fragment key={line + i} >
-                <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
-                <br />
+                <p 
+                    className='font-semibold xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'
+                    dir="rtl"
+                >
+                    {line}
+                </p>
+                {/* <br /> */}
             </Fragment>
         )
     })
@@ -169,8 +174,12 @@ function ProductPage({ mproduct }) {
     const DDescriptionElement = Dlines.map((line, i) => {
         return (
             <Fragment key={line + i} >
-                <p className='xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'>{line}</p>
-                <br />
+                <p 
+                    className='font-semibold xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'
+                    dir="rtl"
+                >
+                    {line}
+                </p>
             </Fragment>
         )
     })
@@ -217,10 +226,26 @@ function ProductPage({ mproduct }) {
     })
 
     const dropDownsElement = ledPainting.dropDowns?.map((dropdown, i) => {
+
+        const Dlines = dropdown?.body?.split('\n');
+
+        const dropdownBody = Dlines.map((line, i) => {
+            return (
+                <Fragment key={line + i} >
+                    <p 
+                        className='font-semibold xl:max-w-[500px] lg:max-w-[400px] md:max-w-[250px] sm:max-w-[500px] max-w-[300px]  break-words'
+                        dir="rtl"
+                    >
+                        {line}
+                    </p>
+                </Fragment>
+            )
+        })
+
         return (
             <div className="drop-down" key={dropdown.title}>
                 <div 
-                    className={`drop-header ${i+1 === ledPainting.dropDowns.length && ledPainting.dropDowns.length>1 && 'drop-header2'} flex justify-between items-center gap-2} cursor-pointer`} 
+                    className={`drop-header ${i !== 0 && 'drop-header2'} flex justify-between items-center gap-2 cursor-pointer`} 
                     onClick={() => setIsDropdowns(pre =>{
                         if(pre.includes(dropdown.title)){
                             return pre.filter(item => item !== dropdown.title)
@@ -249,12 +274,13 @@ function ProductPage({ mproduct }) {
                               `}
                 >
                     <p
-                        className="drop-dimensions-title font-semibold text-lg"
+                        className="drop-dimensions-title font-semibold text-xl"
+                        dir="rtl"
                     >
                         {dropdown.header}
                     </p>
                     <p className="dimensions">
-                        {dropdown.body}
+                        {dropdownBody}
                     </p>
                 </div>
             </div>

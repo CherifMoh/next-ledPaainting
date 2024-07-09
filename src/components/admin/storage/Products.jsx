@@ -1,6 +1,6 @@
 'use client'
 
-import { faMinus, faPlus, faX } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faMinus, faPlus, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -26,6 +26,17 @@ const fetchProductByName = async (title) => {
     return res.data[0]
 }
 
+const fetchProductsStorage = async () => {
+    const response = await fetch(`/api/storage/products`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('An error occurred while fetching the data.');
+    }
+    return response.json();
+}
+
 
 function Products({isUpdateAccess}) {
 
@@ -34,6 +45,10 @@ function Products({isUpdateAccess}) {
     const { data: Products, isLoading: IsLoading, isError: IsError, error: Error } = useQuery({
         queryKey: ['parts'],
         queryFn: fetchProductsParts
+    });
+    const { data: StorageProducts, isLoading: IsStoragePLoading, isError: IsStoragePError, error: StoragePError } = useQuery({
+        queryKey: ['Products in Storage'],
+        queryFn: fetchProductsStorage
     });
 
     const { data: Product, isLoading: IsProductLoading, isError: IsProductError, error: ProductError } = useQuery({
@@ -203,12 +218,14 @@ function Products({isUpdateAccess}) {
 
     const queryClient = useQueryClient()
 
-    if(IsLoading || IsPartsLoading||IsProductLoading) return <div>Loading...</div>;
+    if(IsLoading || IsPartsLoading||IsProductLoading||IsStoragePLoading) return <div>Loading...</div>;
     if(IsError) return <div>Error: {Error.message}</div>;
     
     if(IsPartsError) return <div>Error: {PartsError.message}</div>;
 
     if(IsProductError) return <div>Error: {ProductError.message}</div>;
+
+    if(IsStoragePError) return <div>Error: {StoragePError.message}</div>;
 
     function calculateTotal(data, neededQnt, neededName) {
 
@@ -370,15 +387,27 @@ function Products({isUpdateAccess}) {
         )
     })
 
-
+    
     const productsElement = Products.map(product => {
+        const Sproduct =StorageProducts?.find(item => item.name === product.title)
+        let totalQnt = 0
+  
+        Sproduct?.qnts.forEach(qnt=>totalQnt=totalQnt+Number(qnt.qnt))
+    
+
         return(
             <div
                 key={product._id}
-                className={`px-2 py-1 relative rounded-md border border-black w-max ${isUpdateAccess && 'cursor-pointer'}`}
+                className={`px-2 py-1 relative flex gap-1 rounded-md border border-black w-max ${isUpdateAccess && 'cursor-pointer'}`}
                 onClick={()=>isUpdateAccess &&setEditedProduct(product)}
             >
                 <div className="line-top"></div>
+                <div
+                    className='bg-stone-600 text-green-400 flex gap-2 text-base items-center p-1 rounded-lg'
+                    >
+                    {totalQnt}
+                    <FontAwesomeIcon icon={faCheck} className='text-green-400' />
+                </div>
                 {product.title}
             </div>
         )

@@ -591,7 +591,7 @@ function ProductUpdate({ params }) {
                         className="bg-gray-500 relative flex gap-1 py-1 px-3 rounded-full"
                     >
                         <input
-                            type="number"
+                            type="text"
                             min={1}
                             defaultValue={mate.qnt}
                             className='bg-transparent w-4 no-focus-outline no-spin'

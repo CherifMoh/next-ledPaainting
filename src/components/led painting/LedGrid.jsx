@@ -468,7 +468,7 @@ function ProductsGrid() {
                     <div
                         key="layer"
                         onClick={togelCustomDesin}
-                        className="w-full flex cursor-pointer items-center justify-center shadow-lg md:mx-10 mx-2 md:h-32 sm:h-24 text-sm md:text-base bg-[#DCCCB3] border-2 border-[#4A3623] py-4 mb-20 md:mb-0 text-center text-[#4A3623] rounded-full"
+                        className="flex-grow flex cursor-pointer items-center justify-center shadow-lg md:mx-10 mx-2 md:h-32 sm:h-24 text-sm md:text-base bg-[#DCCCB3] border-2 border-[#4A3623] py-4 mb-20 md:mb-0 text-center text-[#4A3623] rounded-full"
                     >
                         Add a custom design
                     </div>

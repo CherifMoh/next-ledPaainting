@@ -89,6 +89,10 @@ function RewMatesComp({isUpdateAccess}) {
 
     const RewMatesElement = RewMates.map(rewMate=>{
         if(search && !rewMate.name.toLowerCase().includes(search.toLowerCase())) return
+        let totalQnt = 0
+  
+        rewMate.qnts.forEach(qnt=>totalQnt=totalQnt+Number(qnt.qnt))
+        
 
         return (
             <div 
@@ -102,7 +106,10 @@ function RewMatesComp({isUpdateAccess}) {
                     >
                         <FontAwesomeIcon icon={faPlus} className='text-green-500' />
                     </button>}
-                    {rewMate.name}
+                    <div className="flex gap-1 items-center">
+                        <span>{rewMate.name}</span>
+                        <span className="bg-[#DCCCB3] text-sm rounded-md px-1">{totalQnt}</span>
+                    </div>
 
                     {isUpdateAccess &&
                     <button 
@@ -248,7 +255,7 @@ function RewMatesComp({isUpdateAccess}) {
         </button>
 
         {isRewMates &&
-        <div className="flex relative flex-col border border-gray-700 divide-y rounded-md justify-center w-[200px] items-end mt-4 gap-1">
+        <div className="flex relative flex-col border border-gray-700 divide-y rounded-md justify-center items-end mt-4 gap-1">
             <div>
             <FontAwesomeIcon icon={faSearch} className="absolute text-gray-600 size-4 top-2 cursor-pointer right-1" />
             <input   

@@ -90,7 +90,8 @@ function Orders() {
     const [isAddedProducts, setIsAddedProducts] = useState([])
     const [isAddedDesigns, setIsAddedDesigns] = useState([])
     const [selectqnt, setSelectqnt] = useState(1)
-
+    
+    const [isGallery, setIsGallery] = useState([])
 
     const [scheduleQnt, setScheduleQnt] = useState()
 
@@ -583,7 +584,7 @@ function Orders() {
         setSelectqnt(1)
         // handleUpdatingOrder(id)
     }
-    // console.log(editedOrder)
+
 
     const productOptsElement = addedOrder.options?.map(option => {
         return (
@@ -615,6 +616,22 @@ function Orders() {
 
         if (isProductDeleted.includes(product._id)) return
 
+        const galleryElement = product.gallery?.map(gallery => {
+            return (
+                <div
+                    key={uuidv4()}
+                    className='size-16'
+                >
+                    <Image
+                        src={gallery}
+                        alt=''
+                        className="w-full h-full object-fit"
+                        width={64} height={64}
+                    />
+                </div>
+            )
+        })
+
         const optionElement = product.options?.map(option => {
             return (
                 <option
@@ -636,8 +653,33 @@ function Orders() {
         return (
             <td
                 key={i}
-                className=" border-y border-solid border-[rgb(128,128,128)]  relative font-medium p-2 pr-4 text-center h-8"
+                className=" border-y border-solid border-[rgb(128,128,128)] relative font-medium p-2 pr-4 text-center h-8"
             >
+                <div 
+                    className="absolute top-0 right-0 size-full"
+                    onMouseOver={()=>setIsGallery(pre=>[...pre, product._id])}
+                    onMouseOut={()=>setIsGallery(pre=>pre.filter(item => item !== product._id))}
+                >
+                    
+                    {(isGallery.includes(product._id) && galleryElement) &&
+                        <div 
+                            className="absolute z-[999999999999] -bottom-28 right-0 flex bg-gray-200 shadow-lg rounded-md rounded-tr-none gap-2 p-6 w-max"
+                        >   
+                            <div className="absolute -top-5 right-0 size-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-gray-200"></div>
+                            <div            
+                                className='size-16'
+                            >
+                                <Image
+                                    src={product.imageOn}
+                                    alt=''
+                                    className="w-full h-full object-fit"
+                                    width={64} height={64}
+                                />
+                            </div>
+                            {galleryElement}
+                        </div>
+                    }
+                </div>
 
                 {order._id === editedOrderId
                     ?
@@ -773,7 +815,7 @@ function Orders() {
                     <tr key={order._id} className={`h-5`}>
                         <td>
 
-                            {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                            {/* {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
                                 <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
                             }  
                             {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
@@ -783,7 +825,7 @@ function Orders() {
                                 >
                                     <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                 </button>                            
-                            }  
+                            }   */}
 
                             <button
                                 onClick={() => {
@@ -1089,7 +1131,7 @@ function Orders() {
                                                 />
                                             </div>
                                         }
-                                        {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                                        {/* {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
                                             <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
                                         }  
                                         {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
@@ -1099,7 +1141,7 @@ function Orders() {
                                             >
                                                 <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                             </button>                            
-                                        }  
+                                        }   */}
                                         {isUpdateAccess &&
                                         <button
                                             onClick={() => {

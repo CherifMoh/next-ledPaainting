@@ -358,12 +358,12 @@ function Admin() {
         return (
             <div className="flex gap-2 mt-6 relative" key={num}>
 
-                <button
-                    className="bg-gray-400 rounded-full px-2 absolute -top-2 -right-2"
+                <dev
+                    className="bg-gray-400 cursor-pointer rounded-full px-2 absolute -top-2 -right-2"
                     onClick={() => handleRemoveSale(i)}
                 >
                     X
-                </button>
+                </dev>
 
                 <input
                     type="Number"
@@ -589,7 +589,7 @@ function Admin() {
                         className="bg-gray-500 flex gap-1 relative py-1 px-3 rounded-full"
                     >
                         <input
-                            type="number"
+                            type="text"
                             min={1}
                             defaultValue={mate.qnt}
                             className='bg-transparent w-4 no-focus-outline no-spin'

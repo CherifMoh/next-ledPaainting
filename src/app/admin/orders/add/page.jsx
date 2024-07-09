@@ -9,7 +9,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import axios from 'axios';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import Spinner from '../../../../components/loadings/Spinner';
@@ -20,7 +20,7 @@ async function fetchDesigns() {
     return res.data;
 }
 async function fetchProducts() {
-    const res = await axios.get('/api/products');
+    const res = await axios.get('/api/products/addOrders');
     return res.data;
 }
 
@@ -254,12 +254,30 @@ function Page() {
         setSelectedProduct(pre => ({ ...pre, image: base64 }));
     }
 
+    async function handelAddGalleryImg(e) {
+        const file = e.target.files[0];
+        if (!file) {
+            // e.target.files[0] = []
+        }
+        if (!checkFileSize(file)) return
+        const base64 = await convertToBase64(file);
+   
+        setSelectedProduct(pre =>{
+            if(pre.gallery){
+                return{ ...pre, gallery:[...pre.gallery, base64] }
+            }
+            return{ ...pre, gallery:[ base64] }
+        });
+    }
+
+
 
     function addToOrders() {
         setOrders(pre => ([
             ...pre,
             {
                 imageOn: selectedProduct.image,
+                gallery: selectedProduct.gallery,
                 qnt: selectqnt,
                 title: selectedProduct.title,
                 options: selectedProduct.options,
@@ -337,11 +355,23 @@ function Page() {
         )
     })
 
+    const galleryElement = selectedProduct.gallery?.map(img=>{
+        return(
+            <div>
+            <Image
+                src={img}
+                alt=''
+                width={64} height={64}
+            />
+            </div>
+        )
+    })
+
     return (
         <div className='p-4 pt-0 flex gap-4'>
             <form
                 onSubmit={handelSubmit}
-                className='border-r-2 h-screen border-gray-400 pr-4'
+                className='border-r-2 h-screen w-1/2 border-gray-400 pr-4'
             >
                 <h1 className='text-center mt-4 text-2xl font-semibold mb-10'>Order details</h1>
                 <input
@@ -431,110 +461,131 @@ function Page() {
                     }
                 </button>
             </form>
-            <div>
+            <div className='w-1/2'>
                 <h1
                     className='text-center mt-4 text-2xl font-semibold mb-10'
                 >
                     Add Order
                 </h1>
-                <div className='flex items-center justify-center gap-16'>
-                    {selectedProduct.image
-                        ?
-                        <Image
-                            src={selectedProduct.image}
-                            alt=''
-                            width={64} height={64}
-                            onClick={() => {
-                                setIsproducts(pre => !pre)
-                                setSelectedProduct({})
-                            }}
-                        />
-                        :
-                        <div className='flex items-center gap-16'>
-                            <div>
-                                <div
+                <div className='flex flex-col items-center justify-center gap-6'>
+                    <div>
+                        {selectedProduct.image
+                            ?
+                            <div className='flex items-center gap-2'>
+                                <Image
+                                    src={selectedProduct.image}
+                                    alt=''
+                                    width={64} height={64}
                                     onClick={() => {
                                         setIsproducts(pre => !pre)
-                                        setIsdesigns(false)
+                                        setSelectedProduct({})
                                     }}
-                                    className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
+                                />
+                                {galleryElement}
+                                <div 
+                                    className='flex items-center justify-center relative size-16 border border-dashed border-gray-500'
                                 >
-                                    <p>Select a Product</p>
+
+                                    <input 
+                                        type="file" 
+                                        name="" id="" 
+                                        className='opacity-0 absolute top-0 right-0 size-full'
+                                        onChange={(e) => handelAddGalleryImg(e)}
+                                    />
+
+                                     <FontAwesomeIcon icon={faPlus} className='size-6 text-gray-600'/>
+                                </div>
+                            </div>
+                            :
+                            <div className='flex items-center gap-16'>
+                                <div>
+                                    <div
+                                        onClick={() => {
+                                            setIsproducts(pre => !pre)
+                                            setIsdesigns(false)
+                                        }}
+                                        className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
+                                    >
+                                        <p>Select a Product</p>
+                                    </div>
+
+                                    {isproducts &&
+                                        <div
+                                            className='max-w-96 bg-white border-2 border-gray-500 z-50 absolute mt-2'
+                                        >
+                                            <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
+                                                <FontAwesomeIcon
+                                                    icon={faMagnifyingGlass}
+                                                    className={`pt-2 pointer-events-none z-10 absolute left-64 ${search ? 'hidden' : 'opacity-50'}`}
+                                                />
+                                                <input
+                                                    id="search"
+                                                    type='search'
+                                                    className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
+                                                    placeholder={`Search`}
+                                                    onChange={(e) => setSearch(e.target.value)}
+                                                />
+                                            </div>
+                                            {isdesigns
+                                                ? <div
+                                                    className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
+                                                >
+                                                    <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
+                                                        <div className='border-2 border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
+                                                            <span
+                                                                className='absolute top-1/3'
+                                                            >
+                                                                Add a custom
+                                                            </span>
+                                                            <input
+                                                                type='file'
+                                                                onChange={(e) => {
+                                                                    handleFileUpload(e)
+                                                                    setIsproducts(false)
+                                                                    setIsdesigns(false)
+                                                                }}
+                                                                className='size-full opacity-0 m-0'
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    {designOptionsElent}
+                                                </div>
+                                                : <div
+                                                    className='max-h-[484px] w-80 z-50 overflow-y-auto'
+                                                >
+                                                    {productsOptionsElent}
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
 
-                                {isproducts &&
-                                    <div
-                                        className='max-w-96 bg-white border-2 border-gray-500 z-50 absolute mt-2'
-                                    >
-                                        <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
-                                            <FontAwesomeIcon
-                                                icon={faMagnifyingGlass}
-                                                className={`pt-2 pointer-events-none z-10 absolute left-64 ${search ? 'hidden' : 'opacity-50'}`}
-                                            />
-                                            <input
-                                                id="search"
-                                                type='search'
-                                                className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
-                                                placeholder={`Search`}
-                                                onChange={(e) => setSearch(e.target.value)}
-                                            />
-                                        </div>
-                                        {isdesigns
-                                            ? <div
-                                                className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
-                                            >
-                                                <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
-                                                    <div className='border-2 border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
-                                                        <span
-                                                            className='absolute top-1/3'
-                                                        >
-                                                            Add a custom
-                                                        </span>
-                                                        <input
-                                                            type='file'
-                                                            onChange={(e) => {
-                                                                handleFileUpload(e)
-                                                                setIsproducts(false)
-                                                                setIsdesigns(false)
-                                                            }}
-                                                            className='size-full opacity-0 m-0'
-                                                        />
-                                                    </div>
-                                                </div>
-                                                {designOptionsElent}
-                                            </div>
-                                            : <div
-                                                className='max-h-[484px] w-80 z-50 overflow-y-auto'
-                                            >
-                                                {productsOptionsElent}
-                                            </div>
-                                        }
-                                    </div>
-                                }
                             </div>
+                        }
+                    </div>
 
+                    <div className='flex flex-col xl:flex-row items-center justify-center gap-16 '>
+                        <input
+                            type="number"
+                            placeholder='Qntity'
+                            value={selectqnt}
+                            className='m-0 w-24 h-14'
+                            min={1}
+                            onChange={(e) => setSelectqnt(e.target.value)}
+                        />
+                        {productOptsElement?.length > 0 &&
+                            <select
+                                name="options"
+                                onChange={handelOptChange}
+                                className='m-0 w-max'
+                            >
+                                <option hidden>
+                                    اختر الخيار
+                                </option>
+                                {productOptsElement}
+                            </select>
+                        }
                         </div>
-                    }
-                    <input
-                        type="number"
-                        placeholder='Qntity'
-                        value={selectqnt}
-                        className='m-0 w-24 h-14'
-                        min={1}
-                        onChange={(e) => setSelectqnt(e.target.value)}
-                    />
-                    {productOptsElement?.length > 0 &&
-                        <select
-                            name="options"
-                            onChange={handelOptChange}
-                            className='m-0'
-                        >
-                            <option hidden>
-                                اختر الخيار
-                            </option>
-                            {productOptsElement}
-                        </select>
-                    }
 
                     <button
                         className='bg-green-300 px-3 py-2 rounded-lg'

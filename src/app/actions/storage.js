@@ -32,7 +32,7 @@ export async function editAddRewMateQnt(id,newQnts,name){
         const lastPrice = result.qnts[result.qnts.length - 1].price
         newQnts = {...newQnts,price:lastPrice}
     }
-    console.log(newQnts)
+
     result.qnts =[...result.qnts, newQnts]
 
     let newDocument
@@ -218,7 +218,7 @@ export async function editMinusPart(name, newQnt, note, ready) {
 
 export async function editReadyPart(name, numberToUpdate) {
     await dbConnect();
-    console.log(name, numberToUpdate)
+
     if(!numberToUpdate || numberToUpdate === 0) return
     let removedQnts = await editMinusPart(name, numberToUpdate, null, false);
 
