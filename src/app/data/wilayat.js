@@ -85,6 +85,11 @@ export const wilayat = [
         beru:350  
     }
     ,{
+        name:'Jijel',
+        dar:800,
+        beru:400  
+    }
+    ,{
         name:'Sétif',
         dar:700,
         beru:300  
