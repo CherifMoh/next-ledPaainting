@@ -74,23 +74,26 @@ function RewMatesComp({isUpdateAccess}) {
         if(!qnt) return setNoQnt(true)
         editAddRewMateQnt(id,newQnts,name)
         setIsPlus(pre=>pre.filter(id=>id !== id))
+        queryClient.invalidateQueries(['Rew Mates'])
         setQnt()
         setPrice()
     }
-
+    
     function submitMinusRewMatesQnts(id,name) {    
+      
         if(minusQnt) setNoQnt(false)
         if(!minusQnt) return setNoQnt(true)
-
+            
         editMinusRewMateQnt(id,minusQnt,name,note)
+        queryClient.invalidateQueries(['Rew Mates'])
         setIsMinus(pre=>pre.filter(id=>id !== id))
         setMinusQnt()
     }
-
-    const RewMatesElement = RewMates.map(rewMate=>{
-        if(search && !rewMate.name.toLowerCase().includes(search.toLowerCase())) return
-        let totalQnt = 0
-  
+            
+            const RewMatesElement = RewMates.map(rewMate=>{
+                if(search && !rewMate.name.toLowerCase().includes(search.toLowerCase())) return
+                let totalQnt = 0
+                
         rewMate.qnts.forEach(qnt=>totalQnt=totalQnt+Number(qnt.qnt))
         totalQnt = totalQnt.toFixed(2)
 

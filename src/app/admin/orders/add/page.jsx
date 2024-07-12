@@ -382,6 +382,13 @@ function Page() {
                     name="name"
                     type="text"
                 />
+                <input
+                    onChange={handleChange}
+                    className="name"
+                    placeholder="instagram UserName"
+                    name="instaUserName"
+                    type="text"
+                />
 
                 {!isPhoneCorrect &&
                     <h1 className='flex justify-end text-red-600 font-semibold mb-1'>

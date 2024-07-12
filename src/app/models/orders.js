@@ -5,6 +5,10 @@ const OrderSchem = new mongoose.Schema({
         type: String,
         required: true
     },
+    instaUserName: {
+        type: String,
+        required: false
+    },
     phoneNumber: {
         type: String,
         required: true
