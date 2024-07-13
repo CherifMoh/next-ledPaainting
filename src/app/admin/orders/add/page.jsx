@@ -368,10 +368,10 @@ function Page() {
     })
 
     return (
-        <div className='p-4 pt-0 flex gap-4'>
+        <div className='p-4 pt-0 flex flex-col-reverse md:flex-row gap-36 md:gap-4'>
             <form
                 onSubmit={handelSubmit}
-                className='border-r-2 h-screen w-1/2 border-gray-400 pr-4'
+                className='md:border-r-2 h-screen md:w-1/2 md:border-gray-400 pr-4'
             >
                 <h1 className='text-center mt-4 text-2xl font-semibold mb-10'>Order details</h1>
                 <input
@@ -468,7 +468,7 @@ function Page() {
                     }
                 </button>
             </form>
-            <div className='w-1/2'>
+            <div className='md:w-1/2'>
                 <h1
                     className='text-center mt-4 text-2xl font-semibold mb-10'
                 >
