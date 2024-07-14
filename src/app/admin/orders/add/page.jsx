@@ -460,7 +460,11 @@ function Page() {
                     type="number"
                 />
 
-                <button type="submit" className={`submit-button ${isSubmiting && 'h-16'} flex justify-center items-start`}>
+                <button 
+                    type="submit" 
+                    className={`w-full p-4 rounded text-white text-sm font-semibold ${isSubmiting && 'h-16'} ${formData.orders.length === 0 ? 'bg-blue-300':'bg-[#1773B0] '} flex justify-center items-start`}
+                    disabled={isSubmiting ||formData.orders.length === 0 }
+                >
                     {isSubmiting
                         ? <Spinner color={'border-gray-500'} size={'h-10 w-10 '} />
                         :
