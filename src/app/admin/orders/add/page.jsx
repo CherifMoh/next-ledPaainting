@@ -285,7 +285,7 @@ function Page() {
             }
         ]))
         setSelectedProduct({})
-        setSelectqnt('')
+        setSelectqnt(1)
     }
 
     function removeOrder(id) {
@@ -427,6 +427,14 @@ function Page() {
                     className="baldia"
                     placeholder="Adresse"
                     name="adresse"
+                    type="text"
+                />
+                <input
+                    onChange={handleChange}
+                    required
+                    className="baldia"
+                    placeholder="Note"
+                    name="note"
                     type="text"
                 />
 
@@ -596,7 +604,7 @@ function Page() {
                                 {productOptsElement}
                             </select>
                         }
-                        </div>
+                    </div>
 
                     <button
                         className='bg-green-300 px-3 py-2 rounded-lg'

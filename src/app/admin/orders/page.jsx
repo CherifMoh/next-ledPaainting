@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faPen, faPlus, faX, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faPen, faPlus, faX, faCheck, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteOrder } from '../../actions/order'
 import { editMinusProduct } from '../../actions/storage'
@@ -28,6 +28,7 @@ import 'jspdf-autotable';
 
 import Spinner from '../../../components/loadings/Spinner'
 import { useSelector } from "react-redux";
+// import { sandMessage } from "../../actions/instagram";
 
 
 async function fetchOrders() {
@@ -45,7 +46,6 @@ async function fetchProducts() {
 }
 
 function Orders() {
-
 
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
 
@@ -101,7 +101,10 @@ function Orders() {
     
     const [dateFilter, setDateFilter] = useState('')
 
-    const [craftingOrders, setCraftingOrders] = useState([])
+    const [isSending, setIsSending] = useState(false)
+    const [instaMessage, setInstaMessage] = useState('')
+    
+    const [selectedOrders, setSelectedOrders] = useState([])
     const [isCrafting, setIsCrafting] = useState(false)
 
     const [isCreateAccess, setIsCreateAccess] = useState(false)
@@ -655,6 +658,7 @@ function Orders() {
                 key={i}
                 className=" border-y border-solid border-[rgb(128,128,128)] relative font-medium p-2 pr-4 text-center h-8"
             >
+               {order._id !== editedOrderId &&
                 <div 
                     className="absolute top-0 right-0 size-full"
                     onMouseOver={()=>setIsGallery(pre=>[...pre, product._id])}
@@ -679,7 +683,7 @@ function Orders() {
                             {galleryElement}
                         </div>
                     }
-                </div>
+                </div>}
 
                 {order._id === editedOrderId
                     ?
@@ -786,8 +790,8 @@ function Orders() {
         return transparent
     }
 
-    function handleSelectCrafting(order) {
-        setCraftingOrders(pre=>{
+    function handleSelecteOrder(order) {
+        setSelectedOrders(pre=>{
             if(pre.some(item => item._id === order._id)){
                 return pre.filter(item => item._id !== order._id)
             }
@@ -795,7 +799,12 @@ function Orders() {
         })
     }
 
-
+    async function handleSendMessage() {
+        selectedOrders.forEach(async (order) => {
+            // const res = await sandMessage(order.instaUserName, instaMessage)
+            
+        })
+    }
 
     const ordersElement = Orders.map((order, index) => {
         
@@ -1121,13 +1130,13 @@ function Orders() {
                                     <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
                                     :
                                     <div className=" whitespace-nowrap flex items-center justify-center">
-                                        {isCrafting &&
+                                        {(isCrafting || isSending) &&
                                             <div className="p-2 flex items-center">
                                                 <input 
                                                     type="checkbox" 
                                                     className="size-4 m-0"
-                                                    checked={craftingOrders.some(item => item._id === order._id)}
-                                                    onChange={(e) => handleSelectCrafting(order)} 
+                                                    checked={selectedOrders.some(item => item._id === order._id)}
+                                                    onChange={(e) => handleSelecteOrder(order)} 
                                                 />
                                             </div>
                                         }
@@ -1250,6 +1259,7 @@ function Orders() {
     
             // Calculate vertical position for the current order
             const yPos = 10 + orderIndex * 60;
+            doc.setFontSize(16);
     
             // Set background color for each order
             const bgColor = colors[colorIndex % colors.length];
@@ -1258,17 +1268,19 @@ function Orders() {
     
             // Add customer information for each order
             doc.setTextColor('#000000');
-            const customerInfo = `${order.name}, ${order.adresse}`;
+            const customerInfo = `${order.name}, ${order.wilaya}`;
             doc.text(customerInfo, 15, yPos + 10);
     
             order.orders.forEach((item, i) => {
+                doc.setFontSize(16);
                 // Add quantity and image (resized to 16x16 pixels)
-                doc.text(`${item.qnt}`, 15 + i * 30, yPos + 20);
+                doc.text(`${item.qnt}`, 22 + i * 30, yPos + 20);
                 doc.addImage(item.imageOn, 'JPEG', 15 + i * 30, yPos + 23, 16, 16);
     
                 // Add selected option, if available
                 const selectedOption = item.options.find(opt => opt.selected);
                 if (selectedOption) {
+                    doc.setFontSize(12);
                     doc.text(selectedOption.title, 15 + i * 30, yPos + 45);
                 }
             });
@@ -1291,7 +1303,7 @@ function Orders() {
         <div className="py-4 pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
 
             <div
-                className="flex items-center 2xl:max-w-7xl xl:max-w-5xl  justify-start gap-12"
+                className="flex items-center w-max justify-start gap-12"
             >
                 <div className='flex gap-4'>
                     <div className='relative'>
@@ -1321,13 +1333,50 @@ function Orders() {
                     <div
                     >Scheduled</div>
                 </div>
+{/* 
+               {isSending
+                ?<div 
+                    className="relative border-gray-500 border-2 p-2 px-4 rounded-xl"
+                    onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                >
+                    <input 
+                        type="text" 
+                        placeholder="Enter your message"
+                        className="no-focus-outline w-40"
+                        value={instaMessage}
+                        onChange={e => setInstaMessage(e.target.value)}
+                    />
+                    <FontAwesomeIcon 
+                        icon={faPaperPlane} 
+                        onClick={() => handleSendMessage()}
+                        className="cursor-pointer text-gray-600"
+                    />
+                    <div 
+                        className="absolute -top-2 -right-2 flex items-center bg-red-500 p-1 rounded-full"
+                        onClick={() => setIsSending(pre => !pre)}
+                    >
+                        <FontAwesomeIcon 
+                            icon={faX} 
+                            className="cursor-pointer size-3 text-white"
+                        />
+                    </div>
+
+
+                </div>
+                :<div 
+                    className="border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer"
+                    onClick={() => setIsSending(pre => !pre)}
+                >
+                    Send instagram Message
+                </div>
+               } */}
 
                 <div
                     className='relative whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
                     onClick={() => {
                         if(isCrafting) {
                             setIsCrafting(pre => !pre)
-                            generatePDF(craftingOrders)
+                            generatePDF(selectedOrders)
                         }else{
                             setIsCrafting(pre => !pre)
                         }
