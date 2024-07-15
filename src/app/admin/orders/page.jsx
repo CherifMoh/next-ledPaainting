@@ -439,10 +439,10 @@ function Orders() {
                     key={design._id}
                     className='border-gray-500 z-50 border-b-2 p-4 bg-white'
                 >
-                    <Image
+                    <img
                         src={design.imageOn}
                         alt=''
-                        width={128} height={128}
+                        // width={128} height={128}
                         onClick={() => {
                             setSelectedImage({
                                 _id: product._id,
@@ -481,10 +481,10 @@ function Orders() {
                         }
                     }}
                 >
-                    <Image
+                    <img
                         src={products.imageOn}
                         alt=''
-                        width={128} height={128}
+                        // width={128} height={128}
                     />
                     <h1>
                         {products.title}
@@ -503,10 +503,10 @@ function Orders() {
                         key={design._id}
                         className='border-gray-500 z-50 border-b-2 p-4 bg-white'
                     >
-                        <Image
+                        <img
                             src={design.imageOn}
                             alt=''
-                            width={128} height={128}
+                            // width={128} height={128}
                             className='size-32'
                             onClick={() => {
                                 // setSelectedImage({
@@ -549,10 +549,10 @@ function Orders() {
                             }
                         }}
                     >
-                        <Image
+                        <img
                             src={product.imageOn}
                             alt=''
-                            width={128} height={128}
+                            // width={128} height={128}
                         />
                         <h1>
                             {product.title}
@@ -625,7 +625,7 @@ function Orders() {
                     key={uuidv4()}
                     className='size-16'
                 >
-                    <Image
+                    <img
                         src={gallery}
                         alt=''
                         className="w-full h-full object-fit"
@@ -673,7 +673,7 @@ function Orders() {
                             <div            
                                 className='size-16'
                             >
-                                <Image
+                                <img
                                     src={product.imageOn}
                                     alt=''
                                     className="w-full h-full object-fit"
@@ -712,7 +712,7 @@ function Orders() {
                     </div>
                 }
 
-                <Image
+                <img
                     className=' w-auto m-auto h-8'
                     src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
                     width={24} height={24} alt=""
@@ -996,7 +996,7 @@ function Orders() {
                                 <div className='flex items-center justify-center gap-8'>
                                     {addedOrder.image
                                         ?
-                                        <Image
+                                        <img
                                             src={addedOrder.image}
                                             alt=''
                                             width={64} height={64}
