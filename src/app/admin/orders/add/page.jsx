@@ -431,7 +431,6 @@ function Page() {
                 />
                 <input
                     onChange={handleChange}
-                    required
                     className="baldia"
                     placeholder="Note"
                     name="note"
