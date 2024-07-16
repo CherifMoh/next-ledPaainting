@@ -422,14 +422,28 @@ function Orders() {
         });
     }
 
-    async function handleFileUpload(e) {
-        const file = e.target.files[0];
+    async function handleFileUpload(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
         if (!file) {
             e.target.files[0] = []
         }
-        if (!checkFileSize(file)) return
-        const base64 = await convertToBase64(file);
-        setAddedOrder(pre => ({ ...pre, image: base64 }));
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            setAddedOrder(pre => ({ ...pre, image: data }));
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+        });
     }
 
     const designOptionsElent = Designs.map(design => {
@@ -484,7 +498,7 @@ function Orders() {
                     <img
                         src={products.imageOn}
                         alt=''
-                        // width={128} height={128}
+                        width={128} height={128}
                     />
                     <h1>
                         {products.title}
@@ -552,7 +566,7 @@ function Orders() {
                         <img
                             src={product.imageOn}
                             alt=''
-                            // width={128} height={128}
+                            width={128} height={128}
                         />
                         <h1>
                             {product.title}
@@ -713,7 +727,7 @@ function Orders() {
                 }
 
                 <img
-                    className=' w-auto m-auto h-8'
+                    className='w-auto m-auto h-8 z-10 relative'
                     src={selectedImage._id === product._id ? selectedImage.image : product.imageOn}
                     width={24} height={24} alt=""
                     key={product._id}
@@ -728,7 +742,7 @@ function Orders() {
                 />
 
                 {isproducts.state && isproducts._id === product._id &&
-                    <div className='max-w-96 border-y border-solid border-[rgb(128,128,128)]  absolute mt-2 bg-white z-50'>
+                    <div className='max-w-96 border-2 border-solid border-[rgb(128,128,128)]  absolute mt-2 bg-white z-[99999999999999]'>
                         <div className='flex justify-center mt-2 border-b-2 border-gray-500 z-50'>
                             <FontAwesomeIcon
                                 icon={faMagnifyingGlass}

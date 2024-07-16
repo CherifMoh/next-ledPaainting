@@ -172,7 +172,7 @@ function Page() {
                     key={design._id}
                     className='border-gray-500 z-50 border-b-2 p-4 bg-white'
                 >
-                    <Image
+                    <img
                         src={design.imageOn}
                         alt=''
                         width={128} height={128}
@@ -205,7 +205,7 @@ function Page() {
                         }
                     }}
                 >
-                    <Image
+                    <img
                         src={products.imageOn}
                         alt=''
                         width={128} height={128}
@@ -243,31 +243,69 @@ function Page() {
             };
         });
     }
+   
+  
 
-    async function handleFileUpload(e) {
-        const file = e.target.files[0];
+    async function handleFileUpload(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
         if (!file) {
             e.target.files[0] = []
         }
-        if (!checkFileSize(file)) return
-        const base64 = await convertToBase64(file);
-        setSelectedProduct(pre => ({ ...pre, image: base64 }));
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+
+            setSelectedProduct(pre => ({ ...pre, image: data }));
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+        });
+        
     }
 
-    async function handelAddGalleryImg(e) {
-        const file = e.target.files[0];
+  
+    async function handelAddGalleryImg(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
         if (!file) {
-            // e.target.files[0] = []
+            e.target.files[0] = []
         }
-        if (!checkFileSize(file)) return
-        const base64 = await convertToBase64(file);
-   
-        setSelectedProduct(pre =>{
-            if(pre.gallery){
-                return{ ...pre, gallery:[...pre.gallery, base64] }
-            }
-            return{ ...pre, gallery:[ base64] }
+
+        const formData = new FormData();
+        formData.append('image', file);
+       
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data)
+            setSelectedProduct(pre =>{
+                if(pre.gallery){
+                    return{ ...pre, gallery:[...pre.gallery, data] }
+                }
+                return{ ...pre, gallery:[ data] }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
         });
+        
+   
+        
     }
 
 
@@ -340,7 +378,7 @@ function Page() {
                 >
                     X
                 </div>
-                <Image
+                <img
                     width={64}
                     height={64}
                     src={order.imageOn}
@@ -358,7 +396,7 @@ function Page() {
     const galleryElement = selectedProduct.gallery?.map(img=>{
         return(
             <div key={uuidv4()}>
-            <Image
+            <img
                 src={img}
                 alt=''
                 width={64} height={64}
@@ -490,7 +528,7 @@ function Page() {
                         {selectedProduct.image
                             ?
                             <div className='flex items-center gap-2'>
-                                <Image
+                                <img
                                     src={selectedProduct.image}
                                     alt=''
                                     width={64} height={64}
@@ -503,13 +541,14 @@ function Page() {
                                 <div 
                                     className='flex items-center justify-center relative size-16 border border-dashed border-gray-500'
                                 >
-
-                                    <input 
-                                        type="file" 
-                                        name="" id="" 
-                                        className='opacity-0 absolute top-0 right-0 size-full'
-                                        onChange={(e) => handelAddGalleryImg(e)}
-                                    />
+                                    <form encType="multipart/form-data">
+                                        <input 
+                                            type="file" 
+                                            name="" id="" 
+                                            className='opacity-0 absolute top-0 right-0 size-full'
+                                            onChange={(e) => handelAddGalleryImg(e)}
+                                        />
+                                    </form>
 
                                      <FontAwesomeIcon icon={faPlus} className='size-6 text-gray-600'/>
                                 </div>

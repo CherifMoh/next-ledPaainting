@@ -1,6 +1,12 @@
 module.exports = {
-  reactStrictMode: true,
   images: {
-    domains: ['drawlys.com','localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'drawlys.com', // or 'example.com',
+        port: '8444',
+        pathname: '/images/**',
+      },
+    ],
   },
-};
+}

@@ -66,7 +66,7 @@ function Page() {
                 <div>{product._id}</div>
             </td>
             <td className='w-24'>
-                <Image src={product.imageOn} width={96} height={96} alt="" />
+                <img src={product.imageOn} width={96} height={96} alt="" />
             </td>
             <td>{product.title}</td>
             <td>{product.price}</td>
