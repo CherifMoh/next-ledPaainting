@@ -103,39 +103,68 @@ function Admin() {
         }));
     }
 
-
-
     typeof document !== 'undefined' && document.body.classList.add('bg-white')
 
-    async function handleFileUpload(e, state) {
+    async function handleFileUpload(event, state) {
         if (state == 'On') {
-            const file = e.target.files[0];
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+
             if (!file) {
                 e.target.files[0] = []
             }
-            if (!checkFileSize(file)) return
-            const base64 = await convertToBase64(file);
-            setNewProduct(pre => ({
-                ...pre,
-                imageOn: base64,
-                gallery: pre.gallery
-                    ? [...pre.gallery, base64]
-                    : [base64]
-            }))
-        } else {
-            const file = e.target.files[0];
-            if (!file) {
+            const formData = new FormData();
+            formData.append('image', file);
 
+            fetch('https://drawlys.com:8444/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+
+                setNewProduct(pre => ({
+                    ...pre,
+                    imageOn: data,
+                    gallery: pre.gallery
+                        ? [...pre.gallery, data]
+                        : [data]
+                }))
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+            });
+           
+        } else {
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+
+            if (!file) {
+                e.target.files[0] = []
             }
-            if (!checkFileSize(file)) return
-            const base64 = await convertToBase64(file);
-            setNewProduct(pre => ({
-                ...pre,
-                imageOff: base64,
-                gallery: pre.gallery
-                    ? [...pre.gallery, base64]
-                    : [base64]
-            }))
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('https://drawlys.com:8444/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+
+                setNewProduct(pre => ({
+                    ...pre,
+                    imageOff: data,
+                    gallery: pre.gallery
+                        ? [...pre.gallery, data]
+                        : [data]
+                }))
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+            });
         }
     }
 
@@ -151,17 +180,31 @@ function Admin() {
         }
     }
 
-    async function handleAddToGallery(e) {
-        const file = e.target.files[0];
+    async function handleAddToGallery(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
         if (!file) {
-            return e.target.value = ''
+            e.target.files[0] = []
         }
-        if (!checkFileSize(file, e.target)) return
-        const base64 = await convertToBase64(file);
-        setNewProduct(pre => (Array.isArray(pre.gallery)
-            ? { ...pre, gallery: [...pre?.gallery, base64] }
-            : { ...pre, gallery: [base64] }
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            setNewProduct(pre => (Array.isArray(pre.gallery)
+            ? { ...pre, gallery: [...pre?.gallery, data] }
+            : { ...pre, gallery: [data] }
         ))
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        
     }
 
     const handleRemoveGalleryImage = (index) => {
@@ -195,31 +238,47 @@ function Admin() {
         });
     }
 
-    async function handelOptionImageChange(e, i) {
-        const file = e.target.files[0];
+    async function handelOptionImageChange(event, i) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
         if (!file) {
-            return e.target.value = ''
+            e.target.files[0] = []
         }
-        if (!checkFileSize(file, e.target)) return
-        const base64 = await convertToBase64(file);
+        const formData = new FormData();
+        formData.append('image', file);
 
-        setNewProduct(prevState => {
-            if (prevState?.options) {
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
 
-                const updatedOptions = [...prevState.options]; // Create a copy of options array
-                updatedOptions[i] = { ...updatedOptions[i], image: base64 }; // Update the specific option at index i
-
-                return {
-                    ...prevState,
-                    options: updatedOptions // Set the updated options array
-                };
-            } else {
-                return {
-                    ...prevState,
-                    options: [{ image: base64 }]
+            setNewProduct(prevState => {
+                if (prevState?.options) {
+    
+                    const updatedOptions = [...prevState.options]; // Create a copy of options array
+                    updatedOptions[i] = { ...updatedOptions[i], image: data }; // Update the specific option at index i
+    
+                    return {
+                        ...prevState,
+                        options: updatedOptions // Set the updated options array
+                    };
+                } else {
+                    return {
+                        ...prevState,
+                        options: [{ image: data }]
+                    }
                 }
-            }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
         });
+
+       
     }
 
     function handleRemoveOption(index) {
@@ -263,7 +322,7 @@ function Admin() {
                 {newProduct?.options?.length >= i + 1 && 'image' in newProduct.options[i]
                     ?
                     <div className='relative'>
-                        <Image
+                        <img
                             src={newProduct.options[i].image}
                             alt=""
                             width={96} height={80}
@@ -795,7 +854,7 @@ function Admin() {
                     onClick={() => handleRemoveGalleryImage(i)}
                     className='absolute top-1 right-5 flex justify-center items-center cursor-pointer bg-white px-2 rounded-full text-center'
                 >x</div>
-                <Image
+                <img
                     width={160}
                     height={160}
                     className="w-40 h-40"
@@ -870,7 +929,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e, 'On')}
                     />
                     {newProduct?.imageOn
-                        ? <Image src={newProduct.imageOn} width={96} height={96} alt="" className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
+                        ? <img src={newProduct.imageOn} width={96} height={96} alt="" className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
                         : <div className='absolute left-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge on</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12" />
@@ -885,7 +944,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e, 'Off')}
                     />
                     {newProduct?.imageOff
-                        ? <Image src={newProduct.imageOff} width={96} height={96} alt="" className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
+                        ? <img src={newProduct.imageOff} width={96} height={96} alt="" className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
                         : <div className='absolute right-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge off</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12" />
