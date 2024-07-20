@@ -112,7 +112,7 @@ function CartPage() {
            key={option.title} 
            onClick={()=>handleUpdateCartOpt(cartItem._id, option.title, cartItem)}
           >
-              <Image
+              <img
                src={option.image}
                alt=''
                width={100} height={100}
@@ -148,7 +148,7 @@ function CartPage() {
        key={cartItem._id}
        className="flex md:flex-row flex-col items-center 2xl:min-w-[1000px] lg:min-w-[800px] md:min-w-[600px] sm:w-[300px] w-[200px] relative border-[1px] h-auto lg:h-56 border-gray-400 rounded-lg py-4 px-6 bg-gray-100"
       >
-        <Image 
+        <img 
          src={product.imageOn} 
          className="rounded-lg h-36 w-36 xl:h-48 xl:w-48" 
          width={190} height={190} 

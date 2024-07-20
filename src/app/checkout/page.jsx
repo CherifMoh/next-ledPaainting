@@ -164,7 +164,7 @@ function Checkout() {
                     <span className="product-quntity">
                         {cartItem.qnt}
                     </span>
-                    <Image alt='' src={product.imageOn} width={64} height={64} className="product-image h-16 w-16" />
+                    <img alt='' src={product.imageOn} width={64} height={64} className="product-image h-16 w-16" />
                 </div>
                 <div className="product-title text-sm">
                     {product.title}
