@@ -31,8 +31,11 @@ import { useSelector } from "react-redux";
 // import { sandMessage } from "../../actions/instagram";
 
 
-async function fetchOrders() {
-    const res = await axios.get('/api/orders');
+async function fetchOrders(date) {
+
+    const res = await axios.get('/api/orders', {
+        params: { date: date }
+    });
     return res.data;
 }
 
@@ -51,9 +54,12 @@ function Orders() {
 
     const [deleting, setDeleting] = useState([])
 
+    const [dateFilter, setDateFilter] = useState('today')
+
     const { data: Orders, isLoading, isError, error } = useQuery({
-        queryKey: ['orders'],
-        queryFn: fetchOrders
+        queryKey: ['orders',dateFilter],
+        queryFn: ({queryKey})=>fetchOrders(queryKey[1]),
+        // enabled: !!dateFilter,
     });
 
 
@@ -98,8 +104,6 @@ function Orders() {
     const [isSchedule, setIsSchedule] = useState(false)
 
     const [saving, setSaving] = useState([])
-    
-    const [dateFilter, setDateFilter] = useState('')
 
     const [isSending, setIsSending] = useState(false)
     const [instaMessage, setInstaMessage] = useState('')
@@ -343,15 +347,11 @@ function Orders() {
     function handleDateFilterChange(e) {
         const value = e.target.value
 
-        const currentDate = format(new Date(), 'yyyy-MM-dd')
+        
 
-        const cDate = new Date();
-        cDate.setDate(cDate.getDate() - 1);
-        const yesterdayDate = cDate.toISOString().slice(0, 10);
-
-        if (value === 'maximum') setDateFilter('')
-        if (value === 'today') setDateFilter(currentDate)
-        if (value === 'yesterday') setDateFilter(yesterdayDate)
+        if (value === 'maximum') setDateFilter('maximum')
+        if (value === 'today') setDateFilter('today')
+        if (value === 'yesterday') setDateFilter('yesterday')
         if (value === 'this Week') setDateFilter('this Week')
         if (value === 'this Month') setDateFilter('this Month')
     }
@@ -359,6 +359,10 @@ function Orders() {
     function filterOrders(order, currentDate) {
         const createdDate = order.createdAt.slice(0, 10).toLowerCase();
         const searchLower = search.toLowerCase();
+
+        const cDate = new Date();
+        cDate.setDate(cDate.getDate() - 1);
+        const yesterdayDate = cDate.toISOString().slice(0, 10);
 
         const isMatchingSearch = !isSchedule && (
             order.name.toLowerCase().includes(searchLower) ||
@@ -368,9 +372,11 @@ function Orders() {
         );
 
         const isMatchingDateFilter = (
+            dateFilter === 'today' && createdDate === currentDate ||
+            dateFilter === 'yesterday' && createdDate === yesterdayDate ||
             dateFilter === 'this Week' && isWithinPastWeek(createdDate) ||
             dateFilter === 'this Month' && isDateInPastMonth(createdDate) ||
-            createdDate === dateFilter || !dateFilter
+            dateFilter === 'maximum'
         );
 
         return isMatchingDateFilter && (isMatchingSearch || (isSchedule && order.schedule === currentDate));
@@ -1232,13 +1238,14 @@ function Orders() {
     })
 
     const dateFilterArray = [
-        'maximum', 'today', 'yesterday', 'this Week', 'this Month'
+        'today', 'yesterday', 'this Week', 'this Month', 'maximum'
     ]
     const dateFilterElements = dateFilterArray.map((value, i) => (
         <option
             key={i}
             value={value}
             className='capitalize'
+            selected={value === dateFilter}
         >
             {value}
         </option>
