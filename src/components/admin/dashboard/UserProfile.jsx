@@ -150,29 +150,37 @@ function UserProfile({userEmail}) {
     }
     
     
-    async function changePfp(e) {
-        const file = e.target.files[0];
-        if (!file) {
-          setSelectedImage('')
-          return e.target.value = ''
-        }
-        
-        if (!checkFileSize(file, e.target)){
-          setSelectedImage('' )
-          setFilebig(true)
-          return 
-        }
-    
-        const base64 = await convertToBase64(file);
-        try{
-          setSelectedImage(base64)
-          editeUserPfp(userEmail, base64)
+    async function changePfp(event) {
+      const fileInput = event.target;
+      const file = fileInput.files[0];
+
+      if (!file) {
+          e.target.files[0] = []
+      }
+      try{
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+
+          setSelectedImage(data)
+          editeUserPfp(userEmail, data)
           queryClient.invalidateQueries(['user by email', userEmail])
           router.refresh()
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+        });
     
-        }catch(error){
-          console.log(error)
-        }
+      }catch(error){
+        console.log(error)
+      }
         
     }
   
@@ -187,7 +195,7 @@ function UserProfile({userEmail}) {
                 id="pfp"
                 onChange={changePfp}
             />
-            <Image 
+            <img 
                 src={selectedImage ||User?.pfp || defultPfp} alt='pfp'
                 width={150} height={150}
             />
