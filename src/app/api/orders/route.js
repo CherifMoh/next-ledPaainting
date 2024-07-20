@@ -32,11 +32,22 @@ export async function GET(req) {
           $lte: endYesterday,
         },
       };
-    } else if (dateFilter === 'thisWeek') {
+    } else if (dateFilter === 'this Week') {
+      const startOfWeek = startOfDay(subDays(today, 6));
       query = {
         createdAt: {
-          $gte: startOfWeek(today),
-          $lte: endOfWeek(today),
+          $gte: startOfWeek,
+          $lte: endToday,
+        },
+      };
+    } else if (dateFilter === 'this Month') {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      query = {
+        createdAt: {
+          $gte: startOfMonth,
+          $lte: endOfMonth,
         },
       };
     } else if (dateFilter === 'maximum') {

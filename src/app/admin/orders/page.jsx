@@ -349,11 +349,11 @@ function Orders() {
 
         
 
-        if (value === 'maximum') setDateFilter('maximum')
         if (value === 'today') setDateFilter('today')
         if (value === 'yesterday') setDateFilter('yesterday')
         if (value === 'this Week') setDateFilter('this Week')
         if (value === 'this Month') setDateFilter('this Month')
+        if (value === 'maximum') setDateFilter('maximum')
     }
 
     function filterOrders(order, currentDate) {
