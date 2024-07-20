@@ -360,7 +360,10 @@ function Orders() {
         const createdDate = order.createdAt.slice(0, 10).toLowerCase();
         const searchLower = search.toLowerCase();
 
-        const cDate = new Date();
+        const currentDateObj = new Date(currentDate);
+    
+        // Create a new Date object for yesterday's date
+        const cDate = new Date(currentDateObj);
         cDate.setDate(cDate.getDate() - 1);
         const yesterdayDate = cDate.toISOString().slice(0, 10);
 
