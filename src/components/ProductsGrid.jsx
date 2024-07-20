@@ -116,8 +116,8 @@ function ProductsGrid() {
                  }
                 >
                     <div className="product-img-container">
-                        <Image alt="" src={`${product.imageOn}`} width={20} height={20} className="product-img product-img-on" />
-                        <Image alt="" src={`${product.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
+                        <img alt="" src={`${product.imageOn}`} width={20} height={20} className="product-img product-img-on" />
+                        <img alt="" src={`${product.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
                     </div>
                     <div className="card-info">
                         <span className="product-title">{product.title}</span>
@@ -197,7 +197,7 @@ function ProductsGrid() {
                         className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 -rotate-90 "
                         onClick={handleRightArrow} 
                     >
-                        <Image 
+                        <img 
                         src={arrow} 
                         width={20} height={20}
                         alt="" 
@@ -212,7 +212,7 @@ function ProductsGrid() {
                          className=" flex justify-center items-center hover:bg-gray-400 transition-all rounded-full w-8 h-8 rotate-90 "
                          onClick={handleLeftArrow} 
                         >
-                            <Image 
+                            <img 
                             src={arrow}
                             width={20} height={20} 
                             alt="" 
@@ -319,7 +319,7 @@ function ProductsGrid() {
                          className="hover:bg-gray-300 p-2 rounded-full"                    
                         />
                         <div>
-                            <Image 
+                            <img 
                             src={logo}
                             width={30} height={24}
                             className='h-11 w-auto rounded-full '
@@ -353,7 +353,7 @@ function ProductsGrid() {
            {restOfTheProducts &&
                 <div className="flex my-32 items-center">
                 
-                    {/* <Image 
+                    {/* <img 
                      src={randomImg1} 
                      alt="" 
                      width={120} height={120} 
@@ -368,7 +368,7 @@ function ProductsGrid() {
                         Add custom design
                     </div> */}
 
-                    {/* <Image 
+                    {/* <img 
                      src={randomImg2} 
                      alt="" 
                      width={120} height={120} 
