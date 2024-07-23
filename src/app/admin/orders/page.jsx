@@ -16,6 +16,7 @@ import { editMinusProduct } from '../../actions/storage'
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
 import {AmiriFont} from '../../data/AmiriFont'
+// import successSound from '../../../../public/assets/sounds/SuccessSound.mp3';
 
 import orangeBg from '../../../../public/assets/orange bg.png';
 import redBg from '../../../../public/assets/red bg.png';
@@ -103,6 +104,9 @@ function Orders() {
 
     const [isSchedule, setIsSchedule] = useState(false)
 
+    const [errorNotifiction, setErrorNotifiction] = useState('')
+    const [successNotifiction, setSuccessNotifiction] = useState('')
+
     const [saving, setSaving] = useState([])
 
     const [isSending, setIsSending] = useState(false)
@@ -110,6 +114,7 @@ function Orders() {
     
     const [selectedOrders, setSelectedOrders] = useState([])
     const [isCrafting, setIsCrafting] = useState(false)
+    const [isLabels, setIsLabels] = useState(false)
 
     const [isCreateAccess, setIsCreateAccess] = useState(false)
     const [isUpdateAccess, setIsUpdateAccess] = useState(false)
@@ -123,6 +128,19 @@ function Orders() {
 
     const accessibilities = useSelector((state) => state.accessibilities.accessibilities)
 
+    const playSuccessSound = () => {
+        const audio = new Audio('/assets/sounds/SuccessSound.mp3');
+        audio.play().catch(error => {
+            console.log('Error playing the error sound:', error);
+        });
+    };
+
+    const playErrorSound = () => {
+        const audio = new Audio('/assets/sounds/ErrorSound.mp3');
+        audio.play().catch(error => {
+            console.log('Error playing the error sound:', error);
+        });
+    };
 
     useEffect(()=>{
         if(accessibilities.length === 0)return
@@ -159,6 +177,25 @@ function Orders() {
         setScheduleQnt(newSchedule)
     }, [editedOrder, Orders]);
 
+    useEffect(() => {
+
+        if(successNotifiction!=='')playSuccessSound()
+
+        setTimeout(() => {
+            setSuccessNotifiction('')
+        }, 3000);
+
+    }, [successNotifiction]);
+
+    useEffect(() => {
+
+        if(errorNotifiction!=='')playErrorSound()
+
+        setTimeout(() => {
+           setErrorNotifiction('')
+        }, 3000);
+
+    }, [errorNotifiction]);
     
 
     if (isLoading) return <div>Loading...</div>;
@@ -169,6 +206,8 @@ function Orders() {
 
     if (ProductsLoding) return <div>Loading...</div>;
     if (ProductsIsError) return <div>Error fetching Products: {ProductsErr.message}</div>;
+    
+    
 
     function orderIdToggel(id) {
         if (editedOrderId === id) {
@@ -184,7 +223,6 @@ function Orders() {
 
         const name = input.name;
         const value = input.value;
-
         
 
         if (name !== 'schedule') input.style.width = `${(input.value.length + 2) * 9}px`;
@@ -293,16 +331,90 @@ function Orders() {
         }
     })
 
+
+    async function addToTsl(order) {
+
+        if(!order.reference||!order.totalPrice||!order.name||!order.phoneNumber||!order.adresse||!order.commune){
+            return setErrorNotifiction("couldn't set the order in TSL")
+        }
+        
+        const wilayatresponse = await axios.get('https://tsl.ecotrack.dz/api/v1/get/wilayas', {
+            headers: {
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+            }
+        });
+        const wilayat = wilayatresponse.data; // Get the data from the response
+
+        const wilayaCode =wilayat.find(wilaya=>wilaya.wilaya_name === order.wilaya).wilaya_id
+
+        const communesresponse = await axios.get('https://tsl.ecotrack.dz/api/v1/get/communes', {
+            headers: {
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+            }
+        });
+        const communes = communesresponse.data; // Get the data from the response
+        
+        const communesArray = Object.values(communes);
+        const filteredCommunes = communesArray.filter(commune => commune.wilaya_id === wilayaCode);
+       
+       
+
+        const TslOrder ={
+            reference:order.reference,
+            nom_client:order.name,
+            telephone:order.phoneNumber,
+            adresse:order.adresse,
+            commune:order.commune,
+            code_wilaya: wilayaCode,
+            remarque:order.deliveryNote,
+            stop_desk:order.shippingMethod === 'بيت'? 0 : 1,
+            montant:order.totalPrice,
+            type:1,
+        }
+
+        try {
+            const res = await axios.post('https://tsl.ecotrack.dz/api/v1/create/order', TslOrder, {
+                headers: {
+                    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`,
+                    'Content-Type': 'application/json', // Ensure correct content type
+                }
+            });
+
+            if(res.data.success){
+                setSuccessNotifiction("the order is set in TSL")
+                return {tracking:res.data.tracking}
+                
+            }
+        } catch (error) {
+            setErrorNotifiction("couldn't set the order in TSL")
+            console.error('Error:', error.response?.data || error.message);
+        }
+    }
+
     async function handleUpdatingOrder(id) {
         // setEditedOrder(pre => ({ ...pre, orders: newOrders }))
         setSaving(pre => ([...pre, id]))
         const oldOrder = Orders.find(order => order._id === id)
+
         if(oldOrder.tracking !== 'delivered' && editedOrder.tracking === 'delivered'){
             ordersQnts.forEach(order=>{
                 editMinusProduct(order.title,order.qnt)
             })
         }
-        const res = await axios.put(`/api/orders/${editedOrderId}`, editedOrder)
+
+        let tracking =''
+
+        if(oldOrder.state !== 'confirmed' && editedOrder.state  === 'confirmed'){
+            let res = await addToTsl(editedOrder)
+            tracking = res?.tracking
+        }
+        
+        const newOrder = {
+            ...editedOrder,
+            ...(tracking && { TslTracking: tracking })
+        };
+
+        const res = await axios.put(`/api/orders/${editedOrderId}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
         // console.log(res.data)
         queryClient.invalidateQueries('orders');
         setIsProductDeleted([])
@@ -869,6 +981,10 @@ function Orders() {
                                 save
                             </button>
                         </td>
+                        <td className="bg-blue-100 text-sm">
+                           <div>#{order.reference}</div>
+                           <div>{order.TslTracking}</div>
+                        </td>
                         <td className="bg-blue-100">
                             <input
                                 type="text"
@@ -893,6 +1009,15 @@ function Orders() {
                                 onChange={handleChange}
                                 name="wilaya"
                                 defaultValue={editedOrder.wilaya}
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                            />
+                        </td>
+                        <td className="bg-blue-100">
+                            <input
+                                type="text"
+                                onChange={handleChange}
+                                name="commune"
+                                defaultValue={editedOrder.commune}
                                 className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
@@ -982,6 +1107,15 @@ function Orders() {
                                 onChange={handleDateChange}
                                 className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                                 dateFormat="yyyy-MM-dd"
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                onChange={handleChange}
+                                name="deliveryNote"
+                                defaultValue={editedOrder.deliveryNote}
+                                className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
                         <td className="text-center">
@@ -1146,14 +1280,14 @@ function Orders() {
                         key={order._id}
                         className={`h-5 ${saving.includes(order._id) && 'opacity-40'} ${deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
                     >
-                        {(isUpdateAccess || isDeleteAccess || isCrafting) && (
+                        {(isUpdateAccess || isDeleteAccess || isCrafting || isLabels) && (
                             <td>
                                 {saving.includes(order._id)
                                     ?
                                     <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
                                     :
                                     <div className=" whitespace-nowrap flex items-center justify-center">
-                                        {(isCrafting || isSending) &&
+                                        {(isCrafting || isSending ||(isLabels && order?.TslTracking)) &&
                                             <div className="p-2 flex items-center">
                                                 <input 
                                                     type="checkbox" 
@@ -1194,10 +1328,14 @@ function Orders() {
                                 }
                             </td>
                         )}
-                        
+                        <td className="bg-blue-100 text-sm">
+                           <div># {order.reference}</div>
+                           <div>{order.TslTracking}</div>
+                        </td>
                         <td className="bg-blue-100">{order.name}</td>
                         <td className="bg-blue-100">{order.phoneNumber}</td>
                         <td className="bg-blue-100">{order.wilaya}</td>
+                        <td className="bg-blue-100">{order.commune}</td>
                         <td className="bg-blue-100">{order.adresse}</td>
                         <td className="bg-gray-200">{order.shippingMethod}</td>
                         <td className="bg-gray-200">{order.shippingPrice}</td>
@@ -1212,6 +1350,14 @@ function Orders() {
                         </td>
                         <td className="bg-gray-200">{order.state}</td>
                         <td>{order.schedule}</td>
+                        <td className="relative  max-w-40 whitespace-nowrap overflow-hidden text-ellipsis hover:overflow-visible group">
+                            <div className="overflow-hidden text-ellipsis">
+                                {order.deliveryNote}
+                            </div>
+                            <div className="absolute top-0 left-0 mt-2 w-max max-w-xs p-2 bg-gray-700 text-white text-sm rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                {order.deliveryNote}
+                            </div>
+                        </td>
                         <td className="text-center">
                             {order.inDelivery
                                 ? <FontAwesomeIcon icon={faCheck} className={`text-green-500`} />
@@ -1258,7 +1404,7 @@ function Orders() {
         boxShadow: isSchedule && 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
     }
 
-    const generatePDF = (data) => {
+    const generateOrdersPDF = (data) => {
 
         const doc = new jsPDF();
 
@@ -1321,10 +1467,108 @@ function Orders() {
         window.open(pdfUrl);
     };
     
+    const generateLabelsPDF =async (data) => {
+
+        data.forEach(async(order) => {
+            const res = await axios.get(`https://tsl.ecotrack.dz/apiv1/get/order/label`, {
+                headers: {
+                    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+                },
+                params: {
+                    tracking: order.TslTracking
+                }
+            });
+            console.log(order.TslTracking)
+        })
+
+        // const doc = new jsPDF();
+
+
+
+        // doc.addFileToVFS('arabic.ttf',  AmiriFont);
+        // doc.addFont('arabic.ttf', 'Arabic', 'normal');
+        // doc.setFont('Arabic');
+
+    
+        // const colors = ['#e3f2fd', '#f5f5f5']; // Light blue and light gray colors
+        // let colorIndex = 0; // Index to alternate colors
+    
+        // let ordersPerPage = 5; // Number of orders per page
+        // let orderIndex = 0; // Current order index on the page
+    
+        // data.forEach((order, index) => {
+        //     if (orderIndex === ordersPerPage) {
+        //         doc.addPage(); // Add a new page when the current page has 5 orders
+        //         orderIndex = 0; // Reset order index for the new page
+        //     }
+    
+        //     // Calculate vertical position for the current order
+        //     const yPos = 10 + orderIndex * 60;
+        //     doc.setFontSize(16);
+    
+        //     // Set background color for each order
+        //     const bgColor = colors[colorIndex % colors.length];
+        //     doc.setFillColor(bgColor);
+        //     doc.rect(10, yPos, 190, 50, 'F'); // Adjust rectangle dimensions based on your layout
+    
+        //     // Add customer information for each order
+        //     doc.setTextColor('#000000');
+        //     const customerInfo = `${order.name}, ${order.wilaya}`;
+        //     doc.text(customerInfo, 15, yPos + 10);
+    
+        //     order.orders.forEach((item, i) => {
+        //         doc.setFontSize(16);
+        //         // Add quantity and image (resized to 16x16 pixels)
+        //         doc.text(`${item.qnt}`, 22 + i * 30, yPos + 20);
+        //         doc.addImage(item.imageOn, 'JPEG', 15 + i * 30, yPos + 23, 16, 16);
+    
+        //         // Add selected option, if available
+        //         const selectedOption = item.options.find(opt => opt.selected);
+        //         if (selectedOption) {
+        //             doc.setFontSize(12);
+        //             doc.text(selectedOption.title, 15 + i * 30, yPos + 45);
+        //         }
+        //     });
+    
+        //     colorIndex++; // Move to the next color for the next order
+        //     orderIndex++; // Move to the next order position on the current page
+        // });
+    
+        // // Output the PDF as a Blob
+        // const pdfBlob = doc.output('blob');
+    
+        // // Create a URL for the Blob and open it in a new window
+        // const pdfUrl = URL.createObjectURL(pdfBlob);
+        // window.open(pdfUrl);
+    };
+    
       
 
     return (
         <div className="py-4 pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
+
+            <div 
+                className={`bg-green-200 transition-all duration-200 flex items-center gap-2 absolute top-4 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
+                            ${successNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96 -translate-y-96'}
+                          `}
+            >
+                <FontAwesomeIcon 
+                    icon={faCheck} 
+                    className={`text-white bg-green-500 p-1 text-xs rounded-full`} 
+                />
+                {successNotifiction}
+            </div>
+            <div 
+                className={`bg-red-200 transition-all duration-200 flex items-center gap-2 absolute top-4 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
+                            ${errorNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96 -translate-y-96'}
+                          `}
+            >
+                <FontAwesomeIcon 
+                    icon={faX} 
+                    className={`text-white bg-red-500 p-1 text-xs rounded-full`} 
+                />
+                {errorNotifiction}
+            </div>
 
             <div
                 className="flex items-center w-max justify-start gap-12"
@@ -1400,13 +1644,26 @@ function Orders() {
                     onClick={() => {
                         if(isCrafting) {
                             setIsCrafting(pre => !pre)
-                            generatePDF(selectedOrders)
+                            generateOrdersPDF(selectedOrders)
                         }else{
                             setIsCrafting(pre => !pre)
                         }
                     }}
                 >
                     {isCrafting ? 'Show PDF' : 'start Crafting'}
+                </div>
+                <div
+                    className='relative whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    onClick={() => {
+                        if(isLabels) {
+                            setIsLabels(pre => !pre)
+                            generateLabelsPDF(selectedOrders)
+                        }else{
+                            setIsLabels(pre => !pre)
+                        }
+                    }}
+                >
+                    {isLabels ? 'Show PDF' : 'Get labels'}
                 </div>
 
                 <select
@@ -1431,7 +1688,7 @@ function Orders() {
             <div className="relative h-[700px] overflow-y-auto w-full">
                 <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
                     <thead className="sticky top-0 z-[999999999] border-2 border-gray-500 bg-white">
-                        <tr>
+                            <tr>
                         {(isUpdateAccess || isDeleteAccess || isCrafting) && (
                             <th>
                                 <div className="border-y border-solid border-[rgb(128,128,128)] p-[13px]">
@@ -1439,6 +1696,12 @@ function Orders() {
                                 </div>
                             </th>
                         )}
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    Ref
+                                </div>
+                                    
+                            </th>
                             <th className="bg-blue-100">
                                 <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
                                     الأسم
@@ -1458,6 +1721,11 @@ function Orders() {
                             <th className="bg-blue-100">
                                 <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
                                     البلدية 
+                                </div>
+                            </th>
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    عنوان    
                                 </div>
                             </th>
                             <th className="bg-gray-200">
@@ -1488,6 +1756,11 @@ function Orders() {
                             <th>
                                 <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
                                     التأجيل    
+                                </div>
+                            </th>
+                            <th>
+                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    ملاحظة التوصيل 
                                 </div>
                             </th>
                             <th>

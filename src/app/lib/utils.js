@@ -43,3 +43,15 @@ export function formatNumberWithCommas(number) {
   
   return formattedNumber;
 }
+
+export function generateUniqueString(length) {
+  if(!length) length = 17;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  const charsLength = chars.length;
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charsLength);
+    result += chars[randomIndex];
+  }
+  return result;
+}

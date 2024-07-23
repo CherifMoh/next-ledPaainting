@@ -6,7 +6,7 @@ import '../../styles/pages/checkout.css'
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { wilayat } from '../data/wilayat'
+// import { wilayat } from '../data/wilayat'
 import Image from 'next/image';
 import logo from '../../../public/assets/noBgLogo.png'
 import { useRouter } from 'next/navigation';
@@ -15,23 +15,45 @@ import Spinner from '../../components/loadings/Spinner';
 import ChechoutSkeleton from '../../components/loadings/ChechoutSkeleton';
 
 
+async function fetchProducts(idArray) {
+    try {
+        const promises = idArray.map(async id => {
+            const res = await axios.get(`/api/products/${id}`);
+            return res.data[0];
+        });
+        return await Promise.all(promises);
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+}
 
-
-
+async function fetchWilayt() {
+    const res = await axios.get('https://tsl.ecotrack.dz/api/v1/get/wilayas', {
+        headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+        }
+    });
+    return res.data;
+}
+async function fetchFees() {
+    const res = await axios.get('https://tsl.ecotrack.dz/api/v1/get/fees', {
+        headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+        }
+    });
+    return res.data;
+}
+async function fetchCommunes() {
+    const res = await axios.get('https://tsl.ecotrack.dz/api/v1/get/communes', {
+        headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+        }
+    });
+    return res.data;
+}
 
 function Checkout() {
-    async function fetchProducts(idArray) {
-        try {
-            const promises = idArray.map(async id => {
-                const res = await axios.get(`/api/products/${id}`);
-                return res.data[0];
-            });
-            return await Promise.all(promises);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            throw error;
-        }
-    }
 
     // Form Data States
     const [formData, setFormData] = useState({});
@@ -42,6 +64,8 @@ function Checkout() {
     const [isPhoneCorrect, setIsPhoneCorrect] = useState(true);
 
     const [isBeruAvailable, setIsBeruAvailable] = useState(true)
+
+    const [slectedCommunes, setSlectedCommunes] = useState([]);
 
     const [isSubmiting, setIsSubmitting] = useState(false)
 
@@ -67,40 +91,78 @@ function Checkout() {
         queryFn: (queryKey) => fetchProducts(queryKey.queryKey)
     });
 
+    const { data: communes, isLoading: communesLoding, isError: communesIsErr, error: communesErr } = useQuery({
+        queryKey: ['communes'],
+        queryFn: fetchCommunes
+    });
+    const { data: fees, isLoading: feesLoding, isError: feesIsErr, error: feesErr } = useQuery({
+        queryKey: ['fees'],
+        queryFn: fetchFees
+    });
+    const { data: wilayat, isLoading: wilayatLoding, isError: wilayatIsErr, error: wilayatErr } = useQuery({
+        queryKey: ['wilayat'],
+        queryFn: fetchWilayt
+    });
+
+   
     let shippingPrice = ''
-    wilayat.forEach(wilaya => {
-
-        if (wilaya.name === formData.wilaya) {
-            if (wilaya.beru === '') {
-                return shippingPrice = wilaya.dar
-            }
-        }
-
-        if (formData.wilaya && formData.shippingMethod) {
-            if (wilaya.name === formData.wilaya) {
-                shippingPrice = formData.shippingMethod === 'بيت'
-                    ? wilaya.dar
-                    : wilaya.beru
-            }
-        }
-    })
+    
 
     useEffect(() => {
+        if (!wilayat || !fees) return
+
         wilayat.forEach(wilaya => {
-            if (wilaya.name === formData.wilaya) {
-                if (wilaya.beru === '') {
+            if (wilaya.wilaya_name === formData.wilaya) {
+
+                const feesArray = Object.values(fees.livraison);
+                const filteredFee = feesArray.filter(fee => fee.wilaya_id === wilaya.wilaya_id)[0];
+
+                const adomicile = filteredFee.tarif;
+                const stopdesk = filteredFee.tarif_stopdesk;
+
+                if (adomicile === '') {
                     setIsBeruAvailable(false)
                     setFormData(pre => ({
                         ...pre,
-                        shippingMethod: 'مكتب'
+                        shippingMethod: 'مكتب',
+                        shippingPrice: stopdesk
                     }))
+                    shippingPrice = stopdesk
                 } else {
                     setIsBeruAvailable(true)
                 }
 
+                if (formData.wilaya && formData.shippingMethod) {
+                    if (wilaya.wilaya_name === formData.wilaya) {
+                        // setFormData(pre => ({
+                        //     ...pre,
+                        //     shippingMethod: 'بيت',
+                        //     shippingPrice: adomicile
+                        // }))
+                        formData.shippingMethod === 'بيت'
+                            ? setFormData(pre => {
+                                shippingPrice = adomicile
+                                return {
+                                    ...pre,
+                                    shippingMethod: 'بيت',
+                                    shippingPrice: adomicile
+                                }
+                            })
+                            
+                            : setFormData(pre => {
+                                shippingPrice = stopdesk
+                                return {
+                                    ...pre,
+                                    shippingMethod: 'مكتب',
+                                    shippingPrice: stopdesk
+                                }
+                            })
+                    }
+                }
+
             }
         })
-    }, [formData.wilaya])
+    }, [formData.wilaya,formData.shippingMethod])
 
     const totalPrice = subTotalPriceState + shippingPrice
 
@@ -113,7 +175,6 @@ function Checkout() {
         }))
 
     }, [totalPrice])
-
 
 
     useEffect(() => {
@@ -145,10 +206,26 @@ function Checkout() {
 
     }, [products])
 
+    useEffect(() => {
+        if (!communes|| !wilayat||!formData.wilaya) return
+
+        const wilayaCode = wilayat.find(wilaya => wilaya.wilaya_name === formData.wilaya).wilaya_id
+
+
+        const communesArray = Object.values(communes);
+        const filteredCommunes = communesArray.filter(commune => commune.wilaya_id === wilayaCode);
+
+        setSlectedCommunes(filteredCommunes)
+
+    }, [formData.wilaya,communes,wilayat])
+
     const dispatch = useDispatch();
 
-    if (isLoading) return <ChechoutSkeleton />
+    if (isLoading|| wilayatLoding|| communesLoding|| feesLoding) return <ChechoutSkeleton />
     if (isError) return <div>{error.message}</div>
+    if (wilayatIsErr) return <div>Error: {wilayatErr.message}</div>;
+    if (communesIsErr) return <div>Error: {communesErr.message}</div>;
+    if (feesIsErr) return <div>Error: {feesErr.message}</div>;
     if (!products) return
 
     const productsElemtnt = cart.map(cartItem => {
@@ -177,7 +254,8 @@ function Checkout() {
     })
 
 
-    const phonePattern = /^\d{10}$/;
+    const phonePattern = /^0\d{9}$/;
+
 
     async function handelSubmit(e) {
         e.preventDefault();
@@ -223,7 +301,15 @@ function Checkout() {
 
     }
     const wilayatOptionsElement = wilayat.map(wilaya => (
-        <option key={wilaya.name} value={wilaya.name}>{wilaya.name}</option>
+        <option key={wilaya.wilaya_id} value={wilaya.wilaya_name}>
+            {wilaya.wilaya_id} {wilaya.wilaya_name}
+        </option>
+    ))
+
+    const communesOptionsElement = slectedCommunes.map(commune => (
+        <option key={commune.nom} value={commune.nom}>
+            {commune.nom}
+        </option>
     ))
 
     const shippingStyle = {
@@ -282,6 +368,16 @@ function Checkout() {
                             >
                                 <option value="الولاية" hidden >الولاية</option>
                                 {wilayatOptionsElement}
+                            </select>
+
+                            <select
+                                value={formData.commune}
+                                onChange={handleChange}
+                                required className="wilaya"
+                                name="commune"
+                            >
+                                <option hidden >commune</option>
+                                {communesOptionsElement}
                             </select>
 
                             <input

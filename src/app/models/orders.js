@@ -1,6 +1,15 @@
 import mongoose from "mongoose"; 
 
 const OrderSchem = new mongoose.Schema({
+    reference: {
+        type: String,
+        required: true
+    },
+    TslTracking: {
+        type: String,
+        required: false,
+        default: ''
+    },
     name: {
         type: String,
         required: true
@@ -14,6 +23,10 @@ const OrderSchem = new mongoose.Schema({
         required: true
     },
     wilaya: {
+        type: String,
+        required: true
+    },
+    commune: {
         type: String,
         required: true
     },
@@ -42,6 +55,10 @@ const OrderSchem = new mongoose.Schema({
         default: 'ordered'
     },
     schedule:{
+        type: String,
+        default: ''
+    },
+    deliveryNote:{
         type: String,
         default: ''
     },
