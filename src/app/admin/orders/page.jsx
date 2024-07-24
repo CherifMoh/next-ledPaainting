@@ -24,6 +24,7 @@ import greenBg from '../../../../public/assets/green bg.png';
 import transparent from '../../../../public/assets/transparent.png';
 import '../../../styles/pages/orders.css'
 
+import { PDFDocument } from 'pdf-lib';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -367,7 +368,6 @@ function Orders() {
             commune:order.commune,
             code_wilaya: wilayaCode,
             remarque:order.deliveryNote,
-            stop_desk:order.shippingMethod === 'بيت'? 0 : 1,
             montant:order.totalPrice,
             type:1,
         }
@@ -1467,80 +1467,39 @@ function Orders() {
         window.open(pdfUrl);
     };
     
-    const generateLabelsPDF =async (data) => {
-
-        data.forEach(async(order) => {
-            const res = await axios.get(`https://tsl.ecotrack.dz/apiv1/get/order/label`, {
+    const generateLabelsPDF = async (data) => {
+        // Create a new PDF document
+        const combinedPdf = await PDFDocument.create();
+    
+        for (const order of data) {
+            const res = await axios.get(`https://tsl.ecotrack.dz/api/v1/get/order/label`, {
                 headers: {
                     Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
                 },
                 params: {
                     tracking: order.TslTracking
-                }
+                },
+                responseType: 'arraybuffer'  // Handle binary data correctly
             });
-            console.log(order.TslTracking)
-        })
-
-        // const doc = new jsPDF();
-
-
-
-        // doc.addFileToVFS('arabic.ttf',  AmiriFont);
-        // doc.addFont('arabic.ttf', 'Arabic', 'normal');
-        // doc.setFont('Arabic');
-
     
-        // const colors = ['#e3f2fd', '#f5f5f5']; // Light blue and light gray colors
-        // let colorIndex = 0; // Index to alternate colors
+            // Create a PDF document from the response data
+            const pdfDoc = await PDFDocument.load(res.data);
+            const pages = await combinedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
     
-        // let ordersPerPage = 5; // Number of orders per page
-        // let orderIndex = 0; // Current order index on the page
+            pages.forEach(page => combinedPdf.addPage(page));
+        }
     
-        // data.forEach((order, index) => {
-        //     if (orderIndex === ordersPerPage) {
-        //         doc.addPage(); // Add a new page when the current page has 5 orders
-        //         orderIndex = 0; // Reset order index for the new page
-        //     }
+        // Serialize the combined PDF to bytes
+        const pdfBytes = await combinedPdf.save();
     
-        //     // Calculate vertical position for the current order
-        //     const yPos = 10 + orderIndex * 60;
-        //     doc.setFontSize(16);
+        // Create a Blob from the PDF data
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
     
-        //     // Set background color for each order
-        //     const bgColor = colors[colorIndex % colors.length];
-        //     doc.setFillColor(bgColor);
-        //     doc.rect(10, yPos, 190, 50, 'F'); // Adjust rectangle dimensions based on your layout
-    
-        //     // Add customer information for each order
-        //     doc.setTextColor('#000000');
-        //     const customerInfo = `${order.name}, ${order.wilaya}`;
-        //     doc.text(customerInfo, 15, yPos + 10);
-    
-        //     order.orders.forEach((item, i) => {
-        //         doc.setFontSize(16);
-        //         // Add quantity and image (resized to 16x16 pixels)
-        //         doc.text(`${item.qnt}`, 22 + i * 30, yPos + 20);
-        //         doc.addImage(item.imageOn, 'JPEG', 15 + i * 30, yPos + 23, 16, 16);
-    
-        //         // Add selected option, if available
-        //         const selectedOption = item.options.find(opt => opt.selected);
-        //         if (selectedOption) {
-        //             doc.setFontSize(12);
-        //             doc.text(selectedOption.title, 15 + i * 30, yPos + 45);
-        //         }
-        //     });
-    
-        //     colorIndex++; // Move to the next color for the next order
-        //     orderIndex++; // Move to the next order position on the current page
-        // });
-    
-        // // Output the PDF as a Blob
-        // const pdfBlob = doc.output('blob');
-    
-        // // Create a URL for the Blob and open it in a new window
-        // const pdfUrl = URL.createObjectURL(pdfBlob);
-        // window.open(pdfUrl);
+        // Open the combined PDF in a new window
+        window.open(url, '_blank');
     };
+    
     
       
 
