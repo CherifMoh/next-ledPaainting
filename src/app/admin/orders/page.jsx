@@ -16,7 +16,6 @@ import { editMinusProduct } from '../../actions/storage'
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
 import {AmiriFont} from '../../data/AmiriFont'
-// import successSound from '../../../../public/assets/sounds/SuccessSound.mp3';
 
 import orangeBg from '../../../../public/assets/orange bg.png';
 import redBg from '../../../../public/assets/red bg.png';
@@ -110,6 +109,8 @@ function Orders() {
 
     const [saving, setSaving] = useState([])
 
+    const [lablesLoading, setLablesLoading] = useState(false)
+
     const [isSending, setIsSending] = useState(false)
     const [instaMessage, setInstaMessage] = useState('')
     
@@ -166,6 +167,7 @@ function Orders() {
         setNewOrders(editedOrder.orders)
     }, [editedOrder]);
 
+
     useEffect(() => {
         let newSchedule = 0
         Orders?.forEach(order => {
@@ -197,6 +199,47 @@ function Orders() {
         }, 3000);
 
     }, [errorNotifiction]);
+
+    useEffect(() => {
+        if(!Orders) return
+
+
+        Orders.forEach(async(order) => {
+            const res = await fetchOrderStatus(order.TslTracking)
+            if(!res) return
+
+            const lastIndex = res.activity.length - 1
+            const TslStatus = res.activity[lastIndex].status
+            if(!TslStatus) return
+
+            let newTraking =''
+            
+
+            if(TslStatus === 'accepted_by_carrier' || TslStatus === 'dispatched_to_driver'){
+                newTraking = 'Vers Wilaya'
+            }else if(TslStatus === 'order_information_received_by_carrier'){
+                newTraking = 'Vers Station'
+            }else if(TslStatus === 'attempt_delivery'){
+                newTraking = 'En livraison'
+            }else if(TslStatus === 'livred'){
+                newTraking = TslStatus
+            }else if(TslStatus === 'HUB'){
+                newTraking = 'En preparation'
+            }else if(TslStatus === 'notification_on_order'){
+                newTraking = 'Suspendus'
+            }else if(TslStatus === 'returned'){
+                newTraking = 'returned'
+            }
+            
+            if(newTraking === order.tracking) return
+
+            const newOrder = {...order, tracking: newTraking}
+            
+            const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
+            queryClient.invalidateQueries(`orders,${dateFilter}`);
+           
+        })
+    }, [Orders]);
     
 
     if (isLoading) return <div>Loading...</div>;
@@ -208,6 +251,22 @@ function Orders() {
     if (ProductsLoding) return <div>Loading...</div>;
     if (ProductsIsError) return <div>Error fetching Products: {ProductsErr.message}</div>;
     
+    async function fetchOrderStatus(tracking) {
+        try{
+            const res = await axios.get('https://tsl.ecotrack.dz/api/v1/get/tracking/info', {
+                headers: {
+                    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+                },
+                params:{
+                    tracking: tracking
+                }
+            });
+            return res.data
+        }catch(err){
+            console.log(err)
+            return null
+        }
+    }
     
 
     function orderIdToggel(id) {
@@ -332,6 +391,7 @@ function Orders() {
         }
     })
 
+    
 
     async function addToTsl(order) {
 
@@ -358,7 +418,15 @@ function Orders() {
         const communesArray = Object.values(communes);
         const filteredCommunes = communesArray.filter(commune => commune.wilaya_id === wilayaCode);
        
-       
+        let products =[]
+
+        order.orders.forEach(order=>{
+            const i =products.findIndex(product=>product === order.title)
+            if(i === -1){
+                products.push(order.title)
+            }
+        })
+
 
         const TslOrder ={
             reference:order.reference,
@@ -366,6 +434,7 @@ function Orders() {
             telephone:order.phoneNumber,
             adresse:order.adresse,
             commune:order.commune,
+            produit:products[0],
             code_wilaya: wilayaCode,
             remarque:order.deliveryNote,
             montant:order.totalPrice,
@@ -391,6 +460,28 @@ function Orders() {
         }
     }
 
+    async function validateToTsl(tracking){
+       
+        // try {
+        //     const res = await axios.post('https://tsl.ecotrack.dz/api/v1/validate/order', {tracking}, {
+        //         headers: {
+        //             Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`,
+        //             'Content-Type': 'application/json', // Ensure correct content type
+        //         }
+        //     });
+        //     if(res.data.success){
+        //         setSuccessNotifiction(res.data.message)
+        //         return {tracking:res.data.tracking}
+                
+        //     }
+        // } catch (error) {
+        //     setErrorNotifiction("couldn't validate the order in TSL")
+        //     console.error('Error:', error.response?.data || error.message);
+        // }
+    }
+
+   
+
     async function handleUpdatingOrder(id) {
         // setEditedOrder(pre => ({ ...pre, orders: newOrders }))
         setSaving(pre => ([...pre, id]))
@@ -413,6 +504,10 @@ function Orders() {
             ...editedOrder,
             ...(tracking && { TslTracking: tracking })
         };
+
+        if(oldOrder.inDelivery !== true && editedOrder.inDelivery  === true){
+            let res= await validateToTsl(editedOrder.TslTracking)
+        }
 
         const res = await axios.put(`/api/orders/${editedOrderId}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
         // console.log(res.data)
@@ -1119,7 +1214,8 @@ function Orders() {
                             />
                         </td>
                         <td className="text-center">
-                            <input type='checkbox'
+                            {editedOrder.state === 'confirmed' 
+                            ?<input type='checkbox'
                                 name="inDelivery"
                                 onChange={() => setEditedOrder(pre => ({
                                     ...pre,
@@ -1128,6 +1224,8 @@ function Orders() {
                                 )}
                                 defaultChecked={editedOrder.inDelivery}
                             />
+                            :<input type='checkbox' disabled/>
+                            }
                         </td>
                         <td>
                             <select
@@ -1468,6 +1566,7 @@ function Orders() {
     };
     
     const generateLabelsPDF = async (data) => {
+        setLablesLoading(true);
         // Create a new PDF document
         const combinedPdf = await PDFDocument.create();
     
@@ -1498,6 +1597,7 @@ function Orders() {
     
         // Open the combined PDF in a new window
         window.open(url, '_blank');
+        setLablesLoading(false);
     };
     
     
@@ -1611,8 +1711,9 @@ function Orders() {
                 >
                     {isCrafting ? 'Show PDF' : 'start Crafting'}
                 </div>
+
                 <div
-                    className='relative whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    className='relative h-11 min-w-28 whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
                     onClick={() => {
                         if(isLabels) {
                             setIsLabels(pre => !pre)
@@ -1622,7 +1723,11 @@ function Orders() {
                         }
                     }}
                 >
-                    {isLabels ? 'Show PDF' : 'Get labels'}
+                    {lablesLoading && 
+                        <Spinner size={'size-6'} containerStyle={'ml-8'} />
+                    }
+                    {(isLabels && !lablesLoading) && 'Show PDF' }
+                    {(!isLabels && !lablesLoading) && 'Get labels' }
                 </div>
 
                 <select
