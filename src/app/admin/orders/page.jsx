@@ -441,8 +441,11 @@ function Orders() {
             code_wilaya: wilayaCode,
             remarque:order.deliveryNote,
             montant:order.totalPrice,
+            stop_desk:order.shippingMethod === 'مكتب' ? 1 : 0,
             type:1,
         }
+
+        console.log(TslOrder)
 
         try {
             const res = await axios.post('https://tsl.ecotrack.dz/api/v1/create/order', TslOrder, {
