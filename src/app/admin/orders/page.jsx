@@ -466,24 +466,48 @@ function Orders() {
         }
     }
 
-    async function validateToTsl(tracking){
+    async function validateToTsl(tracking,ask_collection) {
        
-        // try {
-        //     const res = await axios.post('https://tsl.ecotrack.dz/api/v1/validate/order', {tracking}, {
-        //         headers: {
-        //             Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`,
-        //             'Content-Type': 'application/json', // Ensure correct content type
-        //         }
-        //     });
-        //     if(res.data.success){
-        //         setSuccessNotifiction(res.data.message)
-        //         return {tracking:res.data.tracking}
-                
-        //     }
-        // } catch (error) {
-        //     setErrorNotifiction("couldn't validate the order in TSL")
-        //     console.error('Error:', error.response?.data || error.message);
-        // }
+        try {
+            const res = await axios.post(
+                'https://tsl.ecotrack.dz/api/v1/valid/order',
+                {
+                    tracking: tracking,
+                    ask_collection: ask_collection
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            if(res.data.success){
+                setSuccessNotifiction(res.data.message);
+                return {tracking:res.data.tracking};
+            }
+        } catch (error) {
+            setErrorNotifiction("couldn't validate the order in TSL");
+            console.error('Error:', error.response?.data || error.message);
+        }
+        
+    }
+
+    async function validateMultibelToTSL(orders,ask_collection){
+        orders.forEach(async(order) => {
+            
+        
+            let res = await validateToTsl(order.TslTracking,ask_collection)
+         
+            
+            
+            const newOrder = {
+                ...order,
+                inDelivery: true,
+            };
+            const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
+            queryClient.invalidateQueries(`orders,${dateFilter}`);
+        })
     }
 
     async function handleUpdatingOrder(id) {
@@ -509,8 +533,8 @@ function Orders() {
             ...(tracking && { TslTracking: tracking })
         };
 
-        if(oldOrder.inDelivery !== true && editedOrder.inDelivery  === true){
-            let res= await validateToTsl(editedOrder.TslTracking)
+        if(oldOrder.inDelivery !== true && editedOrder.inDelivery  === true && editedOrder.state  === 'مؤكدة'){
+            let res= await validateToTsl(editedOrder.TslTracking,0)
         }
 
         const res = await axios.put(`/api/orders/${editedOrderId}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
@@ -1778,19 +1802,28 @@ function Orders() {
                     >
                         <div 
                             className="px-2 whitespace-nowrap p-1 cursor-pointer border-b-2 border-gray-500  w-full text-start"
-                            onClick={() =>confirmMultibel(selectedOrders)}
+                            onClick={() =>{
+                                confirmMultibel(selectedOrders)
+                                setIsOrderAction(pre=>!pre)
+                            }}
                         >
                             Confirm
                         </div>
                         <div 
-                            className="px-2 whitespace-nowrap p-1 w-full text-start"
-                            onClick={() =>alert('its not implemented yet')}
+                            className="px-2 whitespace-nowrap cursor-pointer p-1 w-full text-start"
+                            onClick={() =>{
+                                validateMultibelToTSL(selectedOrders,0)
+                                setIsOrderAction(pre=>!pre)
+                            }}
                         >
                             validate To TSL
                         </div>
                         <div 
-                            className="px-2 whitespace-nowrap p-1 border-t-2 border-gray-500 w-full text-start"
-                            onClick={() =>alert('its not implemented yet')}
+                            className="px-2 whitespace-nowrap cursor-pointer p-1 border-t-2 border-gray-500 w-full text-start"
+                            onClick={() =>{
+                                validateMultibelToTSL(selectedOrders,1)
+                                setIsOrderAction(pre=>!pre)
+                            }}
                         >
                             validate with ramasage
                         </div>
