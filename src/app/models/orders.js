@@ -52,7 +52,7 @@ const OrderSchem = new mongoose.Schema({
     },
     state:{
         type: String,
-        default: 'ordered'
+        default: 'غير مؤكدة'
     },
     schedule:{
         type: String,

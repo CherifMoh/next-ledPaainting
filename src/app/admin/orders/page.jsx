@@ -17,9 +17,13 @@ import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
 import {AmiriFont} from '../../data/AmiriFont'
 
+import downArrow from '../../../../public/assets/arrow-down.svg';
 import orangeBg from '../../../../public/assets/orange bg.png';
 import redBg from '../../../../public/assets/red bg.png';
 import greenBg from '../../../../public/assets/green bg.png';
+import yellowBg from '../../../../public/assets/yellow bg.png';
+import darkBlueBg from '../../../../public/assets/drak blue bg.png';
+import lightBlueBg from '../../../../public/assets/light blue bg.png';
 import transparent from '../../../../public/assets/transparent.png';
 import '../../../styles/pages/orders.css'
 
@@ -83,6 +87,9 @@ function Orders() {
     const [selectedImage, setSelectedImage] = useState({ _id: '', image: '' });
 
     const [search, setSearch] = useState('')
+
+    const [orderAction, setOrderAction] = useState('')
+    const [isOrderAction, setIsOrderAction] = useState(false)
 
     const [isdesigns, setIsdesigns] = useState({ _id: '', state: false })
     const [isproducts, setIsproducts] = useState({ _id: '', state: false })
@@ -268,7 +275,6 @@ function Orders() {
         }
     }
     
-
     function orderIdToggel(id) {
         if (editedOrderId === id) {
             setEditedOrderId('')
@@ -276,7 +282,6 @@ function Orders() {
             setEditedOrderId(id)
         }
     }
-
 
     function handleChange(e) {
         const input = e.target
@@ -391,8 +396,6 @@ function Orders() {
         }
     })
 
-    
-
     async function addToTsl(order) {
 
         if(!order.reference||!order.totalPrice||!order.name||!order.phoneNumber||!order.adresse||!order.commune){
@@ -480,8 +483,6 @@ function Orders() {
         // }
     }
 
-   
-
     async function handleUpdatingOrder(id) {
         // setEditedOrder(pre => ({ ...pre, orders: newOrders }))
         setSaving(pre => ([...pre, id]))
@@ -495,7 +496,7 @@ function Orders() {
 
         let tracking =''
 
-        if(oldOrder.state !== 'confirmed' && editedOrder.state  === 'confirmed'){
+        if(oldOrder.state !== 'مؤكدة' && editedOrder.state  === 'مؤكدة'){
             let res = await addToTsl(editedOrder)
             tracking = res?.tracking
         }
@@ -511,7 +512,7 @@ function Orders() {
 
         const res = await axios.put(`/api/orders/${editedOrderId}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
         // console.log(res.data)
-        queryClient.invalidateQueries('orders');
+        queryClient.invalidateQueries(`orders,${dateFilter}`);
         setIsProductDeleted([])
         setSelectedDate(null)
         setSaving(pre => {
@@ -519,6 +520,26 @@ function Orders() {
             return nweSaving
         })
 
+    }
+
+    async function confirmMultibel(orders) {
+        orders.forEach(async(order) => {
+            
+            let tracking =''
+        
+            let res = await addToTsl(order)
+            tracking = res?.tracking
+            
+            
+            const newOrder = {
+                ...order,
+                state: 'مؤكدة',
+                ...(tracking && { TslTracking: tracking })
+
+            };
+            const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
+            queryClient.invalidateQueries(`orders,${dateFilter}`);
+        })
     }
 
     function isWithinPastWeek(dateString) {
@@ -549,7 +570,6 @@ function Orders() {
         // Check if the input date is within the past month
         return inputDate >= oneMonthAgoDate && inputDate <= currentDate;
     }
-
 
     function handleDateFilterChange(e) {
         const value = e.target.value
@@ -818,7 +838,6 @@ function Orders() {
         // handleUpdatingOrder(id)
     }
 
-
     const productOptsElement = addedOrder.options?.map(option => {
         return (
             <option
@@ -1008,14 +1027,41 @@ function Orders() {
     }
 
     function trackingBg(track){
-        if(track === 'delivered'){
-            return greenBg
-        }
         if(track === 'returned'){
             return redBg
         }
-        if(track === 'scheduled'){
+        if(track === 'Suspendus'){
+            return yellowBg
+        }
+        if(track === 'En preparation'){
+            return darkBlueBg
+        }
+        if(track === 'livred'){
+            return greenBg
+        }
+        if(track === 'En livraison'){
             return orangeBg
+        }
+        if(track === 'Vers Station'){
+            return lightBlueBg
+        }
+        if(track === 'Vers Wilaya'){
+            return darkBlueBg
+        }
+        return transparent
+    }
+    function stateBg(state){
+        if(state === 'مؤكدة'){
+            return greenBg
+        }
+        if(state === 'ملغاة'){
+            return redBg
+        }
+        if(state === 'غير مؤكدة'){
+            return orangeBg
+        }
+        if(state === 'لم يرد'){
+            return yellowBg
         }
         return transparent
     }
@@ -1171,25 +1217,25 @@ function Orders() {
                                 name="state"
                             >
                                 <option 
-                                    value="ordered" 
+                                    value="غير مؤكدة" 
                                     className="bg-yellow-300"
                                 >
                                     غير مؤكدة
                                 </option>
                                 <option 
-                                    value="confirmed"
+                                    value="مؤكدة"
                                     className="bg-green-300"
                                 >
                                     مؤكدة
                                 </option>
                                 <option 
-                                    value="didntAnswer"
+                                    value="لم يرد"
                                     className="bg-orange-300"
                                 >
                                     لم يرد
                                 </option>
                                 <option 
-                                    value="canseled"
+                                    value="ملغاة"
                                     className="bg-red-500"
                                 >
                                     ملغاة
@@ -1214,7 +1260,7 @@ function Orders() {
                             />
                         </td>
                         <td className="text-center">
-                            {editedOrder.state === 'confirmed' 
+                            {editedOrder.state === 'مؤكدة' 
                             ?<input type='checkbox'
                                 name="inDelivery"
                                 onChange={() => setEditedOrder(pre => ({
@@ -1378,14 +1424,14 @@ function Orders() {
                         key={order._id}
                         className={`h-5 ${saving.includes(order._id) && 'opacity-40'} ${deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
                     >
-                        {(isUpdateAccess || isDeleteAccess || isCrafting || isLabels) && (
+                        {(isUpdateAccess || isDeleteAccess || isCrafting || isLabels || isOrderAction) && (
                             <td>
                                 {saving.includes(order._id)
                                     ?
                                     <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
                                     :
                                     <div className=" whitespace-nowrap flex items-center justify-center">
-                                        {(isCrafting || isSending ||(isLabels && order?.TslTracking)) &&
+                                        {(isCrafting || isSending ||(isLabels && order?.TslTracking)||isOrderAction) &&
                                             <div className="p-2 flex items-center">
                                                 <input 
                                                     type="checkbox" 
@@ -1446,7 +1492,20 @@ function Orders() {
                                 {order.note}
                             </div>
                         </td>
-                        <td className="bg-gray-200">{order.state}</td>
+                        <td className='relative bg-gray-200'>
+                            <div className="opacity-0">
+                                {order.state}
+                            </div>
+                            <div className='z-10 absolute top-1/2 right-3 -translate-y-1/2'>
+                                {order.state}
+                            </div>
+                            <Image 
+                                src={stateBg(order.state)} 
+                                alt='' 
+                                width={52} height={52} 
+                                className='absolute top-1/2 right-1 -translate-y-1/2'
+                            />
+                        </td>
                         <td>{order.schedule}</td>
                         <td className="relative  max-w-40 whitespace-nowrap overflow-hidden text-ellipsis hover:overflow-visible group">
                             <div className="overflow-hidden text-ellipsis">
@@ -1473,7 +1532,7 @@ function Orders() {
                                 src={trackingBg(order.tracking)} 
                                 alt='' 
                                 width={64} height={64} 
-                                className='absolute top-1/2 right-3 -translate-y-1/2'
+                                className='absolute top-1/2 right-3 w-3/4 -translate-y-1/2'
                             />
                         </td>
                         {cartItemsElemnt}
@@ -1600,7 +1659,6 @@ function Orders() {
         setLablesLoading(false);
     };
     
-    
       
 
     return (
@@ -1660,8 +1718,8 @@ function Orders() {
                     <div
                     >Scheduled</div>
                 </div>
-{/* 
-               {isSending
+
+               {/* {isSending
                 ?<div 
                     className="relative border-gray-500 border-2 p-2 px-4 rounded-xl"
                     onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
@@ -1697,7 +1755,44 @@ function Orders() {
                     Send instagram Message
                 </div>
                } */}
-
+                <div className="relative">
+                    <div
+                        className='relative flex whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                        onClick={() => {
+                            setIsOrderAction(pre=>!pre)
+                        }}
+                    >
+                        {orderAction ? orderAction : 'order Action'}
+                        <Image 
+                            src={downArrow} alt=""
+                            width={24} height={24}
+                            className={`ml-2 transition-all  ${isOrderAction ? 'rotate-180 -translate-y-1' : 'translate-y-1'}`}
+                        />
+                    </div>
+                    {isOrderAction &&
+                     <div
+                        className="absolute rounded-lg top-12 right-1/2 translate-x-1/2 border-2 z-[99999999999999999] border-gray-500 flex flex-col bg-white items-center"
+                    >
+                        <div 
+                            className="px-2 whitespace-nowrap p-1 cursor-pointer border-b-2 border-gray-500  w-full text-start"
+                            onClick={() =>confirmMultibel(selectedOrders)}
+                        >
+                            Confirm
+                        </div>
+                        <div 
+                            className="px-2 whitespace-nowrap p-1 w-full text-start"
+                            onClick={() =>alert('its not implemented yet')}
+                        >
+                            validate To TSL
+                        </div>
+                        <div 
+                            className="px-2 whitespace-nowrap p-1 border-t-2 border-gray-500 w-full text-start"
+                            onClick={() =>alert('its not implemented yet')}
+                        >
+                            validate with ramasage
+                        </div>
+                    </div>}
+                </div>
                 <div
                     className='relative whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
                     onClick={() => {
