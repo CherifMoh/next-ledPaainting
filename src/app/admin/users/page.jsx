@@ -86,7 +86,7 @@ function User() {
       >
         <td className='border-0'>{user.name}</td>
         <td className='border-0'>
-          <Image 
+          <img 
             src={user.pfp} alt='pfp'
             width={40} height={40}
             className='w-10 h-10 rounded-full'

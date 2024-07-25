@@ -222,11 +222,11 @@ function Orders() {
             let newTraking =''
             
 
-            if(TslStatus === 'accepted_by_carrier' || TslStatus === 'dispatched_to_driver'){
+            if(TslStatus === 'accepted_by_carrier'){
                 newTraking = 'Vers Wilaya'
             }else if(TslStatus === 'order_information_received_by_carrier'){
                 newTraking = 'Vers Station'
-            }else if(TslStatus === 'attempt_delivery'){
+            }else if(TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver'){
                 newTraking = 'En livraison'
             }else if(TslStatus === 'livred'){
                 newTraking = TslStatus
