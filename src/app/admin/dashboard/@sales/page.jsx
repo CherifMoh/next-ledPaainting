@@ -43,11 +43,22 @@ function Sales() {
     });
   });
 
+  let confTotalQnt= 0 
+  Orders.forEach(order => {
+    if(order.tracking !== "livred") return
+    order.orders.forEach(item => {
+      confTotalQnt+=Number(item.qnt)
+    });
+  });
+
+  
+
   return (
     <DashboardCard
       title="Sales"
       subtitle={`${totalQnt} Orders`}
-      body={`${formatNumberWithCommas(totalPrice)} DA`}
+      // body={`${formatNumberWithCommas(totalPrice)} DA`}
+      body={`delivered ${confTotalQnt} Orders`}
     />
   )
 }

@@ -20,14 +20,14 @@ function PieChartC() {
   if (isError) return <div>Error fetching Orders: {error.message}</div>;
 
 
-  const Delevred = Orders.filter(order => order.tracking === 'delivered');
+  const livred = Orders.filter(order => order.tracking === 'livred');
   const Retour = Orders.filter(order => order.tracking === 'returned');
 
-  const delevredPercent = Math.floor((Delevred.length / (Delevred.length + Retour.length)) * 100);
-  const retourPercent = Math.floor((Retour.length / (Delevred.length + Retour.length)) * 100);
+  const livredPercent = Math.floor((livred.length / (livred.length + Retour.length)) * 100);
+  const retourPercent = Math.floor((Retour.length / (livred.length + Retour.length)) * 100);
 
   const data = [
-    { name: 'Delevred %', value: delevredPercent, color: '#66FF66' },
+    { name: 'livred %', value: livredPercent, color: '#66FF66' },
     { name: 'Retour %', value: retourPercent, color: '#FF6666' },
   ];
 
