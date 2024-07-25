@@ -1150,8 +1150,14 @@ function Orders() {
                             </button>
                         </td>
                         <td className="bg-blue-100 text-sm">
-                           <div>#{order.reference}</div>
-                           <div>{order.TslTracking}</div>
+                            <div>
+                                <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                <path fill="currentColor" d="M0 448V64h18v384H0zm26.857-.273V64h36v383.727H26.857zM73.143 448V64h8.857v384h-8.857zM108 448V64h8.857v384H108zm44.857-27.143V64h18v356.857h-18zm36 27.143V64h8.857v384h-8.857zm35.715 0V64h18v384h-18zm44.857-26.857V64h8.857v357.143h-8.857zm35.715 26.857V64h8.857v384h-8.857zm35.714-17.714V64h8.857v366.286h-8.857zm17.714-366.286v356.571h-18V64h18zm44.857 356.571V64h18v384h-18zm44.857-8.857V64h18v375.143h-18zm35.715-8.857V64h18v366.286h-18zm26.857 8.857V64h36v383.727h-36zm45.143-.273V64h18v384h-18zm27.143 0V64h18v384h-18z"></path>
+                                </svg>
+
+                                {order.TslTracking}
+                            </div>
+                            <div>#{order.reference}</div>
                         </td>
                         <td className="bg-blue-100">
                             <input
@@ -1500,8 +1506,25 @@ function Orders() {
                             </td>
                         )}
                         <td className="bg-blue-100 text-sm">
-                           <div># {order.reference}</div>
-                           <div>{order.TslTracking}</div>
+                            <div className="flex items-center">
+                                <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                    <path fill="currentColor" d="M0 448V64h18v384H0zm26.857-.273V64h36v383.727H26.857zM73.143 448V64h8.857v384h-8.857zM108 448V64h8.857v384H108zm44.857-27.143V64h18v356.857h-18zm36 27.143V64h8.857v384h-8.857zm35.715 0V64h18v384h-18zm44.857-26.857V64h8.857v357.143h-8.857zm35.715 26.857V64h8.857v384h-8.857zm35.714-17.714V64h8.857v366.286h-8.857zm17.714-366.286v356.571h-18V64h18zm44.857 356.571V64h18v384h-18zm44.857-8.857V64h18v375.143h-18zm35.715-8.857V64h18v366.286h-18zm26.857 8.857V64h36v383.727h-36zm45.143-.273V64h18v384h-18zm27.143 0V64h18v384h-18z"></path>
+                                </svg>
+
+                                {order.TslTracking}
+                            </div>
+                            <div className="flex items-center">
+                                
+                                {/* <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" data-prefix="fa" data-icon="hashtag" role="img" xmlns="http://www.w3.or g/2000/svg" viewBox="0 0 448 512" data-fa-i2svg> == $0
+                                    ::before
+                                    <path fill="currentColor" d="M440.667 182.10917.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81114.623-81.891C377.123 38.754 371.468 32 363.997 32h-40.632a12 12 000-11.813 9.891L296.175 128H197.54114.623-81.891C213.477 38.754 207.822 32 200.35 32h-40.632a12 12 0 0 0-11.813 9.891L132.528 128H53.432a12 12 0 0 0-11.813 9.8911- 7.143 40C33.163 185.246 38.818 192 46.289 192h74.81L98.242 320H19.146a12 12 0 0 0-11.813 9.8911-7.143 40C-1.123 377.246 4.532 384 12.003 384h74.81L72.19 465.891C70.87 7 473.246 76.532 480 84.003 480h40.632a12 12 0 0 0 11.813-9.891L151.826 384h98.6341-14.623 81.891C234.523 473.246 240.178 480 247.65 480h40.632a12 12 0 0 0 11.813-9.8 91L315.472 384h79.096a12 12 ◊ ◊ ◊ 11.813-9.89117.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81122.857-128h79.096a12 12 0 0 0 11.813-9.891zM261.889 320h-98.6341 22.857-128h98.6341-22.857 128z"></path>
+                                </svg> */}
+                                <div className='size-3 mr-1 text-blue-600'>#</div>
+
+
+                                {order.reference}
+                            </div>
+                            
                         </td>
                         <td className="bg-blue-100">{order.name}</td>
                         <td className="bg-blue-100">{order.phoneNumber}</td>
