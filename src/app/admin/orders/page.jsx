@@ -21,6 +21,7 @@ import downArrow from '../../../../public/assets/arrow-down.svg';
 import orangeBg from '../../../../public/assets/orange bg.png';
 import redBg from '../../../../public/assets/red bg.png';
 import greenBg from '../../../../public/assets/green bg.png';
+import lightGreenBg from '../../../../public/assets/light green bg.png';
 import yellowBg from '../../../../public/assets/yellow bg.png';
 import darkBlueBg from '../../../../public/assets/drak blue bg.png';
 import lightBlueBg from '../../../../public/assets/light blue bg.png';
@@ -221,8 +222,9 @@ function Orders() {
 
             let newTraking =''
             
-
-            if(TslStatus === 'accepted_by_carrier'){
+            if(!order.inDelivery){
+                newTraking = 'Prêt à expédier'
+            }else if(TslStatus === 'accepted_by_carrier'){
                 newTraking = 'Vers Wilaya'
             }else if(TslStatus === 'order_information_received_by_carrier'){
                 newTraking = 'Vers Station'
@@ -1116,6 +1118,9 @@ function Orders() {
         if(track === 'returned'){
             return redBg
         }
+        if(track === 'En livraison'){
+            return lightGreenBg
+        }
         if(track === 'Suspendus'){
             return yellowBg
         }
@@ -1125,7 +1130,7 @@ function Orders() {
         if(track === 'livred'){
             return greenBg
         }
-        if(track === 'En livraison'){
+        if(track === 'Prêt à expédier'){
             return orangeBg
         }
         if(track === 'Vers Station'){
@@ -1658,14 +1663,14 @@ function Orders() {
                             <div className="opacity-0">
                                 {order.tracking}
                             </div>
-                            <div className='z-10 absolute top-1/2 right-3 -translate-y-1/2'>
+                            <div className='z-10 text-center w-full whitespace-nowrap  pl-6 absolute top-1/2 right-3 -translate-y-1/2'>
                                 {order.tracking}
                             </div>
                             <Image 
                                 src={trackingBg(order.tracking)} 
                                 alt='' 
                                 width={64} height={64} 
-                                className='absolute top-1/2 right-3 w-3/4 -translate-y-1/2'
+                                className='absolute opacity-50 top-1/2 right-3 w-3/4 -translate-y-1/2'
                             />
                         </td>
                         {cartItemsElemnt}

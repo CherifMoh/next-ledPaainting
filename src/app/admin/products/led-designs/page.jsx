@@ -77,20 +77,27 @@ function Page() {
             design.title.toLowerCase().includes(search.toLocaleLowerCase()) ||
             design.tags.includes(search)  
         ){
+            const designtagsEle =design.tags.map(tag=>{
+                return(
+                    <div className='ml-2' key={tag}>
+                        {tag}
+                    </div>
+                )
+            })
             return(
                 <tr key={design._id} className='h-5 flex-none'>
                     <td className='w-24'>
                         <div>{design._id}</div>
                     </td>
                     <td className='w-24'>
-                        <Image src={design.imageOn} width={96} height={96} alt="" />
+                        <img src={design.imageOn} width={96} height={96} alt="" />
                     </td>
                     <td>
                         {design.title}
                     </td>
                     <td>
-                        <div className='capitalize'>
-                            {design.tags}
+                        <div className='capitalize flex'>
+                            {designtagsEle}
                         </div>
                     </td>
                     {isUpdateAccess && 

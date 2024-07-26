@@ -185,9 +185,17 @@ function ProductsGrid() {
                         className="product-card"
                         href={`/led-painting/${design._id}`}
                     >
-                        <div className="product-img-container">
-                            <img alt="" src={`${design.imageOn}`} width={20} height={20} className="product-img product-img-on" />
-                            <img alt="" src={`${design.imageOff}`} width={20} height={20} className="product-img product-img2 product-img-off" />
+                        <div className="aspect-square product-img-container">
+                            <img 
+                                src={`${design.imageOn}`} alt="" 
+                                width={20} height={20} 
+                                className="product-img product-img-on" 
+                            />
+                            <img 
+                                src={`${design.imageOff}`} alt="" 
+                                width={20} height={20} 
+                                className="product-img product-img2 product-img-off" 
+                            />
                         </div>
                         <div className="card-info">
                             <span className="product-title">{design.title}</span>

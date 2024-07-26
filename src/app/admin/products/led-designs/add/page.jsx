@@ -75,37 +75,64 @@ function Admin() {
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>{error.message}</div>
     
-    async function handleFileUpload(e,state) {
-        console.log(state)
-        const file = e.target.files[0];
-        if(state=='On'){
-            if(!file){
-                setNewDesign(pre=>({...pre,imageOn:''}))
-                return e.target.value = ''
+    async function handleFileUpload(event, state) {
+        if (state == 'On') {
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+
+            if (!file) {
+                e.target.files[0] = []
             }
-            if(!checkFileSize(file,e.target)) return setNewDesign(pre=>({...pre,imageOn:''}))
-            const base64 = await convertToBase64(file);
-            setNewDesign(pre=>({
-                ...pre,
-                imageOn:base64,
-                gallery:pre.gallery
-                 ?[...pre.gallery,base64]
-                 :[base64]
-            }))
-        }else{
-            if(!file){
-                setNewDesign(pre=>({...pre,imageOff:''}))
-                return e.target.value = ''
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('https://drawlys.com:8444/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                setNewDesign(pre => ({
+                    ...pre,
+                    imageOn: data,
+                    gallery: pre.gallery
+                        ? [...pre.gallery, data]
+                        : [data]
+                }))
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+            });
+           
+        } else {
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+
+            if (!file) {
+                e.target.files[0] = []
             }
-            if(!checkFileSize(file,e.target)) return setNewDesign(pre=>({...pre,imageOff:''})) 
-            const base64 = await convertToBase64(file);
-            setNewDesign(pre=>({
-                ...pre,
-                imageOff:base64,
-                gallery:pre.gallery
-                 ?[...pre.gallery,base64]
-                 :[base64]
-            }))
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('https://drawlys.com:8444/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                setNewDesign(pre => ({
+                    ...pre,
+                    imageOff: data,
+                    gallery: pre.gallery
+                        ? [...pre.gallery, data]
+                        : [data]
+                }))
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+            });
         }
     }
 
@@ -151,17 +178,32 @@ function Admin() {
         }
     }
 
-    async function handleAddToGallery(e){
-        const file = e.target.files[0];
-        if(!file){
-            return e.target.value = ''
+    async function handleAddToGallery(event){
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
+        if (!file) {
+            e.target.files[0] = []
         }
-        if(!checkFileSize(file,e.target)) return 
-        const base64 = await convertToBase64(file);
-        setNewDesign(pre=>(Array.isArray(pre.gallery)
-        ?{...pre,gallery:[...pre?.gallery, base64]}
-        :{...pre,gallery:[base64]}
-        ))
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            setNewDesign(pre=>(Array.isArray(pre.gallery)
+                ?{...pre,gallery:[...pre?.gallery, data]}
+                :{...pre,gallery:[data]}
+            ))
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+        });
+      
     }
 
     const handleRemoveGalleryImage = (index) => {
@@ -179,7 +221,7 @@ function Admin() {
                  onClick={()=>handleRemoveGalleryImage(i)}
                  className='absolute top-1 right-5 flex justify-center items-center cursor-pointer bg-white px-2 rounded-full text-center'
                 >x</div>
-                <Image 
+                <img 
                 width={160}
                 height={160}
                 className="w-40 h-40"
@@ -227,7 +269,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e,'On')}
                     />
                     {newDesign.imageOn
-                        ?<Image alt="" src={newDesign.imageOn} width={96} height={96} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
+                        ?<img alt="" src={newDesign.imageOn} width={96} height={96} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none' />
                         :<div className='absolute left-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge on</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12"/>
@@ -242,7 +284,7 @@ function Admin() {
                         onChange={(e) => handleFileUpload(e,'Off')}
                     />
                     {newDesign.imageOff
-                        ?<Image alt="" src={newDesign.imageOff} width={96} height={96} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
+                        ?<img alt="" src={newDesign.imageOff} width={96} height={96} className='absolute rounded-full w-96 h-96 object-cover pointer-events-none right-0' />
                         :<div className='absolute right-32 font-bold text-xl pointer-events-none'>
                             <p>Enter imge off</p>
                             <FontAwesomeIcon icon={faCloudArrowUp} className="ml-12"/>
