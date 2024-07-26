@@ -493,6 +493,60 @@ function Orders() {
         }
         
     }
+    
+    async function updateToTsl(order) {
+
+        const wilayatresponse = await axios.get('https://tsl.ecotrack.dz/api/v1/get/wilayas', {
+            headers: {
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+            }
+        });
+        const wilayat = wilayatresponse.data; // Get the data from the response
+
+        const wilayaCode =wilayat.find(wilaya=>wilaya.wilaya_name === order.wilaya).wilaya_id
+
+
+        let products =[]
+
+        order.orders.forEach(order=>{
+            const i =products.findIndex(product=>product === order.title)
+            if(i === -1){
+                products.push(order.title)
+            }
+        })
+
+
+        const TslOrder ={
+            tracking: order.TslTracking,
+            nom_client:order.name,
+            telephone:order.phoneNumber,
+            adresse:order.adresse,
+            produit:products[0],
+            remarque:order.deliveryNote,
+            montant:order.totalPrice,
+        }
+
+        console.log(TslOrder)
+        try {
+            const res = await axios.post(
+                'https://tsl.ecotrack.dz/api/v1/update/order',TslOrder,
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            if(res.data.success){
+                setSuccessNotifiction(res.data.message);
+                return {tracking:res.data.tracking};
+            }
+        } catch (error) {
+            setErrorNotifiction("couldn't update the order in TSL");
+            console.error('Error:', error.response?.data || error.message);
+        }
+        
+    }
 
     async function validateMultibelToTSL(orders,ask_collection){
         orders.forEach(async(order) => {
@@ -533,6 +587,10 @@ function Orders() {
             ...editedOrder,
             ...(tracking && { TslTracking: tracking })
         };
+        
+        if(editedOrder.state  === 'مؤكدة' && editedOrder.TslTracking){
+            let res= await updateToTsl(editedOrder)
+        }
 
         if(oldOrder.inDelivery !== true && editedOrder.inDelivery  === true && editedOrder.state  === 'مؤكدة'){
             let res= await validateToTsl(editedOrder.TslTracking,0)
@@ -1239,8 +1297,8 @@ function Orders() {
                             <input
                                 type="text"
                                 onChange={handleChange}
-                                name="totalPrice"
-                                defaultValue={editedOrder.totalPrice}
+                                name="shippingPrice"
+                                defaultValue={editedOrder.shippingPrice}
                                 className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
@@ -1248,8 +1306,8 @@ function Orders() {
                             <input
                                 type="text"
                                 onChange={handleChange}
-                                name="shippingPrice"
-                                defaultValue={editedOrder.shippingPrice}
+                                name="totalPrice"
+                                defaultValue={editedOrder.totalPrice}
                                 className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
                             />
                         </td>
