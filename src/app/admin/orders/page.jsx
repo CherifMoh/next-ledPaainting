@@ -218,7 +218,9 @@ function Orders() {
         Orders.forEach(async(order) => {
             const currentDate = format(new Date(), 'yyyy-MM-dd');
 
-            if (!filterOrders(order, currentDate)) return
+            
+            if (order.tracking === 'livred' || order.tracking === 'returned') return
+            // if (!filterOrders(order, currentDate)) return
 
             const res = await fetchOrderStatus(order.TslTracking)
             if(!res || !res.activity) return
