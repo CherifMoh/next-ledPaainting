@@ -216,6 +216,10 @@ function Orders() {
 
 
         Orders.forEach(async(order) => {
+            const currentDate = format(new Date(), 'yyyy-MM-dd');
+
+            if (!filterOrders(order, currentDate)) return
+
             const res = await fetchOrderStatus(order.TslTracking)
             if(!res || !res.activity) return
 
@@ -224,8 +228,9 @@ function Orders() {
             if(!TslStatus) return
 
             let newTraking =''
-            
-            if(!order.inDelivery){
+            if(!order.inDelivery && order.state !== 'مؤكدة'){
+                newTraking =''
+            }else if(!order.inDelivery){
                 newTraking = 'Prêt à expédier'
             }else if(TslStatus === 'accepted_by_carrier'){
                 newTraking = 'Vers Wilaya'
@@ -242,16 +247,18 @@ function Orders() {
             }else if(TslStatus === 'returned'){
                 newTraking = 'returned'
             }
-            
+           
             if(newTraking === order.tracking) return
 
             const newOrder = {...order, tracking: newTraking}
             
             const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
+            
+
             queryClient.invalidateQueries(`orders,${dateFilter}`);
            
         })
-    }, [Orders]);
+    }, [Orders,trackingFilter]);
     
 
     if (isLoading) return <div>Loading...</div>;
