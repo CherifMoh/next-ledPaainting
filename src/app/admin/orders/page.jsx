@@ -28,6 +28,8 @@ import lightBlueBg from '../../../../public/assets/light blue bg.png';
 import transparent from '../../../../public/assets/transparent.png';
 import '../../../styles/pages/orders.css'
 
+import returns from '../../../../public/assets/tracking Icon/returns.png';
+
 import { PDFDocument } from 'pdf-lib';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -98,8 +100,9 @@ function Orders() {
     const [isProductDeleted, setIsProductDeleted] = useState([])
 
     const [newOrders, setNewOrders] = useState({})
-
-
+    
+    const [trackingFilter, setTrackingFilter] = useState('unconfirmed')
+    
     const [isAddingProduct, setIsAddingProduct] = useState([])
     const [addedOrder, setAddedOrder] = useState({})
     const [isAddedProducts, setIsAddedProducts] = useState([])
@@ -214,7 +217,7 @@ function Orders() {
 
         Orders.forEach(async(order) => {
             const res = await fetchOrderStatus(order.TslTracking)
-            if(!res) return
+            if(!res || !res.activity) return
 
             const lastIndex = res.activity.length - 1
             const TslStatus = res.activity[lastIndex].status
@@ -232,7 +235,7 @@ function Orders() {
                 newTraking = 'En livraison'
             }else if(TslStatus === 'livred'){
                 newTraking = TslStatus
-            }else if(TslStatus === 'HUB'){
+            }else if(TslStatus === 'notification_on_order'){
                 newTraking = 'En preparation'
             }else if(TslStatus === 'notification_on_order'){
                 newTraking = 'Suspendus'
@@ -682,12 +685,27 @@ function Orders() {
         cDate.setDate(cDate.getDate() - 1);
         const yesterdayDate = cDate.toISOString().slice(0, 10);
 
-        const isMatchingSearch = !isSchedule && (
+
+        const isMatchingSearch = (
             order.name.toLowerCase().includes(searchLower) ||
             order.wilaya.toLowerCase().includes(searchLower) ||
             order.phoneNumber.includes(searchLower) ||
+            order.TslTracking?.toLowerCase().includes(searchLower) ||
+            order.reference?.toLowerCase().includes(searchLower) ||
             order.adresse.toLowerCase().includes(searchLower)
         );
+
+        let isMatchingTraking
+        
+
+        if(trackingFilter ==='Scheduled'){
+            isMatchingTraking = order.schedule === currentDate;
+
+        }else if(trackingFilter ==='unconfirmed'){
+            isMatchingTraking = order.state !== 'مؤكدة'
+        }else{
+            isMatchingTraking = order.tracking===trackingFilter
+        }
 
         const isMatchingDateFilter = (
             dateFilter === 'today' && createdDate === currentDate ||
@@ -697,7 +715,7 @@ function Orders() {
             dateFilter === 'maximum'
         );
 
-        return isMatchingDateFilter && (isMatchingSearch || (isSchedule && order.schedule === currentDate));
+        return isMatchingDateFilter && (isMatchingSearch && isMatchingTraking);
     }
 
     async function deleteOrderProduct(id) {
@@ -1695,10 +1713,6 @@ function Orders() {
         </option>
     ))
 
-    const buttonStyle = {
-        boxShadow: isSchedule && 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset'
-    }
-
     const generateOrdersPDF = (data) => {
 
         const doc = new jsPDF();
@@ -1797,13 +1811,88 @@ function Orders() {
         setLablesLoading(false);
     };
     
+    const trackingFiltersArray=[
+        {
+            name:'unconfirmed',
+            icon:'not confirmed.png'      
+        },{
+            name:'Scheduled',
+            icon:'Schedule.png'      
+        },{
+            name:'Prêt à expédier',
+            icon:'Prêt à expédier.png'      
+        },{
+            name:'En ramassage',
+            icon:'En ramassage.png'          
+        },{
+            name:'Vers Station',
+            icon:'vers Station.png'          
+        },{
+            name:'Vers Wilaya',
+            icon:'Vers Wilaya.png'          
+        },{
+            name:'En preparation',
+            icon:'En preparation.png'          
+        },{
+            name:'En livraison',
+            icon:'En livraison.png'          
+        },{
+            name:'Suspendus',
+            icon:'Suspendus.png'          
+        },{
+            name:'livred',
+            icon:'livres.png'          
+        },{
+            name:'returned',
+            icon:'returns.png'          
+        }
+    ]
+
+    const trackingFiltersEle=trackingFiltersArray.map(({name,icon},i)=>{
+
+        let ordersNumber = 0
+        if(name ==='Scheduled'){
+            Orders?.forEach(order => {
+                const currentDate = format(new Date(), 'yyyy-MM-dd');
+    
+                // Check if the saved date is the same as today
+                const isSameAsToday = order.schedule === currentDate;
+                if (isSameAsToday) ordersNumber++
+            })
+        }else if(name ==='unconfirmed'){
+            ordersNumber = Orders.filter(order=>order.state !== 'مؤكدة').length
+        }else{
+            ordersNumber = Orders.filter(order=>order.tracking===name).length
+        }
+
+
+        return(
+            <div 
+                className={`cursor-pointer flex ${i === 0 ? '' : 'border-l'} px-4 py-3 border-gray-400 items-center ${trackingFilter === name ? 'bg-[#057588] text-[#fff] ' : ' hover:bg-[#057588] bg-[#fff] hover:text-[#fff]'} gap-2`}
+                onClick={()=>setTrackingFilter(name)}
+            >
+                <img 
+                    src={`/assets/tracking Icon/${icon}`} alt=""
+                    className="max-w-4 max-h-4"
+                /> 
+                <p className="text-sm">{name}</p>
+                {ordersNumber>0 &&
+                    <p 
+                        className='bg-[#777] text-xs font-semibold text-[#fff]  px-1 rounded-sm'
+                    >
+                        {ordersNumber}
+                    </p>
+                }
+            </div>
+        )
+    })
       
 
     return (
         <div className="py-4 pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
 
             <div 
-                className={`bg-green-200 transition-all duration-200 flex items-center gap-2 absolute top-4 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
+                className={`bg-green-200 transition-all duration-200 flex items-center gap-2 absolute top-4 right-6 z-[9999999999999999999999] border border-gray-400 px-4 py-2 rounded 
                             ${successNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96 -translate-y-96'}
                           `}
             >
@@ -1813,6 +1902,7 @@ function Orders() {
                 />
                 {successNotifiction}
             </div>
+
             <div 
                 className={`bg-red-200 transition-all duration-200 flex items-center gap-2 absolute top-4 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
                             ${errorNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96 -translate-y-96'}
@@ -1825,8 +1915,12 @@ function Orders() {
                 {errorNotifiction}
             </div>
 
+            <div className="w-ful h-11 fixed top-0 left-32 md:left-72 sm:left-48 shadow-md flex z-[9999999999999999999]">
+                {trackingFiltersEle} 
+            </div>
+
             <div
-                className="flex items-center w-max justify-start gap-12"
+                className="flex items-center w-max mt-11 justify-start gap-12"
             >
                 <div className='flex gap-4'>
                     <div className='relative'>
@@ -1843,19 +1937,6 @@ function Orders() {
                     </div>
                 </div>
 
-                <div
-                    className='relative justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
-                    onClick={() => setIsSchedule(pre => !pre)}
-                    style={buttonStyle}
-                >
-                    <div
-                        className='absolute -right-3 -top-3 bg-red-500 px-2 rounded-full text-white'
-                    >
-                        {scheduleQnt}
-                    </div>
-                    <div
-                    >Scheduled</div>
-                </div>
 
                {/* {isSending
                 ?<div 
