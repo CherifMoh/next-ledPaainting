@@ -1,9 +1,7 @@
-
-import Order from "../../models/orders"
-import { dbConnect } from "../../lib/dbConnect"
-import { NextResponse } from "next/server"
+import Order from "../../models/orders";
+import { dbConnect } from "../../lib/dbConnect";
+import { NextResponse } from "next/server";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, subDays } from 'date-fns';
-
 
 export async function GET(req) {
   try {
@@ -12,9 +10,15 @@ export async function GET(req) {
     const dateFilter = req.nextUrl.searchParams.get('date');
     let query = {};
 
-    const today = new Date();
+    const oneHourBefor = new Date();
+    const today = new Date(oneHourBefor);
+    today.setHours(oneHourBefor.getHours() + 1);
+    
     const startToday = startOfDay(today);
+    startToday.setHours(startToday.getHours() + 1);
     const endToday = endOfDay(today);
+    endToday.setHours(endToday.getHours() + 1);
+
 
     if (dateFilter === 'today') {
       query = {
@@ -25,7 +29,9 @@ export async function GET(req) {
       };
     } else if (dateFilter === 'yesterday') {
       const startYesterday = startOfDay(subDays(today, 1));
+      startYesterday.setHours(startYesterday.getHours() + 1);
       const endYesterday = endOfDay(subDays(today, 1));
+      endYesterday.setHours(endYesterday.getHours() + 1);
       query = {
         createdAt: {
           $gte: startYesterday,
@@ -41,9 +47,8 @@ export async function GET(req) {
         },
       };
     } else if (dateFilter === 'this Month') {
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
+      const startOfMonth = startOfDay(new Date(today.getFullYear(), today.getMonth(), 1));
+      const endOfMonth = endOfDay(new Date(today.getFullYear(), today.getMonth() + 1, 0));
       query = {
         createdAt: {
           $gte: startOfMonth,
@@ -63,20 +68,17 @@ export async function GET(req) {
     return NextResponse.error({ message: "Error: " + err });
   }
 }
+
 export async function POST(req) {
   try {
-    await dbConnect()
+    await dbConnect();
 
-    const order = await req.json()
+    const order = await req.json();
 
-    Order.create(order)
+    Order.create(order);
 
-    return new NextResponse("Order created ")
-
+    return new NextResponse("Order created");
   } catch (err) {
-    return new NextResponse("Error :" + err)
+    return new NextResponse("Error :" + err);
   }
-
 }
-
-
