@@ -260,7 +260,7 @@ function Orders() {
             queryClient.invalidateQueries(`orders,${dateFilter}`);
            
         })
-    }, [Orders,trackingFilter]);
+    }, [Orders]);
     
 
     if (isLoading) return <div>Loading...</div>;
