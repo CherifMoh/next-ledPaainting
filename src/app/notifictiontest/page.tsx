@@ -28,7 +28,7 @@ export default function Home() {
     console.log(data);
   };
 
-  {action && <p>{action}</p>}
+
 
 
   return (
@@ -43,6 +43,8 @@ export default function Home() {
           enable notifications in your browser settings.
         </p>
       ) : null}
+
+      {action && <p>{action}</p>}
 
       <button
         disabled={!token}
