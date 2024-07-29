@@ -47,7 +47,10 @@ export default function Home() {
       <button
         disabled={!token}
         className="mt-5 bg-black text-white rounded-lg text-center px-8 py-4"
-        onClick={handleTestNotification}
+        onClick={()=>{
+          handleTestNotification()
+          setAction('clicked')
+        }}
       >
         Send Test Notification
       </button>
