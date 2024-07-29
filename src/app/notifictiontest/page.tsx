@@ -44,7 +44,8 @@ export default function Home() {
         </p>
       ) : null}
 
-      {action && <p>{action}</p>}
+      {/* {action && <p>{action}</p>} */}
+      {token && <p>{token}</p>}
 
       <button
         disabled={!token}
