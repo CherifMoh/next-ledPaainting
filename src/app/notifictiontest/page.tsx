@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 // import { Button } from "@/components/ui/button";
 import useFcmToken from "../../hooks/useFcmToken";
 
 export default function Home() {
   const { token, notificationPermissionStatus } = useFcmToken();
+  const [action, setAction] = useState<string>('');
 
   const handleTestNotification = async () => {
     // console.log("handleTestNotification", token);
@@ -21,10 +23,12 @@ export default function Home() {
       }),
     });
 
+    setAction("Notification sent!");
     const data = await response.json();
     console.log(data);
   };
 
+  {action && <p>{action}</p>}
 
 
   return (
@@ -39,8 +43,6 @@ export default function Home() {
           enable notifications in your browser settings.
         </p>
       ) : null}
-
-      {token && <p>Token: {token}</p>}
 
       <button
         disabled={!token}
