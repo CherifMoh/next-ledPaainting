@@ -132,7 +132,8 @@ function Orders() {
     const [isCreateAccess, setIsCreateAccess] = useState(false)
     const [isUpdateAccess, setIsUpdateAccess] = useState(false)
     const [isDeleteAccess, setIsDeleteAccess] = useState(false)
-
+    
+    const [ordersUpdted, setOrdersUpdted] = useState(false)
 
 
     const router = useRouter()
@@ -212,14 +213,16 @@ function Orders() {
     }, [errorNotifiction]);
 
     useEffect(() => {
-        if(!Orders) return
+        if(!Orders||!ordersUpdted) return
 
+        setOrdersUpdted(true)
 
         Orders.forEach(async(order) => {
             const currentDate = format(new Date(), 'yyyy-MM-dd');
 
             
-            if (order.tracking === 'livred' || order.tracking === 'returned') return
+            if (order.tracking === 'livred' || order.tracking === 'returned') return 
+ 
             // if (!filterOrders(order, currentDate)) return
 
             const res = await fetchOrderStatus(order.TslTracking)
@@ -250,17 +253,24 @@ function Orders() {
                 newTraking = 'returned'
             }
            
-            if(newTraking === order.tracking) return
+            // counter++
+            // if(newTraking === order.tracking) return
+
+       
 
             const newOrder = {...order, tracking: newTraking}
             
+         
             const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
             
 
-            queryClient.invalidateQueries(`orders,${dateFilter}`);
-           
+            
         })
+        queryClient.invalidateQueries(`orders,${dateFilter}`);
+
     }, [Orders]);
+
+
     
 
     if (isLoading) return <div>Loading...</div>;

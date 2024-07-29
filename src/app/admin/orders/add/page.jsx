@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Spinner from '../../../../components/loadings/Spinner';
 import { useSelector } from 'react-redux';
 import { generateUniqueString } from '../../../lib/utils';
+import useFcmToken from '../../../../hooks/useFcmToken';
 
 async function fetchDesigns() {
     const res = await axios.get('/api/products/ledDesigns');
@@ -52,6 +53,8 @@ async function fetchCommunes() {
 
 function Page() {
     const [formData, setFormData] = useState({});
+
+    const { token, notificationPermissionStatus } = useFcmToken();
 
     // Form validation States
     const [isShippingSelected, setIsShippingSelected] = useState(true);
@@ -198,8 +201,7 @@ function Page() {
     if (communesIsErr) return <div>Error: {communesErr.message}</div>;
     if (feesIsErr) return <div>Error: {feesErr.message}</div>;
 
- 
-    console.log(formData)
+
     const handleChange = (e) => {
         const value = e.target.value
         const name = e.target.name
@@ -209,6 +211,26 @@ function Page() {
         }))
     }
     const phonePattern = /^0\d{9}$/;
+
+    const handleTestNotification = async () => {
+        try {
+          const response = await axios.post('/api/send-notification', {
+            token: 'fU5aHsSOa_x1DkazrQ-SJl:APA91bEUlOLvWu9Jhz7GFNAEPfSyTuPYl12Z3X_buCYKeCTUeEcaEsStO0i7bxbOB94MHrNOa5-lfa7_wXT1ein-ERWrgaGyQAAqFlsA9IKWOHSyf1movvva35B0jPGh4fCLgVPu3k4v',
+            title: "New Order",
+            message: "A new order has been created",
+            link: "https://drawlys.com/admin/orders",
+          }, {
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+      
+          const data = response.data;
+          console.log(data);
+        } catch (error) {
+          console.error("Error sending notification:", error);
+        }
+      };
 
 
     async function handelSubmit(e) {
@@ -223,6 +245,7 @@ function Page() {
         setIsSubmiting(true)
 
         const res = await axios.post(`/api/orders`, formData)
+        handleTestNotification()
 
         console.log(res)
 
@@ -370,7 +393,6 @@ function Page() {
         })
         .then(response => response.text())
         .then(data => {
-            console.log(data)
             setSelectedProduct(pre =>{
                 if(pre.gallery){
                     return{ ...pre, gallery:[...pre.gallery, data] }
@@ -597,8 +619,8 @@ function Page() {
 
                 <button 
                     type="submit" 
-                    className={`w-full p-4 rounded text-white text-sm font-semibold ${isSubmiting && 'h-16'} ${formData.orders.length === 0 ? 'bg-blue-300':'bg-[#1773B0] '} flex justify-center items-start`}
-                    disabled={isSubmiting ||formData.orders.length === 0 }
+                    className={`w-full p-4 rounded text-white text-sm font-semibold ${isSubmiting && 'h-16'} ${(Array.isArray(formData?.orders) && formData?.orders?.length === 0)? 'bg-blue-300':'bg-[#1773B0] '} flex justify-center items-start`}
+                    disabled={isSubmiting ||(Array.isArray(formData?.orders) && formData.orders.length === 0) }
                 >
                     {isSubmiting
                         ? <Spinner color={'border-gray-500'} size={'h-10 w-10 '} />

@@ -39,6 +39,8 @@ const useFcmToken = () => {
   const isLoading = useRef(false); // Ref to keep track if a token fetch is currently in progress.
 
   const loadToken = async () => {
+
+    console.log("Starting token load process...");
     // Step 4: Prevent multiple fetches if already fetched or in progress.
     if (isLoading.current) return;
 

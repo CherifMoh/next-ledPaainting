@@ -22,15 +22,18 @@ export async function POST(request: NextRequest) {
     },
     webpush: {
       fcmOptions: {
-        link: link || '',
+        link: link || 'https://drawlys.com/admin/orders',
       },
     },
   };
+
+  console.log("Sending payload:", payload);
 
   try {
     await admin.messaging().send(payload);
     return NextResponse.json({ success: true, message: "Notification sent!" });
   } catch (error) {
+    console.error("Error sending notification:", error);
     return NextResponse.json({ success: false, error });
   }
 }

@@ -1,7 +1,6 @@
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js");
 
-// Replace these with your own Firebase config keys...
 const firebaseConfig = {
   apiKey: "AIzaSyBFQIMDiuZrt4eAZzd1yqO5vVemb1HbiCA",
   authDomain: "drawlys-notifications.firebaseapp.com",
@@ -20,19 +19,19 @@ messaging.onBackgroundMessage((payload) => {
   console.log("[firebase-messaging-sw.js] Received background message ", payload);
 
   const link = payload.fcmOptions?.link || payload.data?.link;
-
-  const notificationTitle = payload.notification.title;
+  const notificationTitle = payload.notification?.title || payload.data?.title;
   const notificationOptions = {
-    body: payload.notification.body,
-    icon: "https://drawlys.com:8444/images/logo.png",
+    body: payload.notification?.body || payload.data?.body,
+    icon: payload.notification?.icon || payload.data?.icon || "https://drawlys.com:8444/images/logo.png",
     data: { url: link },
+    sound: "https://drawlys.com/assets/sounds/NotificationSound.mp3",
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 self.addEventListener("notificationclick", function (event) {
-  console.log("[firebase-messaging-sw.js] Notification click received.");
+  console.log("[firebase-messaging-sw.js] Notification click received.", event);
 
   event.notification.close();
 
@@ -47,7 +46,7 @@ self.addEventListener("notificationclick", function (event) {
       }
 
       if (clients.openWindow) {
-        console.log("OPENWINDOW ON CLIENT");
+        console.log("Opening window with URL:", url);
         return clients.openWindow(url);
       }
     })

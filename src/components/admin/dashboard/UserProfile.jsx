@@ -11,6 +11,7 @@ import { editeUserPfp } from '../../../app/actions/users'
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAccessibilities } from '../../../app/redux/features/accessibilities/accessibilitiesSlice';
+import useFcmToken from '../../../hooks/useFcmToken';
 
 const fetchUserEmail = async (email) => {
   const res = await axios.get(`/api/users/email/${email}`);
@@ -29,6 +30,8 @@ const fetchRole = async (name) => {
 }
 
 function UserProfile({userEmail}) {
+
+    const { token, notificationPermissionStatus } = useFcmToken();
 
     const [selectedImage, setSelectedImage] = useState('');
   
