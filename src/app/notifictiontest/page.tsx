@@ -40,6 +40,8 @@ export default function Home() {
         </p>
       ) : null}
 
+      {token && <p>Token: {token}</p>}
+
       <button
         disabled={!token}
         className="mt-5 bg-black text-white rounded-lg text-center px-8 py-4"
