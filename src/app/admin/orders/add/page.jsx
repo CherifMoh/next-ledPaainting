@@ -245,7 +245,7 @@ function Page() {
         setIsSubmiting(true)
 
         const res = await axios.post(`/api/orders`, formData)
-        handleTestNotification()
+        // handleTestNotification()
 
         console.log(res)
 
