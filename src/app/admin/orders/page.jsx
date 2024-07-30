@@ -213,11 +213,12 @@ function Orders() {
     }, [errorNotifiction]);
 
     useEffect(() => {
-        if(!Orders||!ordersUpdted) return
+        if(!Orders) return
 
-        setOrdersUpdted(true)
+        // setOrdersUpdted(true)
 
         Orders.forEach(async(order) => {
+            
             const currentDate = format(new Date(), 'yyyy-MM-dd');
 
             
@@ -231,6 +232,8 @@ function Orders() {
             const lastIndex = res.activity.length - 1
             const TslStatus = res.activity[lastIndex].status
             if(!TslStatus) return
+
+            console.log(order)
 
             let newTraking =''
             if(!order.inDelivery && order.state !== 'مؤكدة'){
