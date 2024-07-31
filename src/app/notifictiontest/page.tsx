@@ -51,6 +51,7 @@ export default function Home() {
   let AllTokens =[ ]
 
   users.forEach(user => {
+    if(!Array.isArray(user.fcmTokens) || user.fcmTokens.lenght === 0) return
     user.fcmTokens.forEach(fcmToken => {
       AllTokens.push(fcmToken)
     })
