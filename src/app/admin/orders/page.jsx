@@ -266,7 +266,7 @@ function Orders() {
          
             const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
             
-            console.log(console.log('Orders Updated'))
+            console.log('Orders Updated')
             
         })
         queryClient.invalidateQueries(`orders,${dateFilter}`);
