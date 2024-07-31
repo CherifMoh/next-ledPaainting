@@ -214,7 +214,7 @@ function Orders() {
 
     useEffect(() => {
         if(!Orders) return
-        console.log('Orders Update')
+        console.log('Orders Updating ...')
 
         // setOrdersUpdted(true)
 
@@ -266,7 +266,7 @@ function Orders() {
          
             const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
             
-            console.log(response.data)
+            console.log(console.log('Orders Updated'))
             
         })
         queryClient.invalidateQueries(`orders,${dateFilter}`);
