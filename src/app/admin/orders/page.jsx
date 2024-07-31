@@ -213,63 +213,69 @@ function Orders() {
     }, [errorNotifiction]);
 
     useEffect(() => {
-        if(!Orders) return
+        if(!Orders || ordersUpdted) return
         console.log('Orders Updating ...')
 
-        // setOrdersUpdted(true)
+        setOrdersUpdted(true)
+        try{
 
-        Orders.forEach(async(order) => {
-            
-            const currentDate = format(new Date(), 'yyyy-MM-dd');
-
-            
-            if (order.tracking === 'livred' || order.tracking === 'returned') return 
- 
-            // if (!filterOrders(order, currentDate)) return
-
-            const res = await fetchOrderStatus(order.TslTracking)
-            if(!res || !res.activity) return
-
-            const lastIndex = res.activity.length - 1
-            const TslStatus = res.activity[lastIndex].status
-            if(!TslStatus) return
-
-
-            let newTraking =''
-            if(!order.inDelivery && order.state !== 'مؤكدة'){
-                newTraking =''
-            }else if(!order.inDelivery){
-                newTraking = 'Prêt à expédier'
-            }else if(TslStatus === 'accepted_by_carrier'){
-                newTraking = 'Vers Wilaya'
-            }else if(TslStatus === 'order_information_received_by_carrier'){
-                newTraking = 'Vers Station'
-            }else if(TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver'){
-                newTraking = 'En livraison'
-            }else if(TslStatus === 'livred'){
-                newTraking = TslStatus
-            }else if(TslStatus === 'notification_on_order'){
-                newTraking = 'En preparation'
-            }else if(TslStatus === 'notification_on_order'){
-                newTraking = 'Suspendus'
-            }else if(TslStatus === 'returned'){
-                newTraking = 'returned'
-            }
+            Orders.forEach(async(order) => {
+                
+                const currentDate = format(new Date(), 'yyyy-MM-dd');
+    
+                
+                if (order.tracking === 'livred' || order.tracking === 'returned') return 
+     
+                // if (!filterOrders(order, currentDate)) return
+    
+                const res = await fetchOrderStatus(order.TslTracking)
+                if(!res || !res.activity) return
+    
+                const lastIndex = res.activity.length - 1
+                const TslStatus = res.activity[lastIndex].status
+                if(!TslStatus) return
+    
+    
+                let newTraking =''
+                if(!order.inDelivery && order.state !== 'مؤكدة'){
+                    newTraking =''
+                }else if(!order.inDelivery){
+                    newTraking = 'Prêt à expédier'
+                }else if(TslStatus === 'accepted_by_carrier'){
+                    newTraking = 'Vers Wilaya'
+                }else if(TslStatus === 'order_information_received_by_carrier'){
+                    newTraking = 'Vers Station'
+                }else if(TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver'){
+                    newTraking = 'En livraison'
+                }else if(TslStatus === 'livred'){
+                    newTraking = TslStatus
+                }else if(TslStatus === 'notification_on_order'){
+                    newTraking = 'En preparation'
+                }else if(TslStatus === 'notification_on_order'){
+                    newTraking = 'Suspendus'
+                }else if(TslStatus === 'returned'){
+                    newTraking = 'returned'
+                }
+               
+                // counter++
+                // if(newTraking === order.tracking) return
+    
            
-            // counter++
-            // if(newTraking === order.tracking) return
+    
+                const newOrder = {...order, tracking: newTraking}
+                
+             
+                const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
+                
+                console.log('Orders Updated')
+                
+            })
+            queryClient.invalidateQueries(`orders,${dateFilter}`);
+        }catch(err){
+            setOrdersUpdted(false)
+            console.log(err)
+        }
 
-       
-
-            const newOrder = {...order, tracking: newTraking}
-            
-         
-            const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
-            
-            console.log('Orders Updated')
-            
-        })
-        queryClient.invalidateQueries(`orders,${dateFilter}`);
 
     }, [Orders]);
 
