@@ -214,6 +214,7 @@ function Orders() {
 
     useEffect(() => {
         if(!Orders) return
+        console.log('Orders Update')
 
         // setOrdersUpdted(true)
 
