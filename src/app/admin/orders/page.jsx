@@ -234,7 +234,6 @@ function Orders() {
             const TslStatus = res.activity[lastIndex].status
             if(!TslStatus) return
 
-            console.log(order)
 
             let newTraking =''
             if(!order.inDelivery && order.state !== 'مؤكدة'){
@@ -267,7 +266,7 @@ function Orders() {
          
             const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
             
-
+            console.log(response.data)
             
         })
         queryClient.invalidateQueries(`orders,${dateFilter}`);
