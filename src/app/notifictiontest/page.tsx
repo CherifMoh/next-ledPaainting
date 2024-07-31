@@ -16,7 +16,7 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        token: token,
+        token: 'cTHc3lmolpPhOQV5YUpQA9:APA91bGzeV6ZuWATwHTS0_eVuaydoP38fTtDPENv9Jvy799mh99xMvgMxva3EjQB5-FqtJwvQouTF9AlfIFpVrPug3XrNIOn_wX649nsInoZjvHwQliUu9_DxIlX5vjCr7DpeLAoF5Va',
         title: "Test Notification",
         message: "This is a test notification",
         link: "/admin/orders",
