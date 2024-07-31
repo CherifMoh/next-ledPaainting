@@ -22,6 +22,10 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    fcmTokens: {
+        type: Array,
+        required: false
+    }
 },{timestamps:true})
 
 const User = mongoose.models.User || mongoose.model('User', UserSchema)

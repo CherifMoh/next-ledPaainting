@@ -22,7 +22,7 @@ export async function GET(req) {
 
     if (dateFilter === 'today') {
       query = {
-        createdAt: {
+        updatedAt: {
           $gte: startToday,
           $lte: endToday,
         },
@@ -33,7 +33,7 @@ export async function GET(req) {
       const endYesterday = endOfDay(subDays(today, 1));
       endYesterday.setHours(endYesterday.getHours() + 1);
       query = {
-        createdAt: {
+        updatedAt: {
           $gte: startYesterday,
           $lte: endYesterday,
         },
@@ -41,7 +41,7 @@ export async function GET(req) {
     } else if (dateFilter === 'this Week') {
       const startOfWeek = startOfDay(subDays(today, 6));
       query = {
-        createdAt: {
+        updatedAt: {
           $gte: startOfWeek,
           $lte: endToday,
         },
@@ -50,7 +50,7 @@ export async function GET(req) {
       const startOfMonth = startOfDay(new Date(today.getFullYear(), today.getMonth(), 1));
       const endOfMonth = endOfDay(new Date(today.getFullYear(), today.getMonth() + 1, 0));
       query = {
-        createdAt: {
+        updatedAt: {
           $gte: startOfMonth,
           $lte: endOfMonth,
         },

@@ -49,8 +49,7 @@ function UserProfile({userEmail}) {
       queryKey: ['role by name', User1?.role],
       queryFn: ({ queryKey }) => fetchRole(queryKey[1]),
       enabled: !!User1,
-    });
-  
+    }); 
   
     
     const queryClient = useQueryClient();
@@ -67,6 +66,19 @@ function UserProfile({userEmail}) {
         setUser(User1)
       } 
     }, [User1]);
+
+    useEffect(() => {
+      if(!User1 || !token) return
+      if(User1.fcmTokens.includes(token)) return
+
+      const newFcmTokens = [...User1.fcmTokens, token]
+      const newUser = {...User1, fcmTokens: newFcmTokens}
+      // console.log(User1._id)
+      updteUser(User1._id,newUser)
+      
+    
+    }, [User1,token]);
+
     useEffect(() => {
 
       if(Role){
@@ -80,6 +92,19 @@ function UserProfile({userEmail}) {
     if(isLoading || isLoadingRole) return <div>Loading...</div>
     if(isError) return <div>{error.message}</div>
     if(isErrorRole) return <div>{errorRole.message}</div>
+
+ 
+
+    async function updteUser(id,newUser) {
+      try{
+        const res = await axios.put(`/api/users/${id}`, newUser)
+        console.log(res.data)
+        queryClient.invalidateQueries(['user by email', userEmail])
+      }catch(err){
+        console.log(err)
+      }
+      
+    }
 
     const AdminLinks = [
         { 

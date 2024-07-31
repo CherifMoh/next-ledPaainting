@@ -19,13 +19,14 @@ export async function DELETE(req,{params}) {
 export async function PUT(req,{params}) {
   try{
     await dbConnect()
-    const newProduct = await req.json()
-    await User.findByIdAndUpdate({_id:params.productId},newProduct)
+    console.log(params.userId)
+    const newUser = await req.json()
+    await User.findByIdAndUpdate({_id:params.userId},newUser)
 
-    return new NextResponse("Product Updated ")
+    return new NextResponse("user Updated ")
 
   }catch(err){
-    return new NextResponse("Error :" + err)
+    return new NextResponse.error("Error :" + err)
   }
   
 }

@@ -270,7 +270,7 @@ function Orders() {
                 console.log('Orders Updated')
                 
             })
-            queryClient.invalidateQueries(`orders,${dateFilter}`);
+            queryClient.invalidateQueries(['orders',dateFilter]);
         }catch(err){
             setOrdersUpdted(false)
             console.log(err)
@@ -703,7 +703,7 @@ function Orders() {
     }
 
     function filterOrders(order, currentDate) {
-        const createdDate = order.createdAt.slice(0, 10).toLowerCase();
+        const createdDate = order.updatedAt.slice(0, 10).toLowerCase();
         const searchLower = search.toLowerCase();
 
         const currentDateObj = new Date(currentDate);

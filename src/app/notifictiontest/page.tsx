@@ -1,34 +1,62 @@
 "use client";
 
 import { useState } from "react";
-// import { Button } from "@/components/ui/button";
 import useFcmToken from "../../hooks/useFcmToken";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+
+
+async function fetchUsers() {
+  const res = await axios.get('/api/users');
+  return res.data;
+}
 
 export default function Home() {
+
+  const { data: users, isLoading, isError, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers
+  });
+
   const { token, notificationPermissionStatus } = useFcmToken();
   const [action, setAction] = useState<string>('');
 
-  const handleTestNotification = async () => {
-    // console.log("handleTestNotification", token);
-    const response = await fetch("api/send-notification", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: 'cTHc3lmolpPhOQV5YUpQA9:APA91bGzeV6ZuWATwHTS0_eVuaydoP38fTtDPENv9Jvy799mh99xMvgMxva3EjQB5-FqtJwvQouTF9AlfIFpVrPug3XrNIOn_wX649nsInoZjvHwQliUu9_DxIlX5vjCr7DpeLAoF5Va',
-        title: "Test Notification",
-        message: "This is a test notification",
-        link: "/admin/orders",
-      }),
-    });
+  if(isLoading)return <div>Loading...</div>
+  if(isError)return <div>{`Error:${error.message}`}</div>
 
-    setAction("Notification sent!");
-    const data = await response.json();
-    console.log(data);
+  const handleTestNotification = async () => {
+
+    try{
+      const response = await fetch("api/send-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: token,
+          title: "Test Notification",
+          message: "This is a test notification",
+          link: "/admin/orders",
+        }),
+      });
+  
+      const data = await response.json();
+      console.log(data);
+    }catch(error){
+      console.error("Error sending notification:", error);
+    }
+  
   };
 
+  let AllTokens =[ ]
 
+  users.forEach(user => {
+    user.fcmTokens.forEach(fcmToken => {
+      AllTokens.push(fcmToken)
+    })
+  });
+
+  console.log(AllTokens)
 
   return (
     <main className="p-10">
