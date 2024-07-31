@@ -24,29 +24,7 @@ export default function Home() {
   if(isLoading)return <div>Loading...</div>
   if(isError)return <div>{`Error:${error.message}`}</div>
 
-  const handleTestNotification = async () => {
-
-    try{
-      const response = await fetch("api/send-notification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: token,
-          title: "Test Notification",
-          message: "This is a test notification",
-          link: "/admin/orders",
-        }),
-      });
   
-      const data = await response.json();
-      console.log(data);
-    }catch(error){
-      console.error("Error sending notification:", error);
-    }
-  
-  };
 
   let AllTokens =[ ]
 
@@ -57,7 +35,31 @@ export default function Home() {
     })
   });
 
-  console.log(AllTokens)
+  const handleTestNotification = async () => {
+
+    AllTokens.forEach(async (token) => {
+      try{
+        const response = await fetch("api/send-notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: token,
+            title: "Test Notification",
+            message: "This is a test notification",
+            link: "/admin/orders",
+          }),
+        });
+    
+        const data = await response.json();
+        console.log(data);
+      }catch(error){
+        console.error("Error sending notification:", error);
+      }
+    })
+  
+  };
 
   return (
     <main className="p-10">
