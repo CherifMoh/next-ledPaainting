@@ -29,12 +29,11 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 
-  // Send a message to the clients to play the audio
-  self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+  self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then((clients) => {
     clients.forEach((client) => {
       client.postMessage({
         type: 'PLAY_SOUND',
-        soundUrl: 'https://drawlys.com/assets/sounds/NotificationSound.mp3'
+        soundUrl: 'https://your-server.com/path/to/notification.mp3'
       });
     });
   });
