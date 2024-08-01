@@ -31,25 +31,25 @@ messaging.onBackgroundMessage((payload) => {
 
 });
 
-// self.addEventListener("notificationclick", function (event) {
-//   console.log("[firebase-messaging-sw.js] Notification click received.", event);
+self.addEventListener("notificationclick", function (event) {
+  console.log("[firebase-messaging-sw.js] Notification click received.", event);
 
-//   event.notification.close();
+  event.notification.close();
 
-//   event.waitUntil(
-//     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
-//       const url = event.notification.data.url;
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
+      const url = event.notification.data.url;
 
-//       for (const client of clientList) {
-//         if (client.url === url && "focus" in client) {
-//           return client.focus();
-//         }
-//       }
+      for (const client of clientList) {
+        if (client.url === url && "focus" in client) {
+          return client.focus();
+        }
+      }
 
-//       if (clients.openWindow) {
-//         console.log("Opening window with URL:", url);
-//         return clients.openWindow(url);
-//       }
-//     })
-//   );
-// });
+      if (clients.openWindow) {
+        console.log("Opening window with URL:", url);
+        return clients.openWindow(url);
+      }
+    })
+  );
+});
