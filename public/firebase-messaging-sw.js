@@ -34,7 +34,7 @@ messaging.onBackgroundMessage((payload) => {
     clients.forEach((client) => {
       client.postMessage({
         type: 'PLAY_SOUND',
-        soundUrl: 'https://drawlys.com/assets/sounds/NotificationSound.mp3'
+        soundUrl: 'https://your-server.com/path/to/notification.mp3'
       });
     });
   });
