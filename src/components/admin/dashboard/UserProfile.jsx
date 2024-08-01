@@ -86,17 +86,6 @@ function UserProfile({userEmail}) {
       } 
     }, [Role]);
     
-    // play notification sound
-    useEffect(() => {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data && event.data.type === 'PLAY_SOUND') {
-            const audio = new Audio(event.data.soundUrl);
-            audio.play().catch(error => console.error('Error playing audio:', error));
-          }
-        });
-      }
-    }, []);
     
     
     typeof document !== 'undefined' && document.body.classList.add('bg-white')

@@ -23,11 +23,12 @@ messaging.onBackgroundMessage((payload) => {
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body,
     icon: payload.notification?.icon || payload.data?.icon || "https://drawlys.com:8444/images/logo.png",
-    badge: "https://drawlys.com:8444/images/logo.png",
     data: { url: link },
+    sound: "https://drawlys.com/assets/sounds/NotificationSound.mp3",
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+
 
   // Send a message to the clients to play the audio
   self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {

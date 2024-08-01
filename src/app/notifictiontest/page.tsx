@@ -26,18 +26,19 @@ export default function Home() {
 
   
 
-  let AllTokens = [];
+  let AllTokens =[ ]
 
   users.forEach(user => {
-    if (!Array.isArray(user.fcmTokens) || user.fcmTokens.length === 0) return;
+    if(!Array.isArray(user.fcmTokens) || user.fcmTokens.lenght === 0) return
     user.fcmTokens.forEach(fcmToken => {
-      AllTokens.push(fcmToken);
-    });
+      AllTokens.push(fcmToken)
+    })
   });
 
   const handleTestNotification = async () => {
-    for (const token of AllTokens) {
-      try {
+
+    AllTokens.forEach(async (token) => {
+      try{
         const response = await fetch("api/send-notification", {
           method: "POST",
           headers: {
@@ -50,31 +51,15 @@ export default function Home() {
             link: "/admin/orders",
           }),
         });
-
+    
         const data = await response.json();
-        if (!data.success) {
-          // Handle invalid token logic here
-          console.error("Invalid token:", token);
-        } else {
-          console.log("Notification sent:", data);
-        }
-      } catch (error) {
+        console.log(data);
+      }catch(error){
         console.error("Error sending notification:", error);
       }
-    }
-  };
-
+    })
   
-  // Example function to remove invalid token from user
-  // You will need to implement this based on your user data structure and storage
-  const removeInvalidTokenFromUser = (invalidToken) => {
-    users.forEach(user => {
-      if (Array.isArray(user.fcmTokens)) {
-        user.fcmTokens = user.fcmTokens.filter(token => token !== invalidToken);
-      }
-    });
   };
-  
 
   return (
     <main className="p-10">
