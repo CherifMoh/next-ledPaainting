@@ -230,7 +230,7 @@ function Page() {
         } catch (error) {
           console.error("Error sending notification:", error);
         }
-      };
+    };
 
 
     async function handelSubmit(e) {
@@ -241,6 +241,7 @@ function Page() {
         if (!formData.wilaya) return setIsWilayaSelected(false)
 
         if (!formData.shippingMethod) return setIsShippingSelected(false)
+
 
         setIsSubmiting(true)
 
@@ -412,6 +413,7 @@ function Page() {
 
 
     function addToOrders() {
+        // if(!selectedProduct || !selectqnt || !selectedProduct.image || (productOptsElement.length !== 0 && !selectedProduct.options)) return
         setOrders(pre => ([
             ...pre,
             {
@@ -505,6 +507,8 @@ function Page() {
             </div>
         )
     })
+
+    const addOrderDisabled = isSubmiting ||!selectedProduct || !selectqnt || !selectedProduct.image || (productOptsElement.length !== 0 && !selectedProduct.options) 
 
     return (
         <div className='p-4 pt-0 flex flex-col-reverse md:flex-row gap-36 md:gap-4'>
@@ -757,9 +761,10 @@ function Page() {
                     </div>
 
                     <button
-                        className='bg-green-300 px-3 py-2 rounded-lg'
+                        className={`bg-green-300 ${addOrderDisabled? 'opacity-50' : ''} px-3 py-2 rounded-lg`}
                         onClick={addToOrders}
-                    >
+                        disabled={addOrderDisabled}
+                        >
                         Add
                     </button>
 
