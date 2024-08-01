@@ -18,17 +18,15 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log("[firebase-messaging-sw.js] Received background message ", payload);
 
-  const link = payload.fcmOptions?.link || payload.data?.link;
+  const link = payload.data?.link || 'https://drawlys.com/admin/orders';
   const notificationTitle = payload.notification?.title || payload.data?.title;
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body,
     icon: payload.notification?.icon || payload.data?.icon || "https://drawlys.com:8444/images/logo.png",
     data: { url: link },
-    // sound: "https://drawlys.com/assets/sounds/NotificationSound.mp3",
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
-
 });
 
 self.addEventListener("notificationclick", function (event) {

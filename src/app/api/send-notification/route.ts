@@ -20,6 +20,9 @@ export async function POST(request: NextRequest) {
       body: message,
       imageUrl: 'https://drawlys.com:8444/images/logo.png',
     },
+    data: {
+      link: link || 'https://drawlys.com/admin/orders',
+    },
     webpush: {
       fcmOptions: {
         link: link || 'https://drawlys.com/admin/orders',
