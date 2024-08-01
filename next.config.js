@@ -9,4 +9,8 @@ module.exports = {
       },
     ],
   },
+  experimental: {
+    workerThreads: true,
+    basePath: '',
+  },
 }
