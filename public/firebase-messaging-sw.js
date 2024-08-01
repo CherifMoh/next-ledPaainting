@@ -29,21 +29,17 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 
-  self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then((clients) => {
-    clients.forEach((client) => {
-      client.postMessage({
-        type: 'PLAY_SOUND',
-        soundUrl: 'https://your-server.com/path/to/notification.mp3'
-      });
-    });
-  });
+  // Open the URL directly
+  if (link) {
+    self.clients.openWindow(link);
+  }
 });
 
 self.addEventListener("notificationclick", function (event) {
   console.log("[firebase-messaging-sw.js] Notification click received.", event);
 
   event.notification.close();
-
+  
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
       const url = event.notification.data.url;
