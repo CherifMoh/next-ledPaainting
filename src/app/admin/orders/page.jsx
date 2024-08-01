@@ -213,71 +213,91 @@ function Orders() {
     }, [errorNotifiction]);
 
     useEffect(() => {
-        if(!Orders || ordersUpdted) return
-        console.log('Orders Updating ...')
+        let isMounted = true; // Flag to track component mount status
 
-        setOrdersUpdted(true)
-        try{
+        if (!Orders || ordersUpdted) return;
 
-            Orders.forEach(async(order) => {
-                
-                const currentDate = format(new Date(), 'yyyy-MM-dd');
+        console.log('Orders Updating ...');
+
+        setOrdersUpdted(true);
+
+        const fetchAndUpdateOrders = async () => {
+            try {
+                await Promise.all(
+                    Orders.map(async (order) => {
+                        const currentDate = format(new Date(), 'yyyy-MM-dd');
     
-                
-                if (order.tracking === 'livred' || order.tracking === 'returned') return 
-     
-                // if (!filterOrders(order, currentDate)) return
+                        if (order.tracking === 'livred' || order.tracking === 'returned') return;
     
-                const res = await fetchOrderStatus(order.TslTracking)
-                if(!res || !res.activity) return
+                        // if (!filterOrders(order, currentDate)) return;
     
-                const lastIndex = res.activity.length - 1
-                const TslStatus = res.activity[lastIndex].status
-                if(!TslStatus) return
+                        const res = await fetchOrderStatus(order.TslTracking);
+                        if (!res || !res.activity) return;
     
-    
-                let newTraking =''
-                if(!order.inDelivery && order.state !== 'مؤكدة'){
-                    newTraking =''
-                }else if(!order.inDelivery){
-                    newTraking = 'Prêt à expédier'
-                }else if(TslStatus === 'accepted_by_carrier'){
-                    newTraking = 'Vers Wilaya'
-                }else if(TslStatus === 'order_information_received_by_carrier'){
-                    newTraking = 'Vers Station'
-                }else if(TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver'){
-                    newTraking = 'En livraison'
-                }else if(TslStatus === 'livred'){
-                    newTraking = TslStatus
-                }else if(TslStatus === 'notification_on_order'){
-                    newTraking = 'En preparation'
-                }else if(TslStatus === 'notification_on_order'){
-                    newTraking = 'Suspendus'
-                }else if(TslStatus === 'returned'){
-                    newTraking = 'returned'
-                }
-               
-                // counter++
-                // if(newTraking === order.tracking) return
-    
-           
-    
-                const newOrder = {...order, tracking: newTraking}
-                
-             
-                const response = await axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
-                
-                console.log('Orders Updated')
-                
-            })
-            queryClient.invalidateQueries(['orders',dateFilter]);
-        }catch(err){
-            setOrdersUpdted(false)
-            console.log(err)
-        }
 
 
-    }, [Orders]);
+                        const lastIndex = res.activity.length - 1;
+                        const TslStatus = res.activity[lastIndex].status;
+                        
+                        if (!TslStatus) return;
+                        
+    
+                        let newTracking = '';
+                        if (!order.inDelivery && order.state !== 'مؤكدة') {
+                            newTracking = '';
+                        } else if (!order.inDelivery) {
+                            newTracking = 'Prêt à expédier';
+                        } else if (TslStatus === 'accepted_by_carrier') {
+                            newTracking = 'Vers Wilaya';
+                        } else if (TslStatus === 'order_information_received_by_carrier') {
+                            newTracking = 'Vers Station';
+                        } else if (TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver') {
+                            newTracking = 'En livraison';
+                        } else if (TslStatus === 'livred') {
+                            newTracking = TslStatus;
+                        } else if (TslStatus === 'notification_on_order') {
+                            newTracking = 'En preparation';
+                        } else if (TslStatus === 'notification_on_order') {
+                            newTracking = 'Suspendus';
+                        } else if (TslStatus === 'returned') {
+                            newTracking = 'returned';
+                        }
+    
+                        // counter++;
+                        // if (newTracking === order.tracking) return;
+    
+                        const newOrder = { ...order, tracking: newTracking };
+    
+                        
+                        const respones = await axios.put(`/api/orders/${order._id}`, newOrder, {
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        const updtedOrder = respones.data;
+
+                        // console.log(typeof updtedOrder);
+
+                        console.log('Orders Updated');
+                        
+                    })
+                );
+                queryClient.invalidateQueries(['orders', dateFilter]);
+            } catch (err) {
+                
+                setOrdersUpdted(false);
+                console.log(err);
+                
+            }
+        };
+
+        fetchAndUpdateOrders();
+
+        return () => {
+            // Cleanup function
+            isMounted = false;
+        };
+    }, [Orders, ordersUpdted, dateFilter, queryClient]);
+
 
 
     
@@ -700,6 +720,9 @@ function Orders() {
         if (value === 'this Week') setDateFilter('this Week')
         if (value === 'this Month') setDateFilter('this Month')
         if (value === 'maximum') setDateFilter('maximum')
+
+        setOrdersUpdted(false)
+
     }
 
     function filterOrders(order, currentDate) {
@@ -1904,7 +1927,9 @@ function Orders() {
             <div 
                 key={name}
                 className={`cursor-pointer flex ${i === 0 ? '' : 'border-l'} px-4 py-3 border-gray-400 items-center ${trackingFilter === name ? 'bg-[#057588] text-[#fff] ' : ' hover:bg-[#057588] bg-[#fff] hover:text-[#fff]'} gap-2`}
-                onClick={()=>setTrackingFilter(name)}
+                onClick={()=>{
+                    setTrackingFilter(name)
+                }}
             >
                 <img 
                     src={`/assets/tracking Icon/${icon}`} alt=""
@@ -1924,11 +1949,11 @@ function Orders() {
       
 
     return (
-        <div className="py-4 pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
+        <div className="py-4 relative pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
 
             <div 
                 className={`bg-green-200 transition-all duration-200 flex items-center gap-2 absolute top-16 right-6 z-[9999999999999999999999] border border-gray-400 px-4 py-2 rounded 
-                            ${successNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96'}
+                            ${successNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96 opacity-0'}
                           `}
             >
                 <FontAwesomeIcon 
@@ -1940,7 +1965,7 @@ function Orders() {
 
             <div 
                 className={`bg-red-200 transition-all duration-200 flex items-center gap-2 absolute top-16 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
-                            ${errorNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96'}
+                            ${errorNotifiction ? 'translate-x-0' : 'translate-x-96 opacity-0'}
                           `}
             >
                 <FontAwesomeIcon 

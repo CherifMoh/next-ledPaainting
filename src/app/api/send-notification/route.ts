@@ -18,11 +18,15 @@ export async function POST(request: NextRequest) {
     notification: {
       title: title,
       body: message,
-      imageUrl: 'https://drawlys.com:8444/images/logo.png',
+      // imageUrl: 'https://drawlys.com:8444/images/logo.png',
     },
     webpush: {
       fcmOptions: {
         link: link || 'https://drawlys.com/admin/orders',
+      },
+      notification: {
+        // Note: The sound property is included here.
+        sound: 'https://drawlys.com/assets/sounds/NotificationSound.mp3', // URL to your custom sound
       },
     },
   };
