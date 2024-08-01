@@ -29,17 +29,22 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 
-  // Open the URL directly
-  if (link) {
-    self.clients.openWindow(link);
-  }
+  // Send a message to the clients to play the audio
+  self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+    clients.forEach((client) => {
+      client.postMessage({
+        type: 'PLAY_SOUND',
+        soundUrl: 'https://drawlys.com/assets/sounds/NotificationSound.mp3'
+      });
+    });
+  });
 });
 
 self.addEventListener("notificationclick", function (event) {
   console.log("[firebase-messaging-sw.js] Notification click received.", event);
 
   event.notification.close();
-  
+
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
       const url = event.notification.data.url;
