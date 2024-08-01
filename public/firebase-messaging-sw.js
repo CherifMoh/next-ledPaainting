@@ -23,36 +23,33 @@ messaging.onBackgroundMessage((payload) => {
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body,
     icon: payload.notification?.icon || payload.data?.icon || "https://drawlys.com:8444/images/logo.png",
-    data: { 
-      url: link ,
-      click_action: payload.notification.click_action
-    },
-    sound: "https://drawlys.com/assets/sounds/NotificationSound.mp3",
+    data: { url: link },
+    // sound: "https://drawlys.com/assets/sounds/NotificationSound.mp3",
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 
 });
 
-self.addEventListener("notificationclick", function (event) {
-  console.log("[firebase-messaging-sw.js] Notification click received.", event);
+// self.addEventListener("notificationclick", function (event) {
+//   console.log("[firebase-messaging-sw.js] Notification click received.", event);
 
-  event.notification.close();
+//   event.notification.close();
 
-  event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
-      const url = event.notification.data.url;
+//   event.waitUntil(
+//     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
+//       const url = event.notification.data.url;
 
-      for (const client of clientList) {
-        if (client.url === url && "focus" in client) {
-          return client.focus();
-        }
-      }
+//       for (const client of clientList) {
+//         if (client.url === url && "focus" in client) {
+//           return client.focus();
+//         }
+//       }
 
-      if (clients.openWindow) {
-        console.log("Opening window with URL:", url);
-        return clients.openWindow(url);
-      }
-    })
-  );
-});
+//       if (clients.openWindow) {
+//         console.log("Opening window with URL:", url);
+//         return clients.openWindow(url);
+//       }
+//     })
+//   );
+// });
