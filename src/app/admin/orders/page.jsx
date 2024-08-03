@@ -1766,12 +1766,12 @@ function Orders() {
     ))
 
     const generateOrdersPDF = (data) => {
-
+        
         if(!data || data.length === 0 ) return setErrorNotifiction(`select orders to generate pdf`)
-
+            
         const doc = new jsPDF();
-
-
+            
+            
         doc.addFileToVFS('arabic.ttf',  AmiriFont);
         doc.addFont('arabic.ttf', 'Arabic', 'normal');
         doc.setFont('Arabic');
@@ -1784,8 +1784,9 @@ function Orders() {
         let orderIndex = 0; // Current order index on the page
     
         data.forEach((order, index) => {
-        
-            if(order.wilaya || order.name || order.orders || order.orders.length === 0) return setErrorNotifiction(`couldnt generate pdf for order ${order.name}`)
+            
+            if(order.orders.length === 0) return setErrorNotifiction(`couldnt generate pdf for order ${order.name}`)
+                console.log('pdf')
 
             if (orderIndex === ordersPerPage) {
                 doc.addPage(); // Add a new page when the current page has 5 orders
@@ -1808,6 +1809,7 @@ function Orders() {
     
             order.orders.forEach((item, i) => {
                 if(!item.imageOn || !item.qnt) return setErrorNotifiction(`couldnt generate pdf for order ${order.name}`)
+
 
                 doc.setFontSize(16);
                 // Add quantity and image (resized to 16x16 pixels)
@@ -1953,8 +1955,8 @@ function Orders() {
         <div className="py-4 relative pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
 
             <div 
-                className={`bg-green-200 transition-all duration-200 flex items-center gap-2 absolute top-16 right-6 z-[9999999999999999999999] border border-gray-400 px-4 py-2 rounded 
-                            ${successNotifiction ? 'translate-x-0 translate-y-0' : 'translate-x-96 opacity-0'}
+                className={`bg-green-200 transition-all duration-200 flex items-center gap-2 fixed top-16 right-6 z-[9999999999999999999999] border border-gray-400 px-4 py-2 rounded 
+                            ${successNotifiction ? 'translate-x-0 opacity-100' : 'translate-x-96 opacity-0'}
                           `}
             >
                 <FontAwesomeIcon 
@@ -1965,8 +1967,8 @@ function Orders() {
             </div>
 
             <div 
-                className={`bg-red-200 transition-all duration-200 flex items-center gap-2 absolute top-16 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
-                            ${errorNotifiction ? 'translate-x-0' : 'translate-x-96 opacity-0'}
+                className={`bg-red-200 transition-all duration-200 flex items-center gap-2 fixed top-16 right-6 z-[9999999999999] border border-gray-400 px-4 py-2 rounded 
+                            ${errorNotifiction ? 'translate-x-0 opacity-100' : 'translate-x-96 opacity-0'}
                           `}
             >
                 <FontAwesomeIcon 
