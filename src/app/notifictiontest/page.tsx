@@ -38,6 +38,7 @@ export default function Home() {
   const handleTestNotification = async () => {
 
     AllTokens.forEach(async (token) => {
+      console.log(token)
       try{
         const response = await fetch("api/send-notification", {
           method: "POST",
