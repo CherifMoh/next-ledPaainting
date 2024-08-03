@@ -29,8 +29,6 @@ function Product({ params }) {
 
   const mproduct = products[0]
 
-  console.log(typeof products)
-
   if (typeof products !== 'object') {
     return notFound()
   }

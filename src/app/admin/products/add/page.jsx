@@ -44,6 +44,8 @@ function Admin() {
 
     const [isRewMates, setIsRewMates] = useState([])
 
+    const [usingLandingPage, setUsingLandingPage] = useState(false)
+
     const router = useRouter()
 
 
@@ -417,12 +419,12 @@ function Admin() {
         return (
             <div className="flex gap-2 mt-6 relative" key={num}>
 
-                <dev
+                <div
                     className="bg-gray-400 cursor-pointer rounded-full px-2 absolute -top-2 -right-2"
                     onClick={() => handleRemoveSale(i)}
                 >
                     X
-                </dev>
+                </div>
 
                 <input
                     type="Number"
@@ -915,6 +917,189 @@ function Admin() {
         }
     }
 
+    function handleLandingPageImageChange(event,i){
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
+        if (!file) {
+            e.target.files[0] = []
+        }
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('https://drawlys.com:8444/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+
+            setNewProduct((prev) => {
+                let updatedLandingPageImages;
+                if (Array.isArray(prev.landingPageImages) && prev.landingPageImages.length > 0) {
+                    updatedLandingPageImages = [...prev.landingPageImages];
+                    updatedLandingPageImages[i] = data;
+                } else {
+                    updatedLandingPageImages = [data];
+                }
+                return { ...prev, landingPageImages: updatedLandingPageImages };
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // document.getElementById('message').innerHTML = `<p>Upload failed. Please try again.</p>`;
+        });
+    }
+
+    function langingPgesElement (){
+        const Images = newProduct?.landingPageImages
+        if(!Array.isArray(Images) || Images.length === 0){
+            return(
+                <div className="flex items-center justify-evenly">
+                    <div className='w-40 h-72 border relative border-dashed border-gray-600'>
+                        <span
+                            className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-lg bg-white px-2 rounded-full text-center"
+                        >
+                            الصورة الأولى
+                        </span>                      
+                        <input 
+                            type="file" 
+                            name=""
+                            className="size-full cursor-pointer opacity-0"
+                            onChange={(e) => handleLandingPageImageChange(e,0)}
+                        />
+                    </div>
+                    <div className='w-40 h-72 border relative border-dashed border-gray-600'>
+                        <span
+                            className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-lg bg-white px-2 rounded-full text-center"
+                        >
+                            الصورة الثانية
+                        </span> 
+                    </div>
+                    <div className='w-40 h-72 border relative border-dashed border-gray-600'>
+                        <span
+                            className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-lg bg-white px-2 rounded-full text-center"
+                        >
+                            checkout bg  <br /> 405 px
+                        </span> 
+                    </div>
+                </div>
+            )
+        }
+
+        if(Images.length === 1){
+            return(
+                <div className="flex items-start justify-evenly">
+                    <div className='w-40 relative'>
+                        <input 
+                            type="file" 
+                            name=""
+                            className="size-full opacity-0 cursor-pointer absolute z-[10] top-0 left-0"
+                            onChange={(e) => handleLandingPageImageChange(e,0)}
+                        />
+                        <img src={Images[0]} alt=""/>
+                    </div>
+                    <div className='w-40 h-72 border relative border-dashed border-gray-600'>
+                        <span
+                            className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-lg bg-white px-2 rounded-full text-center"
+                        >
+                            الصورة الثانية
+                        </span> 
+                        <input 
+                            type="file" 
+                            name=""
+                            className="size-full cursor-pointer opacity-0"
+                            onChange={(e) => handleLandingPageImageChange(e,1)}
+                    />
+                    </div>
+                    <div className='w-40 h-72 border relative border-dashed border-gray-600'>
+                        <span
+                            className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-lg bg-white px-2 rounded-full text-center"
+                        >
+                            checkout bg  <br /> 405 px
+                        </span> 
+                    </div>
+                </div>
+            )
+        }
+
+      
+        if(Images.length === 2){
+            return(
+                <div className="flex items-start justify-evenly">
+                    <div className='w-40 relative'>
+                        <input 
+                            type="file" 
+                            name=""
+                            className="size-full opacity-0 cursor-pointer absolute z-[10] top-0 left-0"
+                            onChange={(e) => handleLandingPageImageChange(e,0)}
+                        />
+                        <img src={Images[0]} alt=""/>
+                    </div>
+                    <div className='w-40 relative'>
+                        <img src={Images[1]} alt=""/> 
+                        <input 
+                            type="file" 
+                            name=""
+                            className="size-full cursor-pointer absolute z-[10] top-0 left-0 opacity-0"
+                            onChange={(e) => handleLandingPageImageChange(e,1)}
+                        />
+                    </div>
+                    <div className='w-40 h-72 border relative border-dashed border-gray-600'>
+                        <span
+                            className="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-lg bg-white px-2 rounded-full text-center"
+                        >
+                            checkout bg  <br /> 405 px
+                        </span> 
+                        <input 
+                            type="file" 
+                            name=""
+                            className="size-full cursor-pointer absolute z-[10] top-0 left-0 opacity-0"
+                            onChange={(e) => handleLandingPageImageChange(e,2)}
+                        />
+                    </div>
+                </div>
+            )
+        }
+
+        if(Images.length === 3){
+            return(
+                <div className="flex items-start justify-evenly">
+                <div className='w-40 relative'>
+                    <input 
+                        type="file" 
+                        name=""
+                        className="size-full opacity-0 cursor-pointer absolute z-[10] top-0 left-0"
+                        onChange={(e) => handleLandingPageImageChange(e,0)}
+                    />
+                    <img src={Images[0]} alt=""/>
+                </div>
+                <div className='w-40 relative'>
+                    <img src={Images[1]} alt=""/> 
+                    <input 
+                        type="file" 
+                        name=""
+                        className="size-full cursor-pointer absolute z-[10] top-0 left-0 opacity-0"
+                        onChange={(e) => handleLandingPageImageChange(e,1)}
+                    />
+                </div>
+                <div className='w-40 relative'>
+                    <img src={Images[2]} alt=""/> 
+                    <input 
+                        type="file" 
+                        name=""
+                        className="size-full cursor-pointer absolute z-[10] top-0 left-0 opacity-0"
+                        onChange={(e) => handleLandingPageImageChange(e,2)}
+                    />
+                </div>
+            </div>
+            )
+        }
+      
+    }
+
+
+
     return (
         <div className="w-full min-h-svh flex items-center justify-center overflow-y-scroll">
             <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-5 bg-white p-8 rounded-lg shadow-md">
@@ -1047,6 +1232,21 @@ function Admin() {
                     >
                         Add a dropDown
                     </div>
+                </div>
+                <div className="text-center">
+                    <h1 className="font-semibold text-xl mb-4"> Landing Page </h1>
+
+                    {usingLandingPage &&langingPgesElement()}
+                    <div
+                        className="mt-6 bg-stone-500 px-4 py-3 cursor-pointer text-white rounded-3xl w-max m-auto"
+                        onClick={() => {
+                            setUsingLandingPage(pre=>!pre)
+                            if(usingLandingPage)setNewProduct(pre=>({...pre,landingPageImages:[]}))
+                        }}
+                    >
+                        {usingLandingPage?'Remove Landing Page':'Use Landing Page'}                     
+                    </div>
+
                 </div>
                 <button
                     type="submit"

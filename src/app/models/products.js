@@ -37,6 +37,10 @@ const productSchem = new mongoose.Schema({
         type: Array,
         required: true
     },
+    landingPageImages: {
+        type: Array,
+        required: false
+    },
     dropDowns: {
         type: Array,
         required: true

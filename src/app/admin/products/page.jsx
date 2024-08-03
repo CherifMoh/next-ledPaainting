@@ -12,6 +12,7 @@ import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { faCircleInfo, faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import landingPageIcon from '../../../../public/assets/landingPageIcon.png';
 
 async function fetchProducts() {
     const res = await axios.get('/api/products');
@@ -74,13 +75,21 @@ function Page() {
                 {
                     product.title === 'Led Painting' 
                     ?
-                    <div className='flex gap-3'>
+                    <div className='flex items-center gap-3'>
                         <Link href={`/admin/products/led-designs`} className='p-2 rounded-md'>
                             <FontAwesomeIcon  icon={faCircleInfo} />
                         </Link>
                         {isUpdateAccess &&
                             <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
                                 <FontAwesomeIcon  icon={faPen} />
+                            </Link>
+                        }
+                        {product.landingPageImages.length > 0 &&
+                            <Link href={`/landingPges/${product._id}`} className=' p-2 rounded-md'>
+                                <Image  
+                                    src={landingPageIcon} alt=''
+                                    width={32} height={32}
+                                />
                             </Link>
                         }
                         {isDeleteAccess && deleting.some(item => item.id === product._id && item.state) &&
@@ -96,10 +105,18 @@ function Page() {
                         }  
                         
                     </div>
-                    :<div className='flex gap-3'>
+                    :<div className='flex items-center gap-3'>
                        {isUpdateAccess &&
                             <Link href={`/admin/products/${product._id}`} className=' p-2 rounded-md'>
                                 <FontAwesomeIcon  icon={faPen} />
+                            </Link>
+                        }
+                        {product.landingPageImages.length > 0 &&
+                            <Link href={`/landingPges/${product._id}`} className=' p-2 rounded-md'>
+                                <Image  
+                                    src={landingPageIcon} alt=''
+                                    width={20} height={20}
+                                />
                             </Link>
                         }
                         {isDeleteAccess && deleting.some(item => item.id === product._id && item.state) &&

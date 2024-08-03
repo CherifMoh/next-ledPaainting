@@ -30,6 +30,10 @@
     }
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: #DCCCB3;
     font-family: 'Roboto', sans-serif;
