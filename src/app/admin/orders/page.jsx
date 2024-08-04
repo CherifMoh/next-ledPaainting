@@ -452,7 +452,7 @@ function Orders() {
 
     async function addToTsl(order) {
 
-        if(!order.reference||!order.totalPrice||!order.name||!order.phoneNumber||!order.adresse||!order.commune){
+        if(!order.reference||(!order.totalPrice && !order.shippingPrice) ||!order.name||!order.phoneNumber||!order.adresse||!order.commune){
             return setErrorNotifiction("couldn't set the order in TSL")
         }
         
@@ -495,7 +495,7 @@ function Orders() {
             code_wilaya: wilayaCode,
             fragile:1,
             remarque:order.deliveryNote,
-            montant:order.totalPrice,
+            montant:order.totalPrice === 0 ? order.shippingPrice : order.totalPrice,
             stop_desk:order.shippingMethod === 'مكتب' ? 1 : 0,
             type:1,
         }
@@ -517,6 +517,9 @@ function Orders() {
             }
         } catch (error) {
             setErrorNotifiction("couldn't set the order in TSL")
+            setEditedOrder(pre=>{
+                return {...pre, state: 'غير مؤكدة'}
+            })
             console.error('Error:', error.response?.data || error.message);
         }
     }
@@ -597,6 +600,7 @@ function Orders() {
             }
         } catch (error) {
             setErrorNotifiction("couldn't update the order in TSL");
+            console.log(error)
             console.error('Error:', error.response?.data || error.message);
         }
         
