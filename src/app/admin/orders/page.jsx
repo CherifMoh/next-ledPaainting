@@ -216,6 +216,8 @@ function Orders() {
 
     }, [errorNotifiction]);
 
+    
+
     useEffect(() => {
         let isMounted = true; // Flag to track component mount status
 
@@ -227,48 +229,18 @@ function Orders() {
 
         const fetchAndUpdateOrders = async () => {
             try {
+                const allPages = await fetchAllPages();
                 await Promise.all(
                     Orders.map(async (order) => {
                         const currentDate = format(new Date(), 'yyyy-MM-dd');
     
                         if (order.tracking === 'livred' || order.tracking === 'returned') return;
-    
-                        // if (!filterOrders(order, currentDate)) return;
-    
-                        const res = await fetchOrderStatus(order.TslTracking);
-                        if (!res || !res.activity) return;
-    
-
-
-                        const lastIndex = res.activity.length - 1;
-                        const TslStatus = res.activity[lastIndex].status;
                         
-                        if (!TslStatus) return;
-                        
-    
-                        let newTracking = '';
-                        if (!order.inDelivery && order.state !== 'مؤكدة') {
-                            newTracking = '';
-                        } else if (!order.inDelivery) {
-                            newTracking = 'Prêt à expédier';
-                        } else if (TslStatus === 'accepted_by_carrier') {
-                            newTracking = 'Vers Wilaya';
-                        } else if (TslStatus === 'order_information_received_by_carrier') {
-                            newTracking = 'Vers Station';
-                        } else if (TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver') {
-                            newTracking = 'En livraison';
-                        } else if (TslStatus === 'livred') {
-                            newTracking = TslStatus;
-                        // } else if (TslStatus === 'notification_on_order') {
-                        //     newTracking = 'En preparation';
-                        } else if (TslStatus === 'notification_on_order') {
-                            newTracking = 'Suspendus';
-                        } else if (TslStatus === 'returned') {
-                            newTracking = 'returned';
-                        }
-    
+                        let newTracking = await getOrderStatus(order,allPages) 
+
+                        console.log(newTracking);
                         // counter++;
-                        // if (newTracking === order.tracking) return;
+                        if (newTracking === order.tracking) return;
     
                         const newOrder = { ...order, tracking: newTracking };
     
@@ -286,11 +258,9 @@ function Orders() {
                     })
                 );
                 queryClient.invalidateQueries(['orders', dateFilter]);
-            } catch (err) {
-                
+            } catch (err) {   
                 setOrdersUpdted(false);
-                console.log(err);
-                
+                console.log(err); 
             }
         };
 
@@ -301,6 +271,14 @@ function Orders() {
             isMounted = false;
         };
     }, [Orders, ordersUpdted, dateFilter, queryClient]);
+    
+    // useEffect(() => {
+    //     if(!Orders) return
+    //     fetchAllOrders(Orders)
+    // }, [Orders]);
+    
+    
+
 
 
 
@@ -330,6 +308,104 @@ function Orders() {
             console.log(err)
             return null
         }
+    }
+
+    async function fetchAllPages() {
+        const baseUrl = 'https://tsl.ecotrack.dz/api/v1/get/orders';
+        let page = 1;
+        let allData = [];
+        let lastPage = false;
+      
+        while (!lastPage) {
+          try {
+            const response = await axios.get(`${baseUrl}?page=${page}`, {
+                headers: {
+                    Authorization: `Bearer ${process.env.NEXT_PUBLIC_TSL_API_KEY}`
+                }
+            });
+            const { data, last_page } = response.data;
+      
+            allData = allData.concat(data);
+      
+            if (page >= last_page) {
+              lastPage = true;
+            } else {
+              page++;
+            }
+          } catch (error) {
+            console.error(`Error fetching page ${page}:`, error);
+            break;
+          }
+        }
+      
+        return allData;
+    }
+
+    async function getOrderStatus(order,allPages) {            
+        const tslOrdersIndex = allPages.findIndex(p => p.phone=== order.phoneNumber);
+        if(tslOrdersIndex === -1)  return
+        const tslOrder = allPages[tslOrdersIndex]
+        let newTracking = ''
+        if(!tslOrder.status){
+            const res = await fetchOrderStatus(order.TslTracking)
+            const lastIndex = res.activity.length - 1;
+            const TslStatus = res.activity[lastIndex].status;
+            newTracking = newTrackingFromActivity(order, TslStatus);            
+        }else{
+            newTracking = newTrackingFromStatus(order, tslOrder.status)
+        }
+        return newTracking
+
+    }
+
+    function newTrackingFromActivity(order, TslStatus) {
+        let newTracking = ''
+        if (!order.inDelivery && order.state !== 'مؤكدة') {
+            newTracking = '';
+        } else if (!order.inDelivery) {
+            newTracking = 'Prêt à expédier';
+        } else if (TslStatus === 'accepted_by_carrier') {
+            newTracking = 'Vers Wilaya';
+        } else if (TslStatus === 'order_information_received_by_carrier') {
+            newTracking = 'Vers Station';
+        } else if (TslStatus === 'attempt_delivery' || TslStatus === 'dispatched_to_driver') {
+            newTracking = 'En livraison';
+        } else if (TslStatus === 'livred') {
+            newTracking = TslStatus;
+        // } else if (TslStatus === 'notification_on_order') {
+        //     newTracking = 'En preparation';
+        } else if (TslStatus === 'notification_on_order') {
+            newTracking = 'Suspendus';
+        } else if (TslStatus === 'returned') {
+            newTracking = 'returned';
+        }
+        return newTracking
+    }
+    
+    function newTrackingFromStatus(order, TslStatus) {
+        let newTracking = ''
+        if (!order.inDelivery && order.state !== 'مؤكدة') {
+            newTracking = '';
+        } else if (!order.inDelivery ||TslStatus === 'prete_a_expedier' ) {
+            newTracking = 'Prêt à expédier';
+        } else if (TslStatus === 'en_ramassage') {
+            newTracking = 'En ramassage';
+        } else if (TslStatus === 'vers_wilaya') {
+            newTracking = 'Vers Wilaya';
+        } else if (TslStatus === 'vers_hub' ||TslStatus === 'en_hub' ) {
+            newTracking = 'Vers Station';
+        } else if (TslStatus === 'en_preparation' || TslStatus === 'en_preparation_stock') {
+            newTracking = 'En preparation';
+        } else if (TslStatus === 'en_livraison') {
+            newTracking = 'En livraison';
+        } else if (TslStatus === 'suspendu') {
+            newTracking = 'Suspendus';
+        } else if (TslStatus === 'livre_non_encaisse' || TslStatus === 'encaisse_non_paye' || TslStatus === 'paiements_prets' || TslStatus === 'paye_et_archive') {
+            newTracking = 'livred';
+        } else if (TslStatus === 'retour_chez_livreur' || TslStatus === 'retour_transit_entrepot' || TslStatus === 'retour_en_traitement' || TslStatus === 'retour_recu' || TslStatus === 'retour_archive' || TslStatus === 'annule') {
+            newTracking = 'returned';
+        }
+        return newTracking
     }
     
     function orderIdToggel(id) {
@@ -1071,7 +1147,7 @@ function Orders() {
         return (
             <td
                 key={i}
-                className=" border-y border-solid border-[rgb(128,128,128)] relative font-medium p-2 pr-4 text-center h-8"
+                className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] relative font-medium p-2 pr-4 text-center h-8"
             >
                {order._id !== editedOrderId &&
                 <div 
@@ -1106,7 +1182,7 @@ function Orders() {
                         onChange={(e) => handleOptChange(e, i)}
                         name="option"
                         defaultValue={slectedOption}
-                        className='min-w-10 border-2 border-gray-300 rounded-md pl-1 dynamic-width'
+                        className='min-w-10 border border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                     >
                         {optionElement}
                     </select>
@@ -1143,8 +1219,8 @@ function Orders() {
                 />
 
                 {isproducts.state && isproducts._id === product._id &&
-                    <div className='max-w-96 border-2 border-solid border-[rgb(128,128,128)]  absolute mt-2 bg-white z-[99999999999999]'>
-                        <div className='flex justify-center mt-2 border-b-2 border-gray-500 z-50'>
+                    <div className='max-w-96 border border-solid border-[rgba(0, 40, 100, 0.12)]  absolute mt-2 bg-white z-[99999999999999]'>
+                        <div className='flex justify-center mt-2 border-b border-[rgba(0, 40, 100, 0.12)] z-50'>
                             <FontAwesomeIcon
                                 icon={faMagnifyingGlass}
                                 className={`pointer-events-none absolute left-60 top-6 ${search ? 'hidden' : 'opacity-50'}`}
@@ -1152,7 +1228,7 @@ function Orders() {
                             <input
                                 id="search"
                                 type='search'
-                                className='w-64 px-2 py-1 m-2 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
+                                className='w-64 px-2 py-1 m-2 rounded-xl border border-[rgba(0, 40, 100, 0.12)] no-focus-outline text-black bg-stone-200'
                                 placeholder={`Search`}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -1180,7 +1256,7 @@ function Orders() {
                         name="qnt"
                         defaultValue={product.qnt}
                         min={1}
-                        className='min-w-10 mt-2 border-2 border-gray-300 rounded-md pl-1 dynamic-width'
+                        className='min-w-10 mt-2 border border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                     />
                     : <span
                         className="bg-red-500 absolute left-4 bottom-8 rounded-lg px-1 text-[10px] text-white text-center"
@@ -1319,7 +1395,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="name"
                                     defaultValue={editedOrder.name}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                             </td>
                             <td className="bg-blue-100">
@@ -1328,7 +1404,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="phoneNumber"
                                     defaultValue={editedOrder.phoneNumber}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width '
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width '
                                 />
                             </td>
                             <td className="bg-blue-100">
@@ -1339,7 +1415,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="wilaya"
                                     defaultValue={editedOrder.wilaya}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />}
                             </td>
                             <td className="bg-blue-100">
@@ -1350,7 +1426,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="commune"
                                     defaultValue={editedOrder.commune}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                                }
                             </td>
@@ -1360,7 +1436,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="adresse"
                                     defaultValue={editedOrder.adresse}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                             </td>
                             <td className="bg-gray-200">
@@ -1369,7 +1445,7 @@ function Orders() {
                                 :<select
                                     value={editedOrder.shippingMethod}
                                     onChange={handleChange}
-                                    className="border-2 bg-transparent border-gray-300 rounded-md pl-1 "
+                                    className="border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 "
                                     name="shippingMethod"
                                 >
                                     <option value="بيت">بيت</option>
@@ -1383,7 +1459,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="shippingPrice"
                                     defaultValue={editedOrder.shippingPrice}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                             </td>
                             <td className="bg-gray-200">
@@ -1392,7 +1468,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="totalPrice"
                                     defaultValue={editedOrder.totalPrice}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                             </td>
                             <td className="bg-gray-200">
@@ -1401,7 +1477,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="note"
                                     defaultValue={editedOrder.note}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                             </td>
                             <td className="bg-gray-200">
@@ -1410,7 +1486,7 @@ function Orders() {
                                 :<select
                                     onChange={handleChange}
                                     value={editedOrder.state}
-                                    className="border-2 bg-transparent border-gray-300 rounded-md pl-1 max-w-32"
+                                    className="border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 max-w-32"
                                     name="state"
                                 >
                                     <option 
@@ -1444,7 +1520,7 @@ function Orders() {
                                 <DatePicker
                                     selected={selectedDate}
                                     onChange={handleDateChange}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                     dateFormat="yyyy-MM-dd"
                                 />
                             </td>
@@ -1454,7 +1530,7 @@ function Orders() {
                                     onChange={handleChange}
                                     name="deliveryNote"
                                     defaultValue={editedOrder.deliveryNote}
-                                    className='border-2 bg-transparent border-gray-300 rounded-md pl-1 dynamic-width'
+                                    className='border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                                 />
                             </td>
                             <td className="text-center">
@@ -1477,7 +1553,7 @@ function Orders() {
                                 <select
                                     value={editedOrder.tracking}
                                     onChange={handleChange}
-                                    className="border-2 bg-transparent border-gray-300 rounded-md pl-1 max-w-32"
+                                    className="border bg-transparent border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 max-w-32"
                                     name="tracking"
                                 >
                                     <option hidden>Tracking</option>
@@ -1526,14 +1602,14 @@ function Orders() {
                                                             })
                                                             setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
                                                         }}
-                                                        className='border-2 border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
+                                                        className='border border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
                                                     >
                                                         <p>Select a Product</p>
                                                     </div>
     
                                                     {isAddedProducts?.includes(order._id) &&
                                                         <div
-                                                            className='max-w-96 bg-white border-2 border-gray-500 z-50 absolute mt-2'
+                                                            className='max-w-96 bg-white border border-gray-500 z-50 absolute mt-2'
                                                         >
                                                             <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
                                                                 <FontAwesomeIcon
@@ -1543,7 +1619,7 @@ function Orders() {
                                                                 <input
                                                                     id="search"
                                                                     type='search'
-                                                                    className='w-64 px-2 py-1 rounded-xl border-2 border-gray-500 no-focus-outline text-black bg-stone-200'
+                                                                    className='w-64 px-2 py-1 rounded-xl border border-gray-500 no-focus-outline text-black bg-stone-200'
                                                                     placeholder={`Search`}
                                                                     onChange={(e) => setSearch(e.target.value)}
                                                                 />
@@ -1553,7 +1629,7 @@ function Orders() {
                                                                     className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
                                                                 >
                                                                     <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
-                                                                        <div className='border-2 border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
+                                                                        <div className='border border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
                                                                             <span
                                                                                 className='absolute top-1/3'
                                                                             >
@@ -2024,7 +2100,7 @@ function Orders() {
                             onChange={e => setSearch(e.target.value)}
                             type="search"
                             placeholder="Search"
-                            className='w-80 p-2 border-2 border-gray-500 rounded-xl no-focus-outline'
+                            className='w-80 p-2 border border-gray-500 rounded-xl no-focus-outline'
                         />
                     </div>
                 </div>
@@ -2032,7 +2108,7 @@ function Orders() {
 
                {/* {isSending
                 ?<div 
-                    className="relative border-gray-500 border-2 p-2 px-4 rounded-xl"
+                    className="relative border-gray-500 border p-2 px-4 rounded-xl"
                     onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
                 >
                     <input 
@@ -2060,7 +2136,7 @@ function Orders() {
 
                 </div>
                 :<div 
-                    className="border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer"
+                    className="border-gray-500 border p-2 px-4 rounded-xl cursor-pointer"
                     onClick={() => setIsSending(pre => !pre)}
                 >
                     Send instagram Message
@@ -2068,7 +2144,7 @@ function Orders() {
                } */}
                 <div className="relative">
                     <div
-                        className='relative flex whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                        className='relative flex whitespace-nowrap justify-self-end border-gray-500 border p-2 px-4 rounded-xl cursor-pointer'
                         onClick={() => {
                             setIsOrderAction(pre=>!pre)
                         }}
@@ -2082,7 +2158,7 @@ function Orders() {
                     </div>
                     {isOrderAction &&
                      <div
-                        className="absolute rounded-lg top-12 right-1/2 translate-x-1/2 border-2 z-[99999999999999999] border-gray-500 flex flex-col bg-white items-center"
+                        className="absolute rounded-lg top-12 right-1/2 translate-x-1/2 border z-[99999999999999999] border-gray-500 flex flex-col bg-white items-center"
                     >
                         <div 
                             className="px-2 whitespace-nowrap p-1 cursor-pointer border-b-2 border-gray-500  w-full text-start"
@@ -2114,7 +2190,7 @@ function Orders() {
                     </div>}
                 </div>
                 <div
-                    className='relative whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    className='relative whitespace-nowrap justify-self-end border-gray-500 border p-2 px-4 rounded-xl cursor-pointer'
                     onClick={() => {
                         if(isCrafting) {
                             setIsCrafting(pre => !pre)
@@ -2128,7 +2204,7 @@ function Orders() {
                 </div>
 
                 <div
-                    className='relative h-11 min-w-28 whitespace-nowrap justify-self-end border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                    className='relative h-11 min-w-28 whitespace-nowrap justify-self-end border-gray-500 border p-2 px-4 rounded-xl cursor-pointer'
                     onClick={() => {
                         if(isLabels) {
                             setIsLabels(pre => !pre)
@@ -2148,14 +2224,14 @@ function Orders() {
                 <select
                     name="date"
                     onChange={handleDateFilterChange}
-                    className="ml-auto capitalize border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer"
+                    className="ml-auto capitalize border-gray-500 border p-2 px-4 rounded-xl cursor-pointer"
                 >
                     {dateFilterElements}
                 </select>
 
                 {isCreateAccess &&
                     <Link
-                        className='justify-self-end  whitespace-nowrap border-gray-500 border-2 p-2 px-4 rounded-xl cursor-pointer'
+                        className='justify-self-end  whitespace-nowrap border-gray-500 border p-2 px-4 rounded-xl cursor-pointer'
                         href={'/admin/orders/add'}    
                         >
                         <FontAwesomeIcon icon={faPlus} />
@@ -2168,94 +2244,94 @@ function Orders() {
             {!isSearching?  
             <div className="relative h-[700px] overflow-y-auto w-full">
                 <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
-                    <thead className="sticky top-0 z-[999999999] border-2 border-gray-500 bg-white">
+                    <thead className="sticky top-0 z-[999999999] border border-gray-500 bg-white">
                             <tr>
                         {(isUpdateAccess || isDeleteAccess || isCrafting) && (
                             <th>
-                                <div className="border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className="border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     تعديل       
                                 </div>
                             </th>
                         )}
                             <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     Ref
                                 </div>
                                     
                             </th>
                             <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     الأسم
                                 </div>
                                     
                             </th>
                             <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     الرقم
                                 </div>
                             </th>
                             <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     الولاية
                                 </div>
                             </th>
                             <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     البلدية 
                                 </div>
                             </th>
                             <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     عنوان    
                                 </div>
                             </th>
                             <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     نوع التوصيل 
                                 </div>
                             </th>
                             <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     سعر التوصيل 
                                 </div>
                             </th>
                             <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     سعر كلي 
                                 </div>
                             </th>
                             <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     ملاحضة   
                                 </div>
                             </th>
                             <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     الحالة   
                                 </div>
                             </th>
                             <th>
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     التأجيل    
                                 </div>
                             </th>
                             <th>
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     ملاحظة التوصيل 
                                 </div>
                             </th>
                             <th>
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     في التوصيل 
                                 </div>
                             </th>
                             <th>
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     التتبع      
                                 </div>
                             </th>
                             <th colSpan={longesOrder.length}>
-                                <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                 الطلبيات      
                                 </div>
                             </th>
@@ -2303,94 +2379,94 @@ function Orders() {
                 <div className="relative mt-14 h-[700px] overflow-y-auto w-full">
 
                     <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
-                        <thead className="sticky top-0 z-[999999999] border-2 border-gray-500 bg-white">
+                        <thead className="sticky top-0 z-[999999999] border border-[rgba(0, 40, 100, 0.12)] bg-white">
                                 <tr>
                             {(isUpdateAccess || isDeleteAccess || isCrafting) && (
                                 <th>
-                                    <div className="border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className="border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         تعديل       
                                     </div>
                                 </th>
                             )}
                                 <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         Ref
                                     </div>
                                         
                                 </th>
                                 <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         الأسم
                                     </div>
                                         
                                 </th>
                                 <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         الرقم
                                     </div>
                                 </th>
                                 <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         الولاية
                                     </div>
                                 </th>
                                 <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         البلدية 
                                     </div>
                                 </th>
                                 <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         عنوان    
                                     </div>
                                 </th>
                                 <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         نوع التوصيل 
                                     </div>
                                 </th>
                                 <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         سعر التوصيل 
                                     </div>
                                 </th>
                                 <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         سعر كلي 
                                     </div>
                                 </th>
                                 <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         ملاحضة   
                                     </div>
                                 </th>
                                 <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         الحالة   
                                     </div>
                                 </th>
                                 <th>
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         التأجيل    
                                     </div>
                                 </th>
                                 <th>
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         ملاحظة التوصيل 
                                     </div>
                                 </th>
                                 <th>
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         في التوصيل 
                                     </div>
                                 </th>
                                 <th>
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                         التتبع      
                                     </div>
                                 </th>
                                 <th colSpan={longesOrder.length}>
-                                    <div className=" border-y border-solid border-[rgb(128,128,128)] p-[13px]">
+                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     الطلبيات      
                                     </div>
                                 </th>
