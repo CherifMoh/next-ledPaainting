@@ -238,7 +238,6 @@ function Orders() {
                         
                         let newTracking = await getOrderStatus(order,allPages) 
 
-                        console.log(newTracking);
                         // counter++;
                         if (newTracking === order.tracking) return;
     
@@ -346,6 +345,7 @@ function Orders() {
         if(tslOrdersIndex === -1)  return
         const tslOrder = allPages[tslOrdersIndex]
         let newTracking = ''
+        console.log(tslOrder?.status)
         if(!tslOrder.status){
             const res = await fetchOrderStatus(order.TslTracking)
             const lastIndex = res.activity.length - 1;

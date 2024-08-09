@@ -160,7 +160,7 @@ function LindingPage({ params }) {
         })
     }, [formData.wilaya,formData.shippingMethod])
 
-    const totalPrice = mproduct.price + shippingPrice
+    const totalPrice = Number(mproduct.price) + Number(shippingPrice)
 
     useEffect(() => {
         setFormData(pre => ({
