@@ -237,7 +237,7 @@ function Orders() {
                         if (order.tracking === 'livred' || order.tracking === 'returned') return;
                         
                         let newTracking = await getOrderStatus(order,allPages) 
-
+                   
                         // counter++;
                         if (newTracking === order.tracking) return;
     
@@ -339,13 +339,14 @@ function Orders() {
       
         return allData;
     }
-
+    
     async function getOrderStatus(order,allPages) {            
         const tslOrdersIndex = allPages.findIndex(p => p.phone=== order.phoneNumber);
         if(tslOrdersIndex === -1)  return
         const tslOrder = allPages[tslOrdersIndex]
+        
         let newTracking = ''
-        console.log(tslOrder?.status)
+        // console.log(tslOrder?.status)
         if(!tslOrder.status){
             const res = await fetchOrderStatus(order.TslTracking)
             const lastIndex = res.activity.length - 1;
@@ -353,6 +354,7 @@ function Orders() {
             newTracking = newTrackingFromActivity(order, TslStatus);            
         }else{
             newTracking = newTrackingFromStatus(order, tslOrder.status)
+
         }
         return newTracking
 
@@ -400,7 +402,7 @@ function Orders() {
             newTracking = 'En livraison';
         } else if (TslStatus === 'suspendu') {
             newTracking = 'Suspendus';
-        } else if (TslStatus === 'livre_non_encaisse' || TslStatus === 'encaisse_non_paye' || TslStatus === 'paiements_prets' || TslStatus === 'paye_et_archive') {
+        } else if (TslStatus === 'livré_non_encaissé' || TslStatus === 'encaissé_non_payé' || TslStatus === 'paiements_prêts' || TslStatus === 'payé_et_archive') {
             newTracking = 'livred';
         } else if (TslStatus === 'retour_chez_livreur' || TslStatus === 'retour_transit_entrepot' || TslStatus === 'retour_en_traitement' || TslStatus === 'retour_recu' || TslStatus === 'retour_archive' || TslStatus === 'annule') {
             newTracking = 'returned';
@@ -580,7 +582,7 @@ function Orders() {
             type:1,
         }
 
-        console.log(TslOrder)
+     
 
         try {
             const res = await axios.post('https://tsl.ecotrack.dz/api/v1/create/order', TslOrder, {
@@ -663,7 +665,7 @@ function Orders() {
             montant:order.totalPrice,
         }
 
-        console.log(TslOrder)
+   
         try {
             const res = await axios.post(
                 'https://tsl.ecotrack.dz/api/v1/update/order',TslOrder,
@@ -1872,7 +1874,7 @@ function Orders() {
         data.forEach((order, index) => {
             
             if(order.orders.length === 0) return setErrorNotifiction(`couldnt generate pdf for order ${order.name}`)
-                console.log('pdf')
+
 
             if (orderIndex === ordersPerPage) {
                 doc.addPage(); // Add a new page when the current page has 5 orders
@@ -2041,9 +2043,9 @@ function Orders() {
     async function handleSearch() {
         const phonePattern = /^0\d{9}$/;
         if(searchingMethode === 'phoneNumber' && !phonePattern.test(serachingValue)) return setErrorNotifiction('Please enter a valid phone number')
-            console.log(searchingMethode, serachingValue)
+
         const orders = await getOrder(searchingMethode, serachingValue)
-        console.log(orders)
+
         setReaserchedOrders(orders)
     }
     return (
