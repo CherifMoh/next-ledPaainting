@@ -9,6 +9,8 @@ import '../../../styles/pages/landingPage.css'
 import { v4 as uuidv4 } from 'uuid'
 import { generateUniqueString } from '../../../app/lib/utils';
 import { useInView } from 'react-intersection-observer';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationCrosshairs, faLocationDot, faMinus, faPaperPlane, faPhone, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
 
 async function fetchWilayt() {
   const res = await axios.get('https://tsl.ecotrack.dz/api/v1/get/wilayas', {
@@ -82,8 +84,9 @@ function LindingPage({ params }) {
 
   const [shippingPrice, setShippingPrice] = useState(null)
 
+  const [wrongSubmit, setWrongSubmit] = useState(false)
+  
   const [isSubmiting, setIsSubmitting] = useState(false)
-
     
     
 
@@ -95,13 +98,13 @@ function LindingPage({ params }) {
             orders:[{
                 title: products[0].title,
                 imageOn: products[0].imageOn,
-                qnt: 1,
+                qnt: qnt,
                 _id: uuidv4(),
                 ...(products[0]?.options?.length > 0 && { options: products[0].options })
             }],
             reference: generateUniqueString()
         }))
-    }, [products])
+    }, [products,qnt])
 
 
     useEffect(() => {
@@ -115,7 +118,6 @@ function LindingPage({ params }) {
 
                 const adomicile = filteredFee.tarif;
                 const stopdesk = filteredFee.tarif_stopdesk;
-
                 if (adomicile === '') {
                     setIsBeruAvailable(false)
                     setFormData(pre => ({
@@ -171,6 +173,8 @@ function LindingPage({ params }) {
 
     }, [totalPrice])
 
+   
+
     useEffect(() => {
       if (!communes|| !wilayat||!formData.wilaya) return
 
@@ -182,7 +186,9 @@ function LindingPage({ params }) {
 
       setSlectedCommunes(filteredCommunes)
 
-  }, [formData.wilaya,communes,wilayat])
+    }, [formData.wilaya,communes,wilayat])
+
+
 
   const router =useRouter()
 
@@ -209,6 +215,7 @@ function LindingPage({ params }) {
 
     // Check phone pattern
     if (!phonePattern.test(formData.phoneNumber)) {
+        setWrongSubmit(true)
         setIsPhoneCorrect(false);
         setIsSubmitting(false); // Set isSubmitting to false
         return; // Exit the function
@@ -216,6 +223,7 @@ function LindingPage({ params }) {
 
     // Check if wilaya is selected
     if (!formData.wilaya) {
+        setWrongSubmit(true)
         setIsWilayaSelected(false);
         setIsSubmitting(false); // Set isSubmitting to false
         return; // Exit the function
@@ -223,6 +231,7 @@ function LindingPage({ params }) {
 
     // Check if shipping method is selected
     if (!formData.shippingMethod) {
+        setWrongSubmit(true)
         setIsShippingSelected(false);
         setIsSubmitting(false); // Set isSubmitting to false
         return; // Exit the function
@@ -282,6 +291,24 @@ function LindingPage({ params }) {
     letterSpacing: 'normal'
   };
 
+  function handelQntPlus(){
+    setQnt(pre=>Number(pre) + 1)
+    setFormData(preState => ({
+        ...preState,
+        qnt: Number(qnt) + 1
+    }))
+  }
+
+  function handelQntMinus(){
+    if(qnt <= 1) return
+    setQnt(pre=>Number(pre) - 1)
+    setFormData(preState => ({
+        ...preState,
+        qnt: Number(qnt) - 1
+    }))
+  }
+
+
   return (
 
     <main>
@@ -290,14 +317,209 @@ function LindingPage({ params }) {
             className="w-full"
         />
 
-        <section ref={ref} id="checkout" className="w-full relative flex flex-col items-center justify-center"> 
+        <section 
+            ref={ref} id="checkout"  
+            className="w-full relative flex flex-col items-center justify-center p-4"
+        > 
             
             <img 
                 src={mproduct?.landingPageImages[2]} alt="" 
                 className="w-full absolute top-0 left-0 -z-10"
             />
 
-            <form className="w-full sm:w-3/4 md:w-2/3 lg:w-1/3 p-5" onSubmit={handelSubmit}>
+            <form 
+                onSubmit={handelSubmit} 
+                className={`${wrongSubmit && 'bg-gradient-radial from-red-300  to-transparent bg-opacity-10'} w-full sm:w-3/4 md:w-2/3 lg:w-1/3 xl:w-1/4 p-5 border-2 border-black rounded-3xl`}
+            >
+                <h1 className="text-2xl font-semibold text-center tracking-wide">
+                    استمارة الطلب
+                </h1>
+                <p
+                    className={`text-red-600 ${wrongSubmit ? 'block' : 'hidden'} font-semibold text-sm text-center`}
+                >
+                    املأ معلوماتك بشكل صحيح
+                </p>
+                <div>
+                    <p className="mt-2 font-semibold">
+                        الاسم الشخصي
+                        <span className="text-red-600 text-lg font-bold ml-1">*</span>
+                    </p>
+
+                    <div className="flex w-full rounded-md bg-white border border-[rgba(0, 40, 100, 0.12)]">
+
+                        <FontAwesomeIcon icon={faUser} className="text-red-500 p-2 pr-5 border-r border-[rgb(0, 40, 100)]" />
+                        <input
+                            onChange={handleChange}
+                            required
+                            className="flex-grow pl-2 bg-transparent"
+                            placeholder="الاسم الشخصي"
+                            name="name"
+                            type="text"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <p className="mt-2 font-semibold">
+                        الهاتف
+                        <span className="text-red-600 text-lg font-bold ml-1">*</span>
+                    </p>
+
+                    <div className="flex w-full rounded-md bg-white border border-[rgba(0, 40, 100, 0.12)]">
+
+                        <FontAwesomeIcon icon={faPhone} className="text-red-500 p-2 pr-5 border-r border-[rgb(0, 40, 100)]" />
+                        <input
+                            onChange={handleChange}
+                            required
+                            className="flex-grow pl-2 bg-transparent"
+                            placeholder="رقم الهاتف"
+                            name="phoneNumber"
+                            type="text"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <p className="mt-2 font-semibold">
+                        الولاية
+                        <span className="text-red-600 text-lg font-bold ml-1">*</span>
+                    </p>
+
+                    <div className="flex w-full rounded-md bg-white border border-[rgba(0, 40, 100, 0.12)]">
+
+                        <FontAwesomeIcon icon={faPaperPlane} className="text-red-500 p-2 pr-5 border-r border-[rgb(0, 40, 100)]" />
+                        <select
+                            value={formData.wilaya}
+                            onChange={handleChange}
+                            required 
+                            className="flex-grow pl-2 bg-transparent"
+                            name="wilaya"
+                        >
+                            <option value="الولاية" hidden >الولاية</option>
+                            {wilayatOptionsElement}
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <p className="mt-2 font-semibold">
+                        الولاية
+                        <span className="text-red-600 text-lg font-bold ml-1">*</span>
+                    </p>
+
+                    <div className="flex w-full rounded-md bg-white border border-[rgba(0, 40, 100, 0.12)]">
+
+                        <FontAwesomeIcon icon={faLocationDot} className="text-red-500 p-2 pr-5 border-r border-[rgb(0, 40, 100)]" />
+                        <select
+                            value={formData.commune}
+                            onChange={handleChange}
+                            className="flex-grow pl-2 bg-transparent"
+                            required 
+                            name="commune"
+                        >
+                            <option hidden >
+                                البلدية
+                            </option>
+                            {communesOptionsElement}
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <p className="mt-2 font-semibold">
+                        طريقة التوصيل
+                        <span className="text-red-600 text-lg font-bold ml-1">*</span>
+                    </p>
+
+                    {isBeruAvailable
+                        ? 
+                        <div className="flex w-full rounded-md bg-white border border-[rgba(0, 40, 100, 0.12)]">
+
+                            <FontAwesomeIcon icon={faLocationCrosshairs} className="text-red-500 p-2 pr-5 border-r border-[rgb(0, 40, 100)]" />
+                            <select
+                                value={formData.shippingMethod}
+                                onChange={handleChange}
+                                className="flex-grow pl-2 bg-transparent"
+                                required
+                                name="shippingMethod"
+                            >
+                                <option value='طريقة التوصيل' hidden >طريقة التوصيل</option>
+                                <option value="بيت">بيت</option>
+                                <option value="مكتب">مكتب</option>
+                            </select>
+                        </div>
+                        : <div className='my-5 w-full text-center text-xl font-semibold'>
+                            التوصيل الى البيت فقط
+                        </div>
+                    }
+                </div>
+                <div className="flex justify-between items-center mt-4">
+                    <p className="font-semibold">
+                        أدخل الكمية
+                    </p>
+                    <div className="flex justify-between w-2/3 bg-white h-10 rounded-md border border-[#a64100]">
+                        <div 
+                            className="w-14 text-center bg-[#a64100] cursor-pointer"
+                            onClick={handelQntPlus}
+                        >
+                            <FontAwesomeIcon 
+                                icon={faPlus} 
+                                className="text-white translate-y-1/2 pointer-events-none" 
+                            />
+                        </div>
+                        <div className="text-center flex items-center">
+                            {qnt}
+                        </div>
+                        <div 
+                            className="w-14 text-center bg-[#a64100] cursor-pointer"
+                            onClick={handelQntMinus}
+                        >
+                            <FontAwesomeIcon 
+                                icon={faMinus} 
+                                className="text-white translate-y-1/2 pointer-events-none" 
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="w-full bg-[#a64100] mt-4 text-white">
+                    <div class="text-center font-semibold text-xl pt-4">
+                        ملخص الطلب
+                    </div>
+                    <div className="flex justify-between px-4">
+                        <span>سعر المنتج</span>
+                        <span class="product-price">
+                            {mproduct.price} DZD
+                        </span>
+                    </div>
+                    <div className="flex justify-between px-4 mt-2">
+                        <span>سعر التوصيل</span>
+                        {shippingPrice 
+                            ?<span class="shipping-price"> {shippingPrice} DZD </span> 
+                            :<span class="shipping-price">أدخل الولاية&nbsp;</span> 
+                        }
+                    </div>
+                    <div className="flex justify-between text-xl border-t border-[rgba(0, 40, 100, 0.12)] px-4 py-3 mt-1">
+                        <span>
+                            المجموع
+                        </span>
+                        {(shippingPrice && mproduct.price )
+                            ?<span class="shipping-price">
+                                {Number(shippingPrice) + Number(mproduct.price)} DZD
+                            </span> 
+                            :<span class="shipping-price">أدخل الولاية&nbsp;</span> 
+                        }
+                    </div>
+                    
+                </div>
+                <button 
+                    type="submit" 
+                    className={`w-full mx-auto rounded-lg mt-4 p-3 border-none bg-[#1773B0] text-xl font-semibold tracking-wide text-white ${isSubmiting && 'h-16'} flex justify-center items-start`}
+                >
+                    {isSubmiting
+                        ? <Spinner color={'border-gray-500'} size={'h-10 w-10 '} />
+                        :
+                        ' أطلب الان'
+                    }
+                </button>
+            </form>
+
+            <form className="w-full hidden sm:w-3/4 md:w-2/3 lg:w-1/3 p-5" onSubmit={handelSubmit}>
                 
                 <div className="flex gap-4">
                 
@@ -415,13 +637,8 @@ function LindingPage({ params }) {
                 </button>
             </form>
 
-            <div class="order-summary-contaainer">
-                <span class="justHome">التوصيل للمنزل فقط</span>
+            <div class="order-summary-contaainer hidden">
                 <span class="summary-title">ملخص الطلبية</span>&nbsp;
-                <img 
-                    src="https://media-public.canva.com/cl77U/MAE9OUcl77U/1/t.png" 
-                    alt="" class="fr-fil fr-dib" 
-                />
                 <div class="delevry">
                     <span class="product-price">
                         {mproduct.price}
