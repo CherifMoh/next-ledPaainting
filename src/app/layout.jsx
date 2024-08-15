@@ -2,7 +2,7 @@ import Script from 'next/script'
 import '../styles/shared/global.css'
 import QueryProvider from './lib/Providers'
 import ReduxProvider from './redux/provider'
-
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 
 export const metadata = {
@@ -40,6 +40,7 @@ export default async function RootLayout({ children }) {
           </QueryProvider>
         </ReduxProvider>
       </body>
+      <GoogleAnalytics gaId="G-4HR9W978KD" />
     </html>
   )
 }
