@@ -48,6 +48,7 @@ function ProductsSlider() {
     if (isError) return <div>{designErr.message}</div>
 
     const slidersElemnt = Products.map(product => {
+        if(!product.active) return 
         return (
             <div key={product._id} className='md:mt-48 mt-28 gap-4 flex flex-col items-center justify-center'>
                 <h1

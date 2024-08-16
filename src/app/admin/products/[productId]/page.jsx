@@ -1088,6 +1088,20 @@ function ProductUpdate({ params }) {
 
     return (
         <div className="w-full min-h-svh flex items-center justify-center overflow-y-scroll">
+            <div
+              className={`absolute top-5 right-20 flex items-center cursor-pointer w-14 h-8 rounded-full p-1 duration-300 ease-in-out ${
+                  newProduct.active ? `bg-green-400` : 'bg-gray-300'
+              }`}
+              onClick={()=>{
+                setNewProduct({...newProduct,active: !newProduct.active})
+              }}
+            >
+                <div
+                    className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ease-in-out ${
+                    newProduct.active ? 'translate-x-6' : ''
+                    }`}
+                />
+            </div>
             <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-5 bg-white p-8 rounded-lg shadow-md">
 
                 {isImages &&

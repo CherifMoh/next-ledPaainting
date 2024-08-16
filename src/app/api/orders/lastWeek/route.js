@@ -18,8 +18,8 @@ export async function GET() {
 
     const result = await Order.find({
       tracking: 'delivered',
-      updatedAt: { $gte: oneWeekAgo }
-    }).sort({ _id: -1 }).select('updatedAt');
+      createdAt: { $gte: oneWeekAgo }
+    }).sort({ _id: -1 }).select('createdAt');
 
     return Response.json(result)
 

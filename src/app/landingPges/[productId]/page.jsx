@@ -84,6 +84,10 @@ function LindingPage({ params }) {
 
   const [shippingPrice, setShippingPrice] = useState(null)
 
+  const [price, setPrice] = useState(null)
+  
+  const [totalPrice, setTotalPrice] = useState(null)
+
   const [wrongSubmit, setWrongSubmit] = useState(false)
   
   const [isSubmiting, setIsSubmitting] = useState(false)
@@ -162,7 +166,31 @@ function LindingPage({ params }) {
         })
     }, [formData.wilaya,formData.shippingMethod])
 
-    const totalPrice = Number(mproduct.price) + Number(shippingPrice)
+    useEffect(() => {
+        if(!mproduct) return
+
+        let beforePrice = mproduct.price  
+        let sales
+        let isSales = false
+
+
+        mproduct.sales?.forEach(sale => {
+            if(Number(sale.qnt) <= qnt){
+              sales = sale.percen
+              isSales = true
+            }
+        });
+
+        setPrice(sales?(beforePrice-(beforePrice*sales)/100)*qnt:beforePrice*qnt)
+        
+    }, [qnt,mproduct])
+
+    useEffect(() => {
+        
+        setTotalPrice(Number(price) + Number(shippingPrice))
+        
+    }, [qnt,price,mproduct])
+    
 
     useEffect(() => {
         setFormData(pre => ({
@@ -171,9 +199,7 @@ function LindingPage({ params }) {
             shippingPrice,
         }))
 
-    }, [totalPrice])
-
-   
+    }, [totalPrice,shippingPrice])
 
     useEffect(() => {
       if (!communes|| !wilayat||!formData.wilaya) return
@@ -483,9 +509,16 @@ function LindingPage({ params }) {
                     </div>
                     <div className="flex justify-between px-4">
                         <span>سعر المنتج</span>
-                        <span class="product-price">
-                            {mproduct.price} DZD
-                        </span>
+                        <div>
+                            {price !== mproduct.price*qnt &&
+                                <span class="product-price mr-3 text-gray-300 opacity-80 line-through">
+                                    {mproduct.price*qnt} 
+                                </span>
+                            }
+                            <span class="product-price">
+                                {price} DZD
+                            </span>
+                        </div>
                     </div>
                     <div className="flex justify-between px-4 mt-2">
                         <span>سعر التوصيل</span>
@@ -500,7 +533,7 @@ function LindingPage({ params }) {
                         </span>
                         {(shippingPrice && mproduct.price )
                             ?<span class="shipping-price">
-                                {Number(shippingPrice) + Number(mproduct.price)} DZD
+                                {totalPrice} DZD
                             </span> 
                             :<span class="shipping-price">أدخل الولاية&nbsp;</span> 
                         }

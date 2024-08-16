@@ -45,6 +45,11 @@ const productSchem = new mongoose.Schema({
         type: Array,
         required: true
     },
+    active: {
+        type: Boolean,
+        required: false,
+        default: true
+    },
 },{timestamps: true})
 
 const Product = mongoose.models.Product ||mongoose.model('Product', productSchem)

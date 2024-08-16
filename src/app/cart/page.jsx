@@ -127,7 +127,7 @@ function CartPage() {
     })
 
     cartItem.sales.forEach(sale => {
-      if(Number(sale.qnt) === cartItem.qnt){
+      if(Number(sale.qnt) <= cartItem.qnt){
         sales = sale.percen
         isSales = true
       }

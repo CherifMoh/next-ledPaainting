@@ -88,6 +88,7 @@ function ProductsGrid() {
 
 
     Products.forEach((product, index) => {
+        if(!product.active) return
         const priceElement = product.options?.map((option,i)=>{
             return(
                 <div 

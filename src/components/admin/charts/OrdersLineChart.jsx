@@ -20,8 +20,9 @@ const OrdersLineChart = () => {
   if (isError) return <div>Error fetching Orders: {error.message}</div>;
 
   const ordersByDate = Orders.reduce((acc, order) => {
-    // Extract the date part from the updatedAt timestamp
-    const date = new Date(order.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    // Extract the date part from the createdAt timestamp
+    const date = new Date(order.createdAt).toLocaleDateString('ar-DZ', { month: 'short', day: 'numeric' });
+
 
     // Check if the date exists in the accumulator
     if (acc[date]) {

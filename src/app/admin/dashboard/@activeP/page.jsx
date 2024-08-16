@@ -32,12 +32,12 @@ function Sales() {
   />;
 
  
-
+    const inactiveProducts = Products.filter(product => !product.active).length
 
   return (
     <DashboardCard
       title="Active Products"
-      subtitle={`0 Inactive`}
+      subtitle={`${inactiveProducts} Inactive`}
       body={Products.length}
     />
   )
