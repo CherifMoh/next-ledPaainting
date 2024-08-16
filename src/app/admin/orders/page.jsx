@@ -1392,6 +1392,9 @@ function Orders() {
                                 
                             </td>
                             <td className="bg-blue-100">
+                                {order.createdAt}
+                            </td>
+                            <td className="bg-blue-100">
                                 <input
                                     type="text"
                                     onChange={handleChange}
@@ -1770,6 +1773,20 @@ function Orders() {
                                     {order.reference}
                                 </div>
                                 
+                            </td>
+                            <td className="bg-blue-100">
+                                {new Date(order.createdAt).toLocaleDateString('en-GB', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    timeZone: 'Africa/Algiers' // Timezone for Algeria
+                                })}
+                                <br />
+                                {new Date(order.createdAt).toLocaleTimeString('en-GB', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    timeZone: 'Africa/Algiers' // Timezone for Algeria
+                                })}
                             </td>
                             <td className="bg-blue-100">{order.name}</td>
                             <td className="bg-blue-100">{order.phoneNumber}</td>
@@ -2258,6 +2275,12 @@ function Orders() {
                             <th className="bg-blue-100">
                                 <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     Ref
+                                </div>
+                                    
+                            </th>
+                            <th className="bg-blue-100">
+                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
+                                    التاريخ
                                 </div>
                                     
                             </th>

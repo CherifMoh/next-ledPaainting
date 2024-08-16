@@ -189,7 +189,7 @@ function LindingPage({ params }) {
         
         setTotalPrice(Number(price) + Number(shippingPrice))
         
-    }, [qnt,price,mproduct])
+    }, [qnt,price,mproduct,shippingPrice])
     
 
     useEffect(() => {
@@ -199,7 +199,7 @@ function LindingPage({ params }) {
             shippingPrice,
         }))
 
-    }, [totalPrice,shippingPrice])
+    }, [totalPrice,shippingPrice,qnt])
 
     useEffect(() => {
       if (!communes|| !wilayat||!formData.wilaya) return
@@ -214,7 +214,7 @@ function LindingPage({ params }) {
 
     }, [formData.wilaya,communes,wilayat])
 
-
+    console.log(formData)
 
   const router =useRouter()
 
