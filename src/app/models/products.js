@@ -1,6 +1,12 @@
 import mongoose from "mongoose"; 
+import { generateUniqueString } from "../lib/utils";
 
 const productSchem = new mongoose.Schema({
+    reference: {
+        type: String,
+        required: false,
+        default: ()=> generateUniqueString(6)
+    },
     title: {
         type: String,
         required: true

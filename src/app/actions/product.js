@@ -18,10 +18,14 @@ export async function addProduct(newProduct){
 }
 
 export async function deleteProduct(id){
+  try{
     await dbConnect()
     const res = await Product.findByIdAndDelete(id)
 
     return res
+  }catch(err){  
+    throw Error(err)
+  }
 }
 
 export async function getOneProduct(id){

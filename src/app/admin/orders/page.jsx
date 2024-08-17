@@ -845,13 +845,14 @@ function Orders() {
             isMatchingTraking = order.tracking===trackingFilter
         }
 
-        const isMatchingDateFilter = (
-            dateFilter === 'today' && createdDate === currentDate ||
-            dateFilter === 'yesterday' && createdDate === yesterdayDate ||
-            dateFilter === 'this Week' && isWithinPastWeek(createdDate) ||
-            dateFilter === 'this Month' && isDateInPastMonth(createdDate) ||
-            dateFilter === 'maximum'
-        );
+        const isMatchingDateFilter = true
+        // const isMatchingDateFilter = (
+        //     dateFilter === 'today' && createdDate === currentDate ||
+        //     dateFilter === 'yesterday' && createdDate === yesterdayDate ||
+        //     dateFilter === 'this Week' && isWithinPastWeek(createdDate) ||
+        //     dateFilter === 'this Month' && isDateInPastMonth(createdDate) ||
+        //     dateFilter === 'maximum'
+        // );
 
         return isMatchingDateFilter && (isMatchingSearch && isMatchingTraking);
     }
