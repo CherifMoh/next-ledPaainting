@@ -12,6 +12,9 @@ import { useInView } from 'react-intersection-observer';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationCrosshairs, faLocationDot, faMinus, faPaperPlane, faPhone, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
 
+
+
+
 async function fetchWilayt() {
   const res = await axios.get('https://tsl.ecotrack.dz/api/v1/get/wilayas', {
       headers: {
@@ -36,6 +39,7 @@ async function fetchCommunes() {
   });
   return res.data;
 }
+
 
 function LindingPage({ params }) {
   

@@ -23,3 +23,16 @@ export async function deleteProduct(id){
 
     return res
 }
+
+export async function getOneProduct(id){
+  try{
+    await dbConnect()
+
+    const res = await Product.findById(id)
+
+    return res
+  }catch(err){  
+    throw Error(err)
+  }
+    
+}
