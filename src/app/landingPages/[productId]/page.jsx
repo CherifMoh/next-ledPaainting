@@ -375,6 +375,16 @@ function LindingPage({ params }) {
                 <h1 className="text-2xl font-semibold text-center tracking-wide">
                     استمارة الطلب
                 </h1>
+                <div className="flex items-center w-full justify-center text-4xl">
+                    {price !== mproduct.price*qnt &&
+                        <span className="mr-3 text-red-500 opacity-80 line-through">
+                            {mproduct.price*qnt} 
+                        </span>
+                    }
+                    <span className="text-green-500">
+                        {price} DZD
+                    </span>
+                </div>
                 <p
                     className={`text-red-600 ${wrongSubmit ? 'block' : 'hidden'} font-semibold text-sm text-center`}
                 >
@@ -526,11 +536,11 @@ function LindingPage({ params }) {
                         <span>سعر المنتج</span>
                         <div>
                             {price !== mproduct.price*qnt &&
-                                <span class="product-price mr-3 text-gray-300 opacity-80 line-through">
+                                <span className="mr-3 text-gray-300 opacity-80 line-through">
                                     {mproduct.price*qnt} 
                                 </span>
                             }
-                            <span class="product-price">
+                            <span className="">
                                 {price} DZD
                             </span>
                         </div>
@@ -538,8 +548,8 @@ function LindingPage({ params }) {
                     <div className="flex justify-between px-4 mt-2">
                         <span>سعر التوصيل</span>
                         {shippingPrice 
-                            ?<span class="shipping-price"> {shippingPrice} DZD </span> 
-                            :<span class="shipping-price">أدخل الولاية&nbsp;</span> 
+                            ?<span className="shipping-price"> {shippingPrice} DZD </span> 
+                            :<span className="shipping-price">أدخل الولاية&nbsp;</span> 
                         }
                     </div>
                     <div className="flex justify-between text-xl border-t border-[rgba(0, 40, 100, 0.12)] px-4 py-3 mt-1">
@@ -547,10 +557,10 @@ function LindingPage({ params }) {
                             المجموع
                         </span>
                         {(shippingPrice && mproduct.price )
-                            ?<span class="shipping-price">
+                            ?<span className="shipping-price">
                                 {totalPrice} DZD
                             </span> 
-                            :<span class="shipping-price">أدخل الولاية&nbsp;</span> 
+                            :<span className="shipping-price">أدخل الولاية&nbsp;</span> 
                         }
                     </div>
                     
