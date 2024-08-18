@@ -182,6 +182,11 @@ function LindingPage({ params }) {
         setTotalPrice(Number(price) + Number(shippingPrice))
         
     }, [qnt,price,mproduct,shippingPrice])
+
+    useEffect(()=>{
+        if(!mproduct) return
+        if(mproduct._id === '66c27c465a033af17a30ed3b') setQnt(2)
+    },[mproduct])
     
 
     useEffect(() => {
@@ -310,6 +315,15 @@ function LindingPage({ params }) {
   };
 
   function handelQntPlus(){
+    if(mproduct._id === '66c27c465a033af17a30ed3b'){
+
+        setQnt(pre=>Number(pre) + 2)
+        setFormData(preState => ({
+            ...preState,
+            qnt: Number(qnt) + 2
+        }))
+        return
+    }
     setQnt(pre=>Number(pre) + 1)
     setFormData(preState => ({
         ...preState,
@@ -318,6 +332,15 @@ function LindingPage({ params }) {
   }
 
   function handelQntMinus(){
+    if(mproduct._id === '66c27c465a033af17a30ed3b'){
+        if(qnt <= 2) return
+        setQnt(pre=>Number(pre) - 2)
+        setFormData(preState => ({
+            ...preState,
+            qnt: Number(qnt) - 2
+        }))
+        return
+    }
     if(qnt <= 1) return
     setQnt(pre=>Number(pre) - 1)
     setFormData(preState => ({
