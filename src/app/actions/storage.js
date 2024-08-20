@@ -282,7 +282,7 @@ export async function editMinusProduct(name,newQnt,note,option){
 
     // Process the qnts array from the last element to the first
     for (let i = 0; i < qnts.length && newQnt > 0; i++) {
-        if (option !== undefined && qnts[i].option === option) {
+        if (option === undefined || qnts[i].option === option) {
             if (qnts[i].qnt <= newQnt) {
                 newQnt -= qnts[i].qnt; // Decrease newQnt by the quantity of the current element
                 qnts.splice(i, 1);  // Remove the element from the array
@@ -298,7 +298,7 @@ export async function editMinusProduct(name,newQnt,note,option){
     qnts = qnts.map(item => ({
         price: item.price,
         qnt: item.qnt.toString(),
-        option: item.option
+        ...(item.option && { option: item.option })
     }));
 
     // Save the updated qnts array back to the database

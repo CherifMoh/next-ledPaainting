@@ -1349,7 +1349,7 @@ function Orders() {
                         <tr key={order._id} className={`h-5`}>
                             <td>
     
-                                {/* {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                                {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
                                     <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
                                 }  
                                 {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
@@ -1359,7 +1359,7 @@ function Orders() {
                                     >
                                         <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                     </button>                            
-                                }   */}
+                                }  
     
                                 <button
                                     onClick={() => {
@@ -1723,7 +1723,7 @@ function Orders() {
                                                     />
                                                 </div>
                                             }
-                                            {/* {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
+                                            {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
                                                 <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
                                             }  
                                             {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
@@ -1733,7 +1733,7 @@ function Orders() {
                                                 >
                                                     <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                                 </button>                            
-                                            }   */}
+                                            }  
                                             {isUpdateAccess &&
                                             <button
                                                 onClick={() => {
@@ -2125,43 +2125,6 @@ function Orders() {
                     </div>
                 </div>
 
-
-               {/* {isSending
-                ?<div 
-                    className="relative border-gray-500 border p-2 px-4 rounded-xl"
-                    onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-                >
-                    <input 
-                        type="text" 
-                        placeholder="Enter your message"
-                        className="no-focus-outline w-40"
-                        value={instaMessage}
-                        onChange={e => setInstaMessage(e.target.value)}
-                    />
-                    <FontAwesomeIcon 
-                        icon={faPaperPlane} 
-                        onClick={() => handleSendMessage()}
-                        className="cursor-pointer text-gray-600"
-                    />
-                    <div 
-                        className="absolute -top-2 -right-2 flex items-center bg-red-500 p-1 rounded-full"
-                        onClick={() => setIsSending(pre => !pre)}
-                    >
-                        <FontAwesomeIcon 
-                            icon={faX} 
-                            className="cursor-pointer size-3 text-white"
-                        />
-                    </div>
-
-
-                </div>
-                :<div 
-                    className="border-gray-500 border p-2 px-4 rounded-xl cursor-pointer"
-                    onClick={() => setIsSending(pre => !pre)}
-                >
-                    Send instagram Message
-                </div>
-               } */}
                 <div className="relative">
                     <div
                         className='relative flex whitespace-nowrap justify-self-end border-gray-500 border p-2 px-4 rounded-xl cursor-pointer'
