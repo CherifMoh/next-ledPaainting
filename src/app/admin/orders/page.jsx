@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faPen, faPlus, faX, faCheck, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faPen, faPlus, faX, faCheck, faPaperPlane, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { deleteOrder, getOrder } from '../../actions/order'
 import { editMinusProduct } from '../../actions/storage'
@@ -102,6 +102,7 @@ function Orders() {
     const [newOrders, setNewOrders] = useState({})
     
     const [trackingFilter, setTrackingFilter] = useState('unconfirmed')
+    const [isTrakingFilterDrop, setIsTrakingFilterDrop] = useState('')
     
     const [isAddingProduct, setIsAddingProduct] = useState([])
     const [addedOrder, setAddedOrder] = useState({})
@@ -839,10 +840,11 @@ function Orders() {
         if(trackingFilter ==='Scheduled'){
             isMatchingTraking = order.schedule === currentDate;
 
-        }else if(trackingFilter ==='unconfirmed'){
-            isMatchingTraking = order.state !== 'مؤكدة'
         }else{
             isMatchingTraking = order.tracking===trackingFilter
+        }
+        if(!isMatchingTraking){
+            isMatchingTraking = order.state===trackingFilter
         }
 
         const isMatchingDateFilter = true
@@ -1980,7 +1982,12 @@ function Orders() {
     const trackingFiltersArray=[
         {
             name:'unconfirmed',
-            icon:'not confirmed.png'      
+            icon:'not confirmed.png',
+            dropDown:[
+                {name:'غير مؤكدة',bg:'orange'},
+                {name:'لم يرد',bg:'yellow'},
+                {name:'ملغاة',bg:'red'},
+            ]        
         },{
             name:'Scheduled',
             icon:'Schedule.png'      
@@ -2014,7 +2021,9 @@ function Orders() {
         }
     ]
 
-    const trackingFiltersEle=trackingFiltersArray.map(({name,icon},i)=>{
+    const trackingFiltersEle=trackingFiltersArray.map((filter,i)=>{
+
+        const {name,icon} = filter
 
         let ordersNumber = 0
         if(name ==='Scheduled'){
@@ -2032,14 +2041,49 @@ function Orders() {
         }
 
 
+        const dropDownEle=filter.dropDown?.map((dropDown,i)=>{
+            let ordersNumber = Orders.filter(order=>order.state===dropDown.name).length
+            return(
+                <div 
+                    key={dropDown.name}
+                    className={`cursor-pointer flex items-center justify-between gap-2 px-4 py-3 ${i !== 0 && ' border-t'} border-gray-400 items-center hover:bg-[#057588] text-black bg-${dropDown.bg}-400 hover:text-[#fff]`}
+                    onClick={()=>{
+                        setTrackingFilter(dropDown.name)
+                        setIsSearching(false)
+                        setReaserchedOrders([])
+                        setIsTrakingFilterDrop('')
+                    }}
+                >
+                    <p className="text-sm whitespace-nowrap ">{dropDown.name}</p>
+
+                    {ordersNumber>0  &&
+                    <p 
+                        className='bg-[#777] text-xs font-semibold text-[#fff]  px-1 rounded-sm'
+                    >
+                        {ordersNumber}
+                    </p>
+                }
+                </div>
+            )
+        })
+
         return(
             <div 
                 key={name}
-                className={`cursor-pointer flex ${i === 0 ? '' : 'border-l'} px-4 py-3 border-gray-400 items-center ${trackingFilter === name ? 'bg-[#057588] text-[#fff] ' : ' hover:bg-[#057588] bg-[#fff] hover:text-[#fff]'} gap-2`}
+                className={`cursor-pointer relative flex ${i === 0 ? '' : 'border-l'} ${name !== 'Abandoned' ? 'px-4' : 'pl-4 pr-8'} py-3 border-gray-400 items-center ${trackingFilter === name ? 'bg-[#057588] text-[#fff] ' : ' hover:bg-[#057588] bg-[#fff] hover:text-[#fff]'} gap-2`}
                 onClick={()=>{
-                    setTrackingFilter(name)
-                    setIsSearching(false)
-                    setReaserchedOrders([])
+                    if(filter.dropDown){
+                        if(isTrakingFilterDrop === name){
+                            setIsTrakingFilterDrop('')
+                        }else{
+                            setIsTrakingFilterDrop(name)
+                        }
+                    }else{
+                        setTrackingFilter(name)
+                        setIsSearching(false)
+                        setReaserchedOrders([])
+
+                    }
                 }}
             >
                 <img 
@@ -2053,6 +2097,17 @@ function Orders() {
                     >
                         {ordersNumber}
                     </p>
+                }
+                {filter.dropDown &&
+                    <FontAwesomeIcon
+                        icon={faAngleDown}
+                        className={`text-xs ${isTrakingFilterDrop === name && 'rotate-180'}`}
+                    />
+                }
+                {isTrakingFilterDrop === name &&
+                    <div className="absolute top-11 right-0 z-[9999999999999999999999] border border-gray-400 rounded">
+                        {dropDownEle}
+                    </div>
                 }
             </div>
         )
@@ -2225,7 +2280,7 @@ function Orders() {
             }
 
             {!isSearching?  
-            <div className="relative h-[700px] overflow-y-auto w-full">
+            <div className="relative h-[700px] flex-grow-0 overflow-y-auto w-full">
                 <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
                     <thead className="sticky top-0 z-[999999999] border border-gray-500 bg-white">
                             <tr>
@@ -2332,7 +2387,7 @@ function Orders() {
                     </tbody>
                 </table>
             </div>
-            :<div className="w-full mt-11">
+            :<div className="w-full mt-11 flex-grow-0 ">
                 <div
                     className="flex w-full gap-6 border border-[rgba(0, 40, 100, 0.12)] bg-white p-5 py-2"
                 >
