@@ -235,7 +235,7 @@ function Orders() {
                     Orders.map(async (order) => {
                         const currentDate = format(new Date(), 'yyyy-MM-dd');
     
-                        if (order.tracking === 'livred' || order.tracking === 'returned') return;
+                        if (!order.TslTracking || order.state !== 'مؤكدة' || order.tracking === 'livred' || order.tracking === 'returned') return;
                         
                         let newTracking = await getOrderStatus(order,allPages) 
                    
