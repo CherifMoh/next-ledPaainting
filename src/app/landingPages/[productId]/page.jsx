@@ -360,12 +360,12 @@ function LindingPage({ params }) {
 
         <section 
             ref={ref} id="checkout"  
-            className="w-full relative flex flex-col items-center justify-center p-4"
+            className="w-full relative overflow-y-hidden flex flex-col items-center justify-center p-4"
         > 
             
             <img 
                 src={mproduct?.landingPageImages[2]} alt="" 
-                className="w-full absolute top-0 left-0 -z-10"
+                className="w-full min-h-full absolute top-0 left-0 -z-10"
             />
 
             <form 
