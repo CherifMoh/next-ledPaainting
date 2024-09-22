@@ -8,6 +8,8 @@ import Spinner from "../../../components/loadings/Spinner";
 import '../../../styles/pages/landingPage.css'
 import { v4 as uuidv4 } from 'uuid'
 import { generateUniqueString } from '../../../app/lib/utils';
+import { addAbandonedCheckout } from '../../../app/actions/order';
+import { checkBlackliste } from "../../lib/ip/checkIPBlacklist";
 import { useInView } from 'react-intersection-observer';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationCrosshairs, faLocationDot, faMinus, faPaperPlane, faPhone, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -211,7 +213,6 @@ function LindingPage({ params }) {
 
     }, [formData.wilaya,communes,wilayat])
 
-    console.log(formData)
 
   const router =useRouter()
 
@@ -349,6 +350,29 @@ function LindingPage({ params }) {
     }))
   }
 
+  async function handleBlur(){
+    if (!phonePattern.test(formData.phoneNumber)) {
+        return; // Exit the function
+    }
+    const checkBlacklisted = await checkBlackliste()
+    if(checkBlacklisted) return 
+
+
+    try {
+        // Make API call
+        const res = await addAbandonedCheckout(formData);
+        // handleSendNotification(
+        //     'سلة المتروكة',
+        //     `سلة متروكة جديدة برقم الهاتف ${formData.phoneNumber}`,
+        //     'https://toopnin.com/admin/orders'
+        // )
+    } catch (error) {
+        // Handle error if necessary
+        console.error('Error submitting form:', error);
+    }
+
+  }
+
 
   return (
 
@@ -420,6 +444,7 @@ function LindingPage({ params }) {
                         <FontAwesomeIcon icon={faPhone} className="text-red-500 p-2 pr-5 border-r border-[rgb(0, 40, 100)]" />
                         <input
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             required
                             className="flex-grow pl-2 bg-transparent"
                             placeholder="رقم الهاتف"

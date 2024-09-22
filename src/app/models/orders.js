@@ -12,7 +12,15 @@ const OrderSchem = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: false
+    },
+    ip: {
+        type: String,
+        required: false
+    },
+    blackListed: {
+        type: Boolean,
+        default: false
     },
     instaUserName: {
         type: String,
@@ -24,31 +32,31 @@ const OrderSchem = new mongoose.Schema({
     },
     wilaya: {
         type: String,
-        required: true
+        required: false
     },
     commune: {
         type: String,
-        required: true
+        required: false
     },
     adresse: {
         type: String,
-        required: true
+        required: false
     },
     shippingMethod: {
         type: String,
-        required: true
+        required: false
     },
     shippingPrice: {
         type: Number,
-        required: true
+        required: false
     },
     totalPrice: {
         type: Number,
-        required: true
+        required: false
     },
     orders: {
         type: Array,
-        required: true
+        required: false
     },
     state:{
         type: String,

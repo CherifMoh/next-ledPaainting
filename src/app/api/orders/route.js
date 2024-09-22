@@ -2,6 +2,7 @@ import Order from "../../models/orders";
 import { dbConnect } from "../../lib/dbConnect";
 import { NextResponse } from "next/server";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, subDays } from 'date-fns';
+import { cookies } from "next/headers";
 
 export async function GET(req) {
   try {
@@ -12,7 +13,7 @@ export async function GET(req) {
 
     const oneHourBefor = new Date();
     const today = new Date(oneHourBefor);
-    today.setHours(oneHourBefor.getHours() + 1);
+    // today.setHours(oneHourBefor.getHours() + 1);
     
     const startToday = startOfDay(today);
     startToday.setHours(startToday.getHours() + 1);
@@ -72,10 +73,30 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     await dbConnect();
+    
+
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');
 
     const order = await req.json();
 
+    const AbandonedOrders = await Order.find({ phoneNumber: order.phoneNumber, state:'abandoned' });
+
+    if(AbandonedOrders && AbandonedOrders.length > 0) {
+      
+      for (const oldOrder of AbandonedOrders) {
+        await Order.findByIdAndDelete(oldOrder._id);
+      }
+
+    }
+
+    order.ip=ip
+
+    order.adminEmail = cookies().get('user-email')?.value
+
     Order.create(order);
+
+    const userName = await getUserNameByEmail(cookies().get('user-email')?.value)
+    
 
     return new NextResponse("Order created");
   } catch (err) {

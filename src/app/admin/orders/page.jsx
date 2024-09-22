@@ -9,9 +9,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns'
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faPen, faPlus, faX, faCheck, faPaperPlane, faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faPen, faPlus, faX, faCheck, faPaperPlane, faAngleDown, faTriangleExclamation, faBan } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { deleteOrder, getOrder } from '../../actions/order'
+import { addToBlackList, deleteOrder, getOrder } from '../../actions/order'
 import { editMinusProduct } from '../../actions/storage'
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid'
@@ -109,6 +109,10 @@ function Orders() {
     const [isAddedProducts, setIsAddedProducts] = useState([])
     const [isAddedDesigns, setIsAddedDesigns] = useState([])
     const [selectqnt, setSelectqnt] = useState(1)
+
+    const [isMessage, setIsMessage] = useState(false)
+    const [message, setMessage] = useState('')
+    const [messageOrder, setMessageOrder] = useState({})
     
     const [isGallery, setIsGallery] = useState([])
 
@@ -133,6 +137,7 @@ function Orders() {
     const [isCreateAccess, setIsCreateAccess] = useState(false)
     const [isUpdateAccess, setIsUpdateAccess] = useState(false)
     const [isDeleteAccess, setIsDeleteAccess] = useState(false)
+    const [isIpBlockAccess, setIsIpBlockAccess] = useState(false)
     
     const [ordersUpdted, setOrdersUpdted] = useState(false)
     
@@ -169,7 +174,8 @@ function Orders() {
         }
         setIsDeleteAccess(access.accessibilities.includes('delete'))
         setIsUpdateAccess(access.accessibilities.includes('update'))
-        setIsCreateAccess(access.accessibilities.includes('create'))
+        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsIpBlockAccess(access.accessibilities.includes('IPBlock'))
     },[accessibilities])
 
 
@@ -271,15 +277,6 @@ function Orders() {
             isMounted = false;
         };
     }, [Orders, ordersUpdted, dateFilter, queryClient]);
-    
-    // useEffect(() => {
-    //     if(!Orders) return
-    //     fetchAllOrders(Orders)
-    // }, [Orders]);
-    
-    
-
-
 
 
     
@@ -836,8 +833,9 @@ function Orders() {
 
         let isMatchingTraking
         
-
-        if(trackingFilter ==='Scheduled'){
+        if(trackingFilter === 'Abandoned'){
+            isMatchingTraking = order.state === 'abandoned'
+        }else if(trackingFilter ==='Scheduled'){
             isMatchingTraking = order.schedule === currentDate;
 
         }else{
@@ -1350,6 +1348,22 @@ function Orders() {
                     return (
                         <tr key={order._id} className={`h-5`}>
                             <td>
+                                {(!order.blackListed && isIpBlockAccess) &&
+                                <button
+                                    className=' p-2 rounded-md'
+                                    onClick={() => {
+                                        setMessageOrder(order)
+                                        setMessage('Blacklist')
+                                        setIsMessage(true)
+
+                                    }}
+                                >
+                                    <FontAwesomeIcon 
+                                        icon={faBan} 
+                                        className="text-red-700" 
+                                    />
+                                </button> 
+                                }
     
                                 {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
                                     <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
@@ -1357,7 +1371,11 @@ function Orders() {
                                 {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
                                     <button
                                         className=' p-2 rounded-md'
-                                        onClick={() => handleDelete(order._id)}
+                                        onClick={() => {
+                                            setMessageOrder(order)
+                                            setMessage('Delete')
+                                            setIsMessage(true)
+                                        }}
                                     >
                                         <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                     </button>                            
@@ -1708,14 +1726,17 @@ function Orders() {
                             key={order._id}
                             className={`h-5 ${saving.includes(order._id) && 'opacity-40'} ${deleting.some(item => item.id === order._id && item.state) && 'opacity-40'}`}
                         >
-                            {(isUpdateAccess || isDeleteAccess || isCrafting || isLabels || isOrderAction) && (
-                                <td>
+                            {(isUpdateAccess || isDeleteAccess || isCrafting || isOrderAction) && (
+                                <td className={` ${order.blackListed && 'bg-red-200'}`}>
+                                    
                                     {saving.includes(order._id)
                                         ?
                                         <Spinner size={'w-8 h-8'} color={'border-green-500'} containerStyle={'ml-6 -mt-3'} />
                                         :
                                         <div className=" whitespace-nowrap flex items-center justify-center">
-                                            {(isCrafting || isSending ||(isLabels && order?.TslTracking)||isOrderAction) &&
+                                            
+                                            
+                                            {(isCrafting || isSending||isOrderAction) &&
                                                 <div className="p-2 flex items-center">
                                                     <input 
                                                         type="checkbox" 
@@ -1725,13 +1746,33 @@ function Orders() {
                                                     />
                                                 </div>
                                             }
+
+                                            {(!order.blackListed && isIpBlockAccess) &&
+                                            <button
+                                                className=' p-2 rounded-md'
+                                                onClick={() =>{
+                                                    setMessageOrder(order)
+                                                    setMessage('Blacklist')
+                                                    setIsMessage(true)
+                                                }}
+                                            >
+                                                <FontAwesomeIcon 
+                                                    icon={faBan} 
+                                                    className="text-red-700" 
+                                                />
+                                            </button> 
+                                            }
                                             {isDeleteAccess && deleting.some(item => item.id === order._id && item.state) &&
                                                 <Spinner size={'h-8 w-8'} color={'border-red-500'} containerStyle={'ml-6 -mt-3'} />
                                             }  
                                             {isDeleteAccess && !deleting.some(item => item.id === order._id && item.state) &&
                                                 <button
                                                     className=' p-2 rounded-md'
-                                                    onClick={() => handleDelete(order._id)}
+                                                    onClick={() => {
+                                                        setMessageOrder(order)
+                                                        setMessage('Delete')
+                                                        setIsMessage(true)
+                                                    }}
                                                 >
                                                     <FontAwesomeIcon icon={faTrashCan} className="text-red-700" />
                                                 </button>                            
@@ -1981,12 +2022,15 @@ function Orders() {
     
     const trackingFiltersArray=[
         {
+            name:'Abandoned',
+            icon:'abandoned.svg',     
+        },{
             name:'unconfirmed',
             icon:'not confirmed.png',
             dropDown:[
-                {name:'غير مؤكدة',bg:'orange'},
-                {name:'لم يرد',bg:'yellow'},
-                {name:'ملغاة',bg:'red'},
+                {name:'غير مؤكدة',bg:'#F4A460'},
+                {name:'لم يرد',bg:'#FFFFE0'},
+                {name:'ملغاة',bg:'#E57373'},
             ]        
         },{
             name:'Scheduled',
@@ -2036,6 +2080,8 @@ function Orders() {
             })
         }else if(name ==='unconfirmed'){
             ordersNumber = Orders.filter(order=>order.state !== 'مؤكدة').length
+        }else if(name ==='Abandoned'){
+            ordersNumber = Orders.filter(order=>order.state === 'abandoned').length
         }else{
             ordersNumber = Orders.filter(order=>order.tracking===name).length
         }
@@ -2046,7 +2092,8 @@ function Orders() {
             return(
                 <div 
                     key={dropDown.name}
-                    className={`cursor-pointer flex items-center justify-between gap-2 px-4 py-3 ${i !== 0 && ' border-t'} border-gray-400 items-center hover:bg-[#057588] text-black bg-${dropDown.bg}-400 hover:text-[#fff]`}
+                    className={`cursor-pointer flex items-center justify-between gap-2 px-4 py-3 ${i !== 0 && ' border-t'} border-gray-400 items-center hover:bg-[#057588] text-black hover:text-[#fff]`}
+                    style={{background:dropDown.bg}}
                     onClick={()=>{
                         setTrackingFilter(dropDown.name)
                         setIsSearching(false)
@@ -2105,13 +2152,35 @@ function Orders() {
                     />
                 }
                 {isTrakingFilterDrop === name &&
-                    <div className="absolute top-11 right-0 z-[9999999999999999999999] border border-gray-400 rounded">
+                    <div className="absolute top-11 right-0 z-[100] border border-gray-400 rounded">
                         {dropDownEle}
                     </div>
                 }
             </div>
         )
     })
+
+    async function handleAddToBlackList(order) {
+        // const emailAllowed = await checkEmailAllowance(order._id)
+        // if(!emailAllowed){
+        //     setErrorNotifiction('You are not allowed to edit this order')
+        //     setEditedOrder({})
+        //     queryClient.invalidateQueries(`orders,${dateFilter}`);
+        //     return
+        // }
+        
+        try{
+            addToBlackList(order.ip,order.phoneNumber)
+            const newOrder = { ...order, blackListed: true }
+            const res = axios.put(`/api/orders/${order._id}`, newOrder, { headers: { 'Content-Type': 'application/json' } });
+            setSuccessNotifiction('IP added to blacklist successfully')
+            queryClient.invalidateQueries(`orders,${dateFilter}`);
+        }catch(err){
+            console.log(err.message)
+            setErrorNotifiction('An error occurred. Please try again later.')
+        }
+
+    }
     
     async function handleSearch() {
         const phonePattern = /^0\d{9}$/;
@@ -2160,6 +2229,58 @@ function Orders() {
                     <FontAwesomeIcon icon={faMagnifyingGlass} /> 
                 </div>
             </div>
+
+            {isMessage &&
+            <div 
+                className="flex flex-col gap-4 items-center justify-center p-16 rounded-lg fixed top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-1/3 h-1/2 aspect-square z-[250] bg-[#f5f5f5]"
+            >
+                <div className="bg-red-200 rounded-full p-4">
+                <FontAwesomeIcon 
+                    icon={faTriangleExclamation} 
+                    className="text-red-500 text-5xl"
+                />
+                </div>
+                <h1 className="text-3xl font-bold mb-4">Are you sure?</h1>
+                <p className="text-lg text-center">Do you relly want to {message} this order? This process cannot be undone</p>
+                <button 
+                    className="rounded-md font-medium border border-red-600 bg-red-600 text-white px-4 py-2 w-full"
+                    onClick={()=>{
+                        if(message === 'Delete') {
+                            handleDelete(messageOrder._id)
+                            setMessageOrder({})
+                            setMessage('')
+                            setIsMessage(false)
+                        }else{
+                            handleAddToBlackList(messageOrder)
+                            setMessageOrder({})
+                            setMessage('')
+                            setIsMessage(false)
+                        }
+                    }}
+                >
+                    {message} the order
+                </button>
+                <button 
+                    className="rounded-md font-medium border border-gray-600 px-4 py-2 w-full"
+                    onClick={()=>{
+                        setMessageOrder({})
+                        setMessage('')
+                        setIsMessage(false)
+                    }}
+                >
+                    Cancel
+                </button>
+            </div>}
+
+            {isMessage &&
+            <div 
+                className="fixed backdrop-filter backdrop-blur-sm bg-[#0000004f] top-0 right-0 w-screen aspect-square z-[249]"
+                onClick={()=>{
+                    setMessageOrder({})
+                    setMessage('')
+                    setIsMessage(false)
+                }}
+            ></div>}
 
             {!isSearching && 
             <div
