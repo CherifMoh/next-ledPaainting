@@ -823,12 +823,12 @@ function Orders() {
 
 
         const isMatchingSearch = (
-            order.name.toLowerCase().includes(searchLower) ||
-            order.wilaya.toLowerCase().includes(searchLower) ||
-            order.phoneNumber.includes(searchLower) ||
+            order.name?.toLowerCase().includes(searchLower) ||
+            order.wilaya?.toLowerCase().includes(searchLower) ||
+            order.phoneNumber?.includes(searchLower) ||
             order.TslTracking?.toLowerCase().includes(searchLower) ||
             order.reference?.toLowerCase().includes(searchLower) ||
-            order.adresse.toLowerCase().includes(searchLower)
+            order.adresse?.toLowerCase().includes(searchLower)
         );
 
         let isMatchingTraking
