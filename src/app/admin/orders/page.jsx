@@ -2079,7 +2079,7 @@ function Orders() {
                 if (isSameAsToday) ordersNumber++
             })
         }else if(name ==='unconfirmed'){
-            ordersNumber = Orders.filter(order=>order.state !== 'مؤكدة').length
+            ordersNumber = Orders.filter(order=>order.state !== 'مؤكدة' && order.state !== 'abandoned').length
         }else if(name ==='Abandoned'){
             ordersNumber = Orders.filter(order=>order.state === 'abandoned').length
         }else{
