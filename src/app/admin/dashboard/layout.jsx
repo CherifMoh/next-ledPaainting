@@ -1,5 +1,5 @@
 
-export default function Layout({ children, sales, customers, activeP, ordersChart, ordersPieChart }) {
+export default function Layout({ children, sales, customers, activeP, ordersChart, ordersPieChart, ordersTimeChart }) {
   return (
     <main className='bg-white p-4'>
 
@@ -12,7 +12,7 @@ export default function Layout({ children, sales, customers, activeP, ordersChar
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {ordersChart}
+        {ordersTimeChart}
         {ordersPieChart}
       </section>
 

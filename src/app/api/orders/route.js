@@ -9,6 +9,8 @@ export async function GET(req) {
     await dbConnect();
 
     const dateFilter = req.nextUrl.searchParams.get('date');
+    const customStartDate = req.nextUrl.searchParams.get('startDate');
+    const customEndDate = req.nextUrl.searchParams.get('endDate');
     let query = {};
 
     const oneHourBefor = new Date();

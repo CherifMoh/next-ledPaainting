@@ -2217,7 +2217,7 @@ function Orders() {
                 {errorNotifiction}
             </div>
 
-            <div className="w-ful h-11 fixed top-0 left-32 md:left-72 sm:left-48 shadow-md flex z-[9999999999999999999]">
+            <div className="w-ful h-11 -mt-4 -ml-4 shadow-md flex">
                 {trackingFiltersEle}
                 <div 
                     className={`cursor-pointer flex px-4 py-3 border-l border-gray-400 items-center ${isSearching ? 'bg-[#057588] text-[#fff] ' : ' hover:bg-[#057588] bg-[#fff] hover:text-[#fff]'} gap-2`}
@@ -2403,7 +2403,7 @@ function Orders() {
             {!isSearching?  
             <div className="relative h-[700px] flex-grow-0 overflow-y-auto w-full">
                 <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
-                    <thead className="sticky top-0 z-[999999999] border border-gray-500 bg-white">
+                    <thead className="sticky top-0 z-50 border border-gray-500 bg-white">
                             <tr>
                         {(isUpdateAccess || isDeleteAccess || isCrafting) && (
                             <th>
@@ -2544,7 +2544,7 @@ function Orders() {
                 <div className="relative mt-14 h-[700px] overflow-y-auto w-full">
 
                     <table border={0} className="font-normal w-full ml-auto" style={{ borderSpacing: '0' }}>
-                        <thead className="sticky top-0 z-[999999999] border border-[rgba(0, 40, 100, 0.12)] bg-white">
+                        <thead className="sticky top-0 z-50 border border-[rgba(0, 40, 100, 0.12)] bg-white">
                                 <tr>
                             {(isUpdateAccess || isDeleteAccess || isCrafting) && (
                                 <th>
