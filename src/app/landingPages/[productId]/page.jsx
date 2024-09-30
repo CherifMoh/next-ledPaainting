@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Spinner from "../../../components/loadings/Spinner";
 import '../../../styles/pages/landingPage.css'
 import { v4 as uuidv4 } from 'uuid'
-import { generateUniqueString } from '../../../app/lib/utils';
+import { generateUniqueString, handleSendNotification} from '../../../app/lib/utils';
 import { addAbandonedCheckout } from '../../../app/actions/order';
 import { checkBlackliste } from "../../lib/ip/checkIPBlacklist";
 import { useInView } from 'react-intersection-observer';
@@ -265,6 +265,12 @@ function LindingPage({ params }) {
         // Make API call
         const res = await axios.post(`/api/orders`, formData);
 
+        handleSendNotification(
+            'طلب جديد',
+            `طلب جديد لمنتج ${mproduct.title}`,
+            'https://drawlys.com/admin/orders'
+        )
+
         // Refresh and navigate to thank you page
         router.refresh();
         router.push('/thankyou');
@@ -361,11 +367,11 @@ function LindingPage({ params }) {
     try {
         // Make API call
         const res = await addAbandonedCheckout(formData);
-        // handleSendNotification(
-        //     'سلة المتروكة',
-        //     `سلة متروكة جديدة برقم الهاتف ${formData.phoneNumber}`,
-        //     'https://toopnin.com/admin/orders'
-        // )
+        handleSendNotification(
+            'سلة المتروكة',
+            `سلة متروكة جديدة برقم الهاتف ${formData.phoneNumber}`,
+            'https://drawlys.com/admin/orders'
+        )
     } catch (error) {
         // Handle error if necessary
         console.error('Error submitting form:', error);

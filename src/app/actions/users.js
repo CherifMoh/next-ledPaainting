@@ -157,3 +157,48 @@ export async function sendOtpEmil(email, otp) {
         return { message: 'Failed to send OTP', error: error.message };
       }
 }
+
+export async function removeToken(id, tokenToRemove) {
+    try {
+        await dbConnect();
+
+        const oldUser = await User.findById(id);
+
+        // Remove the token from the fcmTokens array
+        oldUser.fcmTokens = oldUser.fcmTokens.filter(token => token !== tokenToRemove);
+
+        // Save the updated user document
+        await oldUser.save();
+
+        return 'deleted';
+    } catch (error) {
+        console.error("Error removing token:", error);
+        throw error;
+    }
+}
+
+export async function getUserNameByEmail(email) {
+    try {
+        await dbConnect();
+
+        if (!email) {
+            const cookie = cookies().get('user-email');
+            if (cookie) {
+                email = cookie.value;
+            } else {
+                throw new Error('Email not provided and no cookie found.');
+            }
+        }
+
+        const user = await User.findOne({ email }).select('name');
+
+        if (!user) {
+            throw new Error('User not found.');
+        }
+
+        return user.name;
+    } catch (error) {
+        console.error('Error fetching user name:', error.message);
+        return null;
+    }
+}

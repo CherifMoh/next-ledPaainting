@@ -173,7 +173,7 @@ function Orders() {
            return router.push('/admin')
         }
         setIsDeleteAccess(access.accessibilities.includes('delete'))
-        setIsUpdateAccess(access.accessibilities.includes('update'))
+        setIsCreateAccess(access.accessibilities.includes('create'))
         setIsUpdateAccess(access.accessibilities.includes('update'))
         setIsIpBlockAccess(access.accessibilities.includes('IPBlock'))
     },[accessibilities])

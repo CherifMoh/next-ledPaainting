@@ -15,12 +15,10 @@ export async function POST(request: NextRequest) {
 
   const payload: Message = {
     token,
-    notification: {
+    data: {
       title: title,
       body: message,
-      imageUrl: 'https://drawlys.com:8444/images/logo.png',
-    },
-    data: {
+      icon: 'https://drawlys.com:8444/images/logo.png',
       link: link || 'https://drawlys.com/admin/orders',
     },
     webpush: {
@@ -37,6 +35,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, message: "Notification sent!" });
   } catch (error) {
     console.error("Error sending notification:", error);
+    if (error.code === 'messaging/invalid-registration-token' ||
+        error.code === 'messaging/registration-token-not-registered') {
+      // Handle invalid token by returning a specific error message
+      return NextResponse.json({ success: false, error: "Invalid token" });
+    }
     return NextResponse.json({ success: false, error });
   }
-}
+}               

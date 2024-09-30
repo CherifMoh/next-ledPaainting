@@ -16,6 +16,8 @@ import Spinner from '../../../../components/loadings/Spinner';
 import { useSelector } from 'react-redux';
 import { generateUniqueString } from '../../../lib/utils';
 import useFcmToken from '../../../../hooks/useFcmToken';
+import { handleSendNotification } from '../../../lib/utils';
+import { getUserNameByEmail } from '../../../actions/users';
 
 async function fetchDesigns() {
     const res = await axios.get('/api/products/ledDesigns');
@@ -234,7 +236,14 @@ function Page() {
         setIsSubmiting(true)
 
         const res = await axios.post(`/api/orders`, formData)
-        // handleTestNotification()
+
+        const userName = await getUserNameByEmail()
+
+        handleSendNotification(
+            'طلب جديد',
+            `${userName} قام باضافة طلب جديد`,
+            'https://drawlys.com/admin/orders'
+        )
 
         console.log(res)
 

@@ -1,6 +1,8 @@
 import { clsx } from "clsx"
 import { twMerge } from 'tailwind-merge'; // Import the necessary functions from their respective libraries
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/shared/Card";
+import { removeToken } from "../actions/users"
+import axios from "axios";
 
 // Define the cn function
 export  function cn(...inputs) {
@@ -42,6 +44,50 @@ export function formatNumberWithCommas(number) {
   let formattedNumber = decimalPart ? formattedIntegerPart + '.' + decimalPart : formattedIntegerPart;
   
   return formattedNumber;
+}
+
+export async function handleSendNotification(title, message, link) {
+  try {
+    const res = await axios.get('/api/users');
+    const Users = res.data;
+
+    let AllTokens = [];
+
+    Users.forEach(user => {
+      if (!Array.isArray(user.fcmTokens) || user.fcmTokens.length === 0) return;
+      user.fcmTokens.forEach(fcmToken => {
+        AllTokens.push({ userId: user._id, token: fcmToken });
+      });
+    });
+
+    const notificationPromises = AllTokens.map(async ({ userId, token }) => {
+      try {
+        const response = await axios.post("/api/send-notification", {
+          token: token,
+          title: title,
+          message: message,
+          link: link,
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+
+      } catch (error) {
+        console.error("Error sending notification:", error);
+
+        if (error.response && error.response.data.error === "Invalid token") {
+          // Remove the invalid token from the user's fcmTokens array
+          await removeToken(userId,token)
+        }
+      }
+    });
+
+    await Promise.all(notificationPromises);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
 }
 
 export function generateUniqueString(length) {
