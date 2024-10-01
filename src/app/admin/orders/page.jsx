@@ -1150,7 +1150,7 @@ function Orders() {
         return (
             <td
                 key={i}
-                className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] relative font-medium p-2 pr-4 text-center h-8"
+                className="border-y border-solid border-[rgba(0, 40, 100, 0.12)] relative font-medium p-2 pr-4 text-center h-8"
             >
                {order._id !== editedOrderId &&
                 <div 
@@ -1262,7 +1262,7 @@ function Orders() {
                         className='min-w-10 mt-2 border border-[rgba(0, 40, 100, 0.12)] rounded-md pl-1 dynamic-width'
                     />
                     : <span
-                        className="bg-red-500 absolute left-4 bottom-8 rounded-lg px-1 text-[10px] text-white text-center"
+                        className="bg-red-500 absolute right-0 top-0 rounded-lg px-1 text-[10px] text-white text-center"
                     >
                         {product.qnt}
                     </span>
@@ -1391,27 +1391,136 @@ function Orders() {
                                     save
                                 </button>
                             </td>
-                            <td className="bg-blue-100 text-sm">
-                                <div className="flex items-center">
-                                    <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                        <path fill="currentColor" d="M0 448V64h18v384H0zm26.857-.273V64h36v383.727H26.857zM73.143 448V64h8.857v384h-8.857zM108 448V64h8.857v384H108zm44.857-27.143V64h18v356.857h-18zm36 27.143V64h8.857v384h-8.857zm35.715 0V64h18v384h-18zm44.857-26.857V64h8.857v357.143h-8.857zm35.715 26.857V64h8.857v384h-8.857zm35.714-17.714V64h8.857v366.286h-8.857zm17.714-366.286v356.571h-18V64h18zm44.857 356.571V64h18v384h-18zm44.857-8.857V64h18v375.143h-18zm35.715-8.857V64h18v366.286h-18zm26.857 8.857V64h36v383.727h-36zm45.143-.273V64h18v384h-18zm27.143 0V64h18v384h-18z"></path>
-                                    </svg>
+                            {cartItemsElemnt}
+                            {/* <td>
+                                <FontAwesomeIcon
+                                    icon={faPlus}
+                                    className='cursor-pointer'
+                                    onClick={() => toggleIsAding(order._id)}
+                                />
+                                {isAddingProduct.includes(order._id) &&
+                                    <div className='flex items-center justify-center gap-8'>
+                                        {addedOrder.image
+                                            ?
+                                            <img
+                                                src={addedOrder.image}
+                                                alt=''
+                                                width={64} height={64}
+                                                onClick={() => {
+                                                    setIsAddedProducts(pre => {
+                                                        if (pre.includes(order._id)) {
+                                                            return pre.filter(item => item !== order._id)
+                                                        }
+                                                        pre = [...pre, order._id]
+                                                        return pre
+                                                    })
+                                                    setAddedOrder({})
+                                                }}
+                                            />
+                                            :
+                                            <div className='flex items-center gap-16'>
+                                                <div>
+                                                    <div
+                                                        onClick={() => {
+                                                            setIsAddedProducts(pre => {
+                                                                if (pre.includes(order._id)) {
+                                                                    return pre.filter(item => item !== order._id)
+                                                                }
+                                                                pre = [...pre, order._id]
+                                                                return pre
+                                                            })
+                                                            setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
+                                                        }}
+                                                        className='border border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
+                                                    >
+                                                        <p>Select a Product</p>
+                                                    </div>
     
-                                    {order.TslTracking}
-                                </div>
-                                <div className="flex items-center">
-                                    
-                                    {/* <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" data-prefix="fa" data-icon="hashtag" role="img" xmlns="http://www.w3.or g/2000/svg" viewBox="0 0 448 512" data-fa-i2svg> == $0
-                                        ::before
-                                        <path fill="currentColor" d="M440.667 182.10917.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81114.623-81.891C377.123 38.754 371.468 32 363.997 32h-40.632a12 12 000-11.813 9.891L296.175 128H197.54114.623-81.891C213.477 38.754 207.822 32 200.35 32h-40.632a12 12 0 0 0-11.813 9.891L132.528 128H53.432a12 12 0 0 0-11.813 9.8911- 7.143 40C33.163 185.246 38.818 192 46.289 192h74.81L98.242 320H19.146a12 12 0 0 0-11.813 9.8911-7.143 40C-1.123 377.246 4.532 384 12.003 384h74.81L72.19 465.891C70.87 7 473.246 76.532 480 84.003 480h40.632a12 12 0 0 0 11.813-9.891L151.826 384h98.6341-14.623 81.891C234.523 473.246 240.178 480 247.65 480h40.632a12 12 0 0 0 11.813-9.8 91L315.472 384h79.096a12 12 ◊ ◊ ◊ 11.813-9.89117.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81122.857-128h79.096a12 12 0 0 0 11.813-9.891zM261.889 320h-98.6341 22.857-128h98.6341-22.857 128z"></path>
-                                    </svg> */}
-                                    <div className='mr-1 text-blue-600'>#</div>
+                                                    {isAddedProducts?.includes(order._id) &&
+                                                        <div
+                                                            className='max-w-96 bg-white border border-gray-500 z-50 absolute mt-2'
+                                                        >
+                                                            <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
+                                                                <FontAwesomeIcon
+                                                                    icon={faMagnifyingGlass}
+                                                                    className={`pt-2 pointer-events-none z-10 absolute left-64 ${search ? 'hidden' : 'opacity-50'}`}
+                                                                />
+                                                                <input
+                                                                    id="search"
+                                                                    type='search'
+                                                                    className='w-64 px-2 py-1 rounded-xl border border-gray-500 no-focus-outline text-black bg-stone-200'
+                                                                    placeholder={`Search`}
+                                                                    onChange={(e) => setSearch(e.target.value)}
+                                                                />
+                                                            </div>
+                                                            {isAddedDesigns?.includes(order._id)
+                                                                ? <div
+                                                                    className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
+                                                                >
+                                                                    <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
+                                                                        <div className='border border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
+                                                                            <span
+                                                                                className='absolute top-1/3'
+                                                                            >
+                                                                                Add a custom
+                                                                            </span>
+                                                                            <input
+                                                                                type='file'
+                                                                                onChange={(e) => {
+                                                                                    handleFileUpload(e)
+                                                                                    setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
+                                                                                    setIsAddedProducts(pre => pre.filter(item => item !== order._id))
+                                                                                }}
+                                                                                className='size-full opacity-0 m-0'
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                    {addDesignOptionsElent(order._id)}
+                                                                </div>
+                                                                : <div
+                                                                    className='max-h-[484px] w-80 z-50 overflow-y-auto'
+                                                                >
+                                                                    {addProductsOptionsElent(order._id)}
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
     
+                                            </div>
+                                        }
+                                        <input
+                                            type="number"
+                                            placeholder='Qntity'
+                                            value={selectqnt}
+                                            className='w-10 h-14 rounded-md border border-gray-600 pl-1 dynamic-width'
+                                            min={1}
+                                            onChange={(e) => setSelectqnt(e.target.value)}
+                                        />
     
-                                    {order.reference}
-                                </div>
-                                
-                            </td>
+                                        {productOptsElement?.length > 0 &&
+                                            <select
+                                                name="options"
+                                                onChange={handelOptChange}
+                                                className='m-0 p-2 h-14 rounded-md border border-gray-600'
+                                            >
+                                                <option hidden>
+                                                    اختر الخيار
+                                                </option>
+                                                {productOptsElement}
+                                            </select>
+                                        }
+    
+                                        <button
+                                            className='bg-green-300 px-3 py-2 rounded-lg'
+                                            onClick={addToOrders}
+                                        >
+                                            Add
+                                        </button>
+    
+                                    </div>
+                                }
+                            </td> */}
                             <td className="bg-blue-100">
                                 {order.createdAt}
                             </td>
@@ -1588,136 +1697,28 @@ function Orders() {
                                     <option value="returned">returned</option>
                                 </select>
                             </td>
-                            {cartItemsElemnt}
-                            <td>
-                                <FontAwesomeIcon
-                                    icon={faPlus}
-                                    className='cursor-pointer'
-                                    onClick={() => toggleIsAding(order._id)}
-                                />
-                                {isAddingProduct.includes(order._id) &&
-                                    <div className='flex items-center justify-center gap-8'>
-                                        {addedOrder.image
-                                            ?
-                                            <img
-                                                src={addedOrder.image}
-                                                alt=''
-                                                width={64} height={64}
-                                                onClick={() => {
-                                                    setIsAddedProducts(pre => {
-                                                        if (pre.includes(order._id)) {
-                                                            return pre.filter(item => item !== order._id)
-                                                        }
-                                                        pre = [...pre, order._id]
-                                                        return pre
-                                                    })
-                                                    setAddedOrder({})
-                                                }}
-                                            />
-                                            :
-                                            <div className='flex items-center gap-16'>
-                                                <div>
-                                                    <div
-                                                        onClick={() => {
-                                                            setIsAddedProducts(pre => {
-                                                                if (pre.includes(order._id)) {
-                                                                    return pre.filter(item => item !== order._id)
-                                                                }
-                                                                pre = [...pre, order._id]
-                                                                return pre
-                                                            })
-                                                            setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
-                                                        }}
-                                                        className='border border-gray-500 w-40 h-14 flex items-center p-2 cursor-pointer'
-                                                    >
-                                                        <p>Select a Product</p>
-                                                    </div>
+                            <td className="bg-blue-100 text-sm">
+                                <div className="flex items-center">
+                                    <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path fill="currentColor" d="M0 448V64h18v384H0zm26.857-.273V64h36v383.727H26.857zM73.143 448V64h8.857v384h-8.857zM108 448V64h8.857v384H108zm44.857-27.143V64h18v356.857h-18zm36 27.143V64h8.857v384h-8.857zm35.715 0V64h18v384h-18zm44.857-26.857V64h8.857v357.143h-8.857zm35.715 26.857V64h8.857v384h-8.857zm35.714-17.714V64h8.857v366.286h-8.857zm17.714-366.286v356.571h-18V64h18zm44.857 356.571V64h18v384h-18zm44.857-8.857V64h18v375.143h-18zm35.715-8.857V64h18v366.286h-18zm26.857 8.857V64h36v383.727h-36zm45.143-.273V64h18v384h-18zm27.143 0V64h18v384h-18z"></path>
+                                    </svg>
     
-                                                    {isAddedProducts?.includes(order._id) &&
-                                                        <div
-                                                            className='max-w-96 bg-white border border-gray-500 z-50 absolute mt-2'
-                                                        >
-                                                            <div className='flex justify-center mt-2 border-b-2 border-gray-500'>
-                                                                <FontAwesomeIcon
-                                                                    icon={faMagnifyingGlass}
-                                                                    className={`pt-2 pointer-events-none z-10 absolute left-64 ${search ? 'hidden' : 'opacity-50'}`}
-                                                                />
-                                                                <input
-                                                                    id="search"
-                                                                    type='search'
-                                                                    className='w-64 px-2 py-1 rounded-xl border border-gray-500 no-focus-outline text-black bg-stone-200'
-                                                                    placeholder={`Search`}
-                                                                    onChange={(e) => setSearch(e.target.value)}
-                                                                />
-                                                            </div>
-                                                            {isAddedDesigns?.includes(order._id)
-                                                                ? <div
-                                                                    className='grid grid-cols-2 max-h-[484px] z-50 overflow-y-auto'
-                                                                >
-                                                                    <div className='border-gray-500 z-50 border-b-2 p-4 bg-white flex items-center '>
-                                                                        <div className='border border-dashed border-slate-800 relative size-32 text-center flex justify-center items-center '>
-                                                                            <span
-                                                                                className='absolute top-1/3'
-                                                                            >
-                                                                                Add a custom
-                                                                            </span>
-                                                                            <input
-                                                                                type='file'
-                                                                                onChange={(e) => {
-                                                                                    handleFileUpload(e)
-                                                                                    setIsAddedDesigns(pre => pre.filter(item => item !== order._id))
-                                                                                    setIsAddedProducts(pre => pre.filter(item => item !== order._id))
-                                                                                }}
-                                                                                className='size-full opacity-0 m-0'
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-                                                                    {addDesignOptionsElent(order._id)}
-                                                                </div>
-                                                                : <div
-                                                                    className='max-h-[484px] w-80 z-50 overflow-y-auto'
-                                                                >
-                                                                    {addProductsOptionsElent(order._id)}
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    }
-                                                </div>
+                                    {order.TslTracking}
+                                </div>
+                                <div className="flex items-center">
+                                    
+                                    {/* <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" data-prefix="fa" data-icon="hashtag" role="img" xmlns="http://www.w3.or g/2000/svg" viewBox="0 0 448 512" data-fa-i2svg> == $0
+                                        ::before
+                                        <path fill="currentColor" d="M440.667 182.10917.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81114.623-81.891C377.123 38.754 371.468 32 363.997 32h-40.632a12 12 000-11.813 9.891L296.175 128H197.54114.623-81.891C213.477 38.754 207.822 32 200.35 32h-40.632a12 12 0 0 0-11.813 9.891L132.528 128H53.432a12 12 0 0 0-11.813 9.8911- 7.143 40C33.163 185.246 38.818 192 46.289 192h74.81L98.242 320H19.146a12 12 0 0 0-11.813 9.8911-7.143 40C-1.123 377.246 4.532 384 12.003 384h74.81L72.19 465.891C70.87 7 473.246 76.532 480 84.003 480h40.632a12 12 0 0 0 11.813-9.891L151.826 384h98.6341-14.623 81.891C234.523 473.246 240.178 480 247.65 480h40.632a12 12 0 0 0 11.813-9.8 91L315.472 384h79.096a12 12 ◊ ◊ ◊ 11.813-9.89117.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81122.857-128h79.096a12 12 0 0 0 11.813-9.891zM261.889 320h-98.6341 22.857-128h98.6341-22.857 128z"></path>
+                                    </svg> */}
+                                    <div className='mr-1 text-blue-600'>#</div>
     
-                                            </div>
-                                        }
-                                        <input
-                                            type="number"
-                                            placeholder='Qntity'
-                                            value={selectqnt}
-                                            className='w-10 h-14 rounded-md border border-gray-600 pl-1 dynamic-width'
-                                            min={1}
-                                            onChange={(e) => setSelectqnt(e.target.value)}
-                                        />
     
-                                        {productOptsElement?.length > 0 &&
-                                            <select
-                                                name="options"
-                                                onChange={handelOptChange}
-                                                className='m-0 p-2 h-14 rounded-md border border-gray-600'
-                                            >
-                                                <option hidden>
-                                                    اختر الخيار
-                                                </option>
-                                                {productOptsElement}
-                                            </select>
-                                        }
-    
-                                        <button
-                                            className='bg-green-300 px-3 py-2 rounded-lg'
-                                            onClick={addToOrders}
-                                        >
-                                            Add
-                                        </button>
-    
-                                    </div>
-                                }
+                                    {order.reference}
+                                </div>
+                                
                             </td>
+                            
                         </tr>
                     )
                 } else {
@@ -1797,27 +1798,7 @@ function Orders() {
                                     }
                                 </td>
                             )}
-                            <td className="bg-blue-100 text-sm">
-                                <div className="flex items-center">
-                                    <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                        <path fill="currentColor" d="M0 448V64h18v384H0zm26.857-.273V64h36v383.727H26.857zM73.143 448V64h8.857v384h-8.857zM108 448V64h8.857v384H108zm44.857-27.143V64h18v356.857h-18zm36 27.143V64h8.857v384h-8.857zm35.715 0V64h18v384h-18zm44.857-26.857V64h8.857v357.143h-8.857zm35.715 26.857V64h8.857v384h-8.857zm35.714-17.714V64h8.857v366.286h-8.857zm17.714-366.286v356.571h-18V64h18zm44.857 356.571V64h18v384h-18zm44.857-8.857V64h18v375.143h-18zm35.715-8.857V64h18v366.286h-18zm26.857 8.857V64h36v383.727h-36zm45.143-.273V64h18v384h-18zm27.143 0V64h18v384h-18z"></path>
-                                    </svg>
-    
-                                    {order.TslTracking}
-                                </div>
-                                <div className="flex items-center">
-                                    
-                                    {/* <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" data-prefix="fa" data-icon="hashtag" role="img" xmlns="http://www.w3.or g/2000/svg" viewBox="0 0 448 512" data-fa-i2svg> == $0
-                                        ::before
-                                        <path fill="currentColor" d="M440.667 182.10917.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81114.623-81.891C377.123 38.754 371.468 32 363.997 32h-40.632a12 12 000-11.813 9.891L296.175 128H197.54114.623-81.891C213.477 38.754 207.822 32 200.35 32h-40.632a12 12 0 0 0-11.813 9.891L132.528 128H53.432a12 12 0 0 0-11.813 9.8911- 7.143 40C33.163 185.246 38.818 192 46.289 192h74.81L98.242 320H19.146a12 12 0 0 0-11.813 9.8911-7.143 40C-1.123 377.246 4.532 384 12.003 384h74.81L72.19 465.891C70.87 7 473.246 76.532 480 84.003 480h40.632a12 12 0 0 0 11.813-9.891L151.826 384h98.6341-14.623 81.891C234.523 473.246 240.178 480 247.65 480h40.632a12 12 0 0 0 11.813-9.8 91L315.472 384h79.096a12 12 ◊ ◊ ◊ 11.813-9.89117.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81122.857-128h79.096a12 12 0 0 0 11.813-9.891zM261.889 320h-98.6341 22.857-128h98.6341-22.857 128z"></path>
-                                    </svg> */}
-                                    <div className='mr-1 text-blue-600'>#</div>
-    
-    
-                                    {order.reference}
-                                </div>
-                                
-                            </td>
+                            {cartItemsElemnt}
                             <td className="bg-blue-100">
                                 {new Date(order.createdAt).toLocaleDateString('en-GB', {
                                     year: 'numeric',
@@ -1891,7 +1872,28 @@ function Orders() {
                                     className='absolute opacity-50 top-1/2 right-3 w-3/4 -translate-y-1/2'
                                 />
                             </td>
-                            {cartItemsElemnt}
+                            <td className="text-sm">
+                                <div className="flex items-center">
+                                    <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path fill="currentColor" d="M0 448V64h18v384H0zm26.857-.273V64h36v383.727H26.857zM73.143 448V64h8.857v384h-8.857zM108 448V64h8.857v384H108zm44.857-27.143V64h18v356.857h-18zm36 27.143V64h8.857v384h-8.857zm35.715 0V64h18v384h-18zm44.857-26.857V64h8.857v357.143h-8.857zm35.715 26.857V64h8.857v384h-8.857zm35.714-17.714V64h8.857v366.286h-8.857zm17.714-366.286v356.571h-18V64h18zm44.857 356.571V64h18v384h-18zm44.857-8.857V64h18v375.143h-18zm35.715-8.857V64h18v366.286h-18zm26.857 8.857V64h36v383.727h-36zm45.143-.273V64h18v384h-18zm27.143 0V64h18v384h-18z"></path>
+                                    </svg>
+    
+                                    {order.TslTracking}
+                                </div>
+                                <div className="flex items-center">
+                                    
+                                    {/* <svg className='size-3 mr-1 text-blue-600' aria-hidden="true" focusable="false" data-prefix="fa" data-icon="hashtag" role="img" xmlns="http://www.w3.or g/2000/svg" viewBox="0 0 448 512" data-fa-i2svg> == $0
+                                        ::before
+                                        <path fill="currentColor" d="M440.667 182.10917.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81114.623-81.891C377.123 38.754 371.468 32 363.997 32h-40.632a12 12 000-11.813 9.891L296.175 128H197.54114.623-81.891C213.477 38.754 207.822 32 200.35 32h-40.632a12 12 0 0 0-11.813 9.891L132.528 128H53.432a12 12 0 0 0-11.813 9.8911- 7.143 40C33.163 185.246 38.818 192 46.289 192h74.81L98.242 320H19.146a12 12 0 0 0-11.813 9.8911-7.143 40C-1.123 377.246 4.532 384 12.003 384h74.81L72.19 465.891C70.87 7 473.246 76.532 480 84.003 480h40.632a12 12 0 0 0 11.813-9.891L151.826 384h98.6341-14.623 81.891C234.523 473.246 240.178 480 247.65 480h40.632a12 12 0 0 0 11.813-9.8 91L315.472 384h79.096a12 12 ◊ ◊ ◊ 11.813-9.89117.143-40c1.313-7.355-4.342-14.109-11.813-14.109h-74.81122.857-128h79.096a12 12 0 0 0 11.813-9.891zM261.889 320h-98.6341 22.857-128h98.6341-22.857 128z"></path>
+                                    </svg> */}
+                                    <div className='mr-1 text-blue-600'>#</div>
+    
+    
+                                    {order.reference}
+                                </div>
+                                
+                            </td>
+                            
                         </tr>
                     )
     
@@ -2190,6 +2192,34 @@ function Orders() {
 
         setReaserchedOrders(orders)
     }
+
+    const thArray = [
+        { className: "bg-blue-100", content: "التاريخ" },
+        { className: "bg-blue-100", content: "الأسم" },
+        { className: "bg-blue-100", content: "الرقم" },
+        { className: "bg-blue-100", content: "الولاية" },
+        { className: "bg-blue-100", content: "البلدية" },
+        { className: "bg-blue-100", content: "عنوان" },
+        { className: "bg-gray-200", content: "نوع التوصيل" },
+        { className: "bg-gray-200", content: "سعر التوصيل" },
+        { className: "bg-gray-200", content: "سعر كلي" },
+        { className: "bg-gray-200", content: "ملاحضة" },
+        { className: "bg-gray-200", content: "الحالة" },
+        { className: "", content: "التأجيل" },
+        { className: "", content: "ملاحظة التوصيل" },
+        { className: "", content: "في التوصيل" },
+        { className: "", content: "التتبع" },
+        { className: "", content: "Ref" },
+    ];
+    
+    const thElement = thArray.map((th, i) => (
+        <th key={i} className={th.className}>
+            <div className="border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
+                {th.content}
+            </div>
+        </th>
+    ));
+
     return (
         <div className="py-4 relative pl-4 pr-48 flex flex-col gap-5 h-screen overflow-x-auto w-full min-w-max">
 
@@ -2412,94 +2442,12 @@ function Orders() {
                                 </div>
                             </th>
                         )}
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    Ref
-                                </div>
-                                    
-                            </th>
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    التاريخ
-                                </div>
-                                    
-                            </th>
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    الأسم
-                                </div>
-                                    
-                            </th>
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    الرقم
-                                </div>
-                            </th>
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    الولاية
-                                </div>
-                            </th>
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    البلدية 
-                                </div>
-                            </th>
-                            <th className="bg-blue-100">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    عنوان    
-                                </div>
-                            </th>
-                            <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    نوع التوصيل 
-                                </div>
-                            </th>
-                            <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    سعر التوصيل 
-                                </div>
-                            </th>
-                            <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    سعر كلي 
-                                </div>
-                            </th>
-                            <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    ملاحضة   
-                                </div>
-                            </th>
-                            <th className="bg-gray-200">
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    الحالة   
-                                </div>
-                            </th>
-                            <th>
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    التأجيل    
-                                </div>
-                            </th>
-                            <th>
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    ملاحظة التوصيل 
-                                </div>
-                            </th>
-                            <th>
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    في التوصيل 
-                                </div>
-                            </th>
-                            <th>
-                                <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                    التتبع      
-                                </div>
-                            </th>
                             <th colSpan={longesOrder.length}>
                                 <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                 الطلبيات      
                                 </div>
                             </th>
+                            {thElement}
                            
                         </tr>
                     </thead>
@@ -2553,83 +2501,7 @@ function Orders() {
                                     </div>
                                 </th>
                             )}
-                                <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        Ref
-                                    </div>
-                                        
-                                </th>
-                                <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        الأسم
-                                    </div>
-                                        
-                                </th>
-                                <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        الرقم
-                                    </div>
-                                </th>
-                                <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        الولاية
-                                    </div>
-                                </th>
-                                <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        البلدية 
-                                    </div>
-                                </th>
-                                <th className="bg-blue-100">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        عنوان    
-                                    </div>
-                                </th>
-                                <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        نوع التوصيل 
-                                    </div>
-                                </th>
-                                <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        سعر التوصيل 
-                                    </div>
-                                </th>
-                                <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        سعر كلي 
-                                    </div>
-                                </th>
-                                <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        ملاحضة   
-                                    </div>
-                                </th>
-                                <th className="bg-gray-200">
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        الحالة   
-                                    </div>
-                                </th>
-                                <th>
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        التأجيل    
-                                    </div>
-                                </th>
-                                <th>
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        ملاحظة التوصيل 
-                                    </div>
-                                </th>
-                                <th>
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        في التوصيل 
-                                    </div>
-                                </th>
-                                <th>
-                                    <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
-                                        التتبع      
-                                    </div>
-                                </th>
+                                {thElement}
                                 <th colSpan={longesOrder.length}>
                                     <div className=" border-y border-solid border-[rgba(0, 40, 100, 0.12)] p-[13px]">
                                     الطلبيات      
