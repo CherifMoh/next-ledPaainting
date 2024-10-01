@@ -514,7 +514,8 @@ function Orders() {
 
     let longesOrder = []
     Orders.forEach(order => {
-        if (order.orders.length > longesOrder.length) {
+        const currentDate = format(new Date(), 'yyyy-MM-dd');
+        if (order.orders.length > longesOrder.length && filterOrders(order, currentDate)) {
             longesOrder = order.orders
         }
 
