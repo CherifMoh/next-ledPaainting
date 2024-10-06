@@ -15,13 +15,14 @@ export async function GET(req) {
 
     const oneHourBefor = new Date();
     const today = new Date(oneHourBefor);
-    // today.setHours(oneHourBefor.getHours() + 1);
+    today.setHours(oneHourBefor.getHours() + 1);
     
     const startToday = startOfDay(today);
     startToday.setHours(startToday.getHours() + 1);
     const endToday = endOfDay(today);
     endToday.setHours(endToday.getHours() + 1);
 
+    console.log(today)
 
     if (dateFilter === 'today') {
       query = {
