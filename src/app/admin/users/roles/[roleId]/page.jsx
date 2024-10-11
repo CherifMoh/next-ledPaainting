@@ -111,6 +111,10 @@ function Page({ params }) {
             name: 'storage',
             actions: ['create', 'read', 'update', 'delete']
         },
+        {
+            name: 'online',
+            actions: ['create', 'read', 'update', 'delete']
+        },
     ]
 
     const categoriesElements = categories.map((category, idx) => {

@@ -1,7 +1,7 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { faTag, faBoxesStacked, faWarehouse, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faTag, faBoxesStacked, faWarehouse, faUsers, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -126,6 +126,11 @@ function UserProfile({userEmail}) {
           name: 'storage', 
           icon:faWarehouse,
           href: '/admin/storage' 
+        },
+        { 
+          name: 'online', 
+          icon:faGlobe,
+          href: '/admin/online' 
         },
         // { name: 'Category', href: '/admin/categoreis' },
     ]
